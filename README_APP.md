@@ -14,7 +14,7 @@ A Node.js web application for visualizing and validating the NIS2 Article 21 Cyb
 - **UI Measure Toggle (Simulation)**: Enable/disable measures from the UI to see how compliance and validation change without modifying the OWL/TTL files.
 - **Performance Optimizations**: In‑memory caching (60s TTL) to avoid re‑parsing the ontology on every request.
 - **SPARQL Query Endpoint**: Basic SPARQL query support for programmatic access to ontology data.
-- **OWL Reasoning / SHACL Validation Stub**: Endpoint ready for integration with external reasoners or SHACL engines.
+- **OWL Reasoning / SHACL Validation**: Structural reasoning, SHACL validation, and real-time entity compliance checks are available through the API.
 - **Robust RDF Parsing**: Handles both N3 (Turtle) and RDF.js (RDF/XML) quad formats with unified term extraction.
 - **Responsive Design**: Modern, user‑friendly interface that works well on large and small screens.
 
@@ -132,22 +132,42 @@ curl "http://localhost:3000/api/sparql?query=SELECT%20*%20WHERE%20{%20?s%20?p%20
 
 ### `GET /api/reason`
 
-Stub endpoint for OWL reasoning and SHACL validation:
+Structural OWL compliance reasoning endpoint:
 
-- **Purpose**: Placeholder for future integration with OWL reasoners (e.g., HermiT, Pellet) or SHACL validation engines.
-- **Response**: Returns a JSON message indicating that reasoning/SHACL validation is not yet implemented, along with basic statistics about the ontology.
-- **Future Integration**: This endpoint can be extended to call external reasoning services or embed a JavaScript-based reasoner.
+- **Purpose**: Classifies entities as compliant or non-compliant based on the Article 21 measure set and derives `usesStandard` links from the implemented measures.
+- **Response**: Returns inferred compliant entities, inferred non-compliant entities, disjointness violations, derived standard links, and summary counts.
+- **Note**: This is a structural OWL-style inference pass implemented in JavaScript; for full DL reasoning you can still use Protégé with HermiT or Pellet.
 
 **Example Response**:
 ```json
 {
-  "supported": false,
-  "message": "OWL reasoning / SHACL validation is not implemented...",
-  "statisticsHint": {
-    "totalQuads": 217
+  "supported": true,
+  "inferredCompliant": [],
+  "inferredNonCompliant": [],
+  "disjointnessViolations": [],
+  "inferredStandards": [],
+  "summary": {
+    "totalEntities": 0,
+    "compliant": 0,
+    "nonCompliant": 0,
+    "disjointnessViolations": 0,
+    "inferredStandardLinks": 0
   }
 }
 ```
+
+### `GET /api/shacl`
+
+Runs the built-in SHACL-style structural validation against the ontology:
+
+- **Response**: Returns `conforms`, `violations`, `warnings`, `info`, and a summary object with entity, measure, risk, violation, and warning counts.
+
+### `POST /api/check-entity`
+
+Checks a user-supplied entity in memory without modifying the ontology:
+
+- **Body**: `{ "entityName": "...", "entityType": "EssentialEntity" | "ImportantEntity", "implementedMeasures": [...] }`
+- **Response**: Returns `compliant`, `complianceScore`, `missingMeasures`, `inferredClass`, `inferredStandards`, and `risksAddressed`.
 
 ## Usage
 
@@ -210,4 +230,3 @@ Stub endpoint for OWL reasoning and SHACL validation:
 ## License
 
 MIT
-

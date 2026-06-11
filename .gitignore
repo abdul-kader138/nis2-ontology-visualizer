@@ -1,7 +1,6 @@
 node_modules/
 .DS_Store
 *.log
-*.pdf
 .env
 .env.*
 dist/
