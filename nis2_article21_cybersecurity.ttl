@@ -178,10 +178,10 @@
 #   CompliantEntity — OWL 2 DL equivalent class definition.
 #   An entity is automatically inferred as CompliantEntity by an OWL 2 reasoner
 #   (e.g. HermiT, Pellet) if and only if it implements at least one instance of
-#   each of the 12 mandatory Article 21(2) measures.
+#   each of the 12 operational classes covering Article 21(2)(a)-(j).
 
 #   NonCompliantEntity — the logical complement of CompliantEntity within Entity.
-#   An OWL 2 reasoner infers this for any Entity that does NOT satisfy all 12 restrictions.
+#   Under open-world semantics, missing assertions alone do not establish this complement class.
 
 :NonCompliantEntity
     a owl:Class ;
@@ -194,7 +194,7 @@
         )
     ] ;
     rdfs:label "Non-Compliant Entity" ;
-    rdfs:comment "An entity that does not implement all 12 mandatory Article 21(2) measures. Automatically inferred by an OWL 2 reasoner as the complement of CompliantEntity within Entity." .
+    rdfs:comment "An Entity outside CompliantEntity. Under open-world semantics, absence of asserted operational classes alone is not sufficient to infer this complement class." .
 
 :CompliantEntity
     a owl:Class ;
@@ -242,7 +242,7 @@
         )
     ] ;
     rdfs:label "Compliant Entity" ;
-    rdfs:comment "An entity that implements all 12 mandatory cybersecurity risk-management measures required by Article 21(2) of the NIS2 Directive. An OWL 2 reasoner will automatically classify any Entity individual satisfying all 12 someValuesFrom restrictions as a CompliantEntity." .
+    rdfs:comment "An entity that implements all 12 operational classes used to cover the ten Article 21(2)(a)-(j) legal categories. An OWL 2 reasoner can classify an Entity satisfying all 12 someValuesFrom restrictions as a CompliantEntity." .
 
 #################################################################
 #    Classes — Measure hierarchy
@@ -337,13 +337,13 @@
     :articleReference "Article 21(2)(g)" ;
     skos:closeMatch <https://www.cisa.gov/topics/cyber-threats-and-advisories/cyber-hygiene-services> .
 
-# Article 21(2)(h)
+# Article 21(2)(g) — separately modeled training component
 :TrainingAwareness
     a owl:Class ;
     rdfs:subClassOf :OrganizationalMeasure ;
     rdfs:label "Training and Awareness" ;
-    rdfs:comment "Cybersecurity training and awareness raising for personnel (Article 21(2)(h))" ;
-    :articleReference "Article 21(2)(h)" .
+    rdfs:comment "Cybersecurity training and awareness component of basic cyber hygiene practices and cybersecurity training (Article 21(2)(g))" ;
+    :articleReference "Article 21(2)(g)" .
 
 # Article 21(2)(i)
 :HumanResourcesSecurity
@@ -353,31 +353,31 @@
     rdfs:comment "Human resources security, access control policies and asset management (Article 21(2)(i))" ;
     :articleReference "Article 21(2)(i)" .
 
-# Article 21(2)(j)
+# Article 21(2)(h)
 :Encryption
     a owl:Class ;
     rdfs:subClassOf :TechnicalMeasure ;
     rdfs:label "Encryption" ;
-    rdfs:comment "Use of cryptography and, where appropriate, encryption to protect the confidentiality and integrity of data (Article 21(2)(j))" ;
-    :articleReference "Article 21(2)(j)" ;
+    rdfs:comment "Policies and procedures regarding the use of cryptography and, where appropriate, encryption (Article 21(2)(h))" ;
+    :articleReference "Article 21(2)(h)" ;
     skos:closeMatch <https://www.enisa.europa.eu/topics/cryptography> .
 
-# Article 21(2)(k)
+# Article 21(2)(j) — separately modeled authentication component
 :MultiFactorAuthentication
     a owl:Class ;
     rdfs:subClassOf :TechnicalMeasure ;
     rdfs:label "Multi-Factor Authentication" ;
-    rdfs:comment "Use of multi-factor authentication or continuous authentication solutions to protect access to network and information systems (Article 21(2)(k))" ;
-    :articleReference "Article 21(2)(k)" ;
+    rdfs:comment "Use of multi-factor authentication or continuous authentication solutions (Article 21(2)(j))" ;
+    :articleReference "Article 21(2)(j)" ;
     skos:closeMatch <https://www.enisa.europa.eu/topics/incident-response/glossary/multi-factor-authentication> .
 
-# Article 21(2)(l)
+# Article 21(2)(j) — separately modeled communications component
 :SecureCommunications
     a owl:Class ;
     rdfs:subClassOf :TechnicalMeasure ;
     rdfs:label "Secure Communications" ;
-    rdfs:comment "Secured voice, video and text communications, and secured emergency communication systems within the entity where appropriate (Article 21(2)(l))" ;
-    :articleReference "Article 21(2)(l)" .
+    rdfs:comment "Secured voice, video and text communications, and secured emergency communication systems within the entity where appropriate (Article 21(2)(j))" ;
+    :articleReference "Article 21(2)(j)" .
 
 #################################################################
 #    Classes — Supporting concepts
@@ -638,13 +638,12 @@
 #    Individuals — Entity Instances (demonstrate reasoning)
 #################################################################
 
-#   ExampleCompliantEntity — implements all 12 Article 21(2) measures.
-#   An OWL 2 reasoner will automatically infer this as a CompliantEntity.
+#   ExampleCompliantEntity — implements all 12 operational classes.
 
 :ExampleCompliantEntity
     a owl:NamedIndividual, :EssentialEntity ;
     rdfs:label "Example Compliant Essential Entity" ;
-    rdfs:comment "An essential entity that implements all 12 mandatory Article 21 measures. An OWL 2 reasoner will automatically infer this individual as a CompliantEntity." ;
+    rdfs:comment "An essential entity that implements all 12 operational classes covering the ten Article 21(2)(a)-(j) categories. An OWL 2 reasoner can infer this individual as a CompliantEntity." ;
     :implementsMeasure :ExampleRiskAnalysisPolicy ;
     :implementsMeasure :ExampleIncidentHandling ;
     :implementsMeasure :ExampleBusinessContinuity ;
@@ -658,13 +657,12 @@
     :implementsMeasure :ExampleMultiFactorAuthentication ;
     :implementsMeasure :ExampleSecureCommunications .
 
-#   ExampleNonCompliantEntity — implements only 5 of the 12 required measures.
-#   A reasoner will NOT classify this as CompliantEntity, demonstrating gap detection.
+#   ExampleNonCompliantEntity — linked to 5 of the 12 operational classes.
 
 :ExampleNonCompliantEntity
     a owl:NamedIndividual, :ImportantEntity ;
     rdfs:label "Example Non-Compliant Important Entity" ;
-    rdfs:comment "An important entity that implements only 5 of the 12 mandatory Article 21 measures. A reasoner will NOT classify this individual as CompliantEntity, demonstrating gap detection." ;
+    rdfs:comment "An important entity linked to 5 of the 12 operational classes. It does not satisfy the positive CompliantEntity definition in the asserted example graph." ;
     :implementsMeasure :ExampleRiskAnalysisPolicy ;
     :implementsMeasure :ExampleIncidentHandling ;
     :implementsMeasure :ExampleEncryption ;

@@ -27,15 +27,15 @@
 #################################################################
 #  Core Article 21 Compliance Shape
 #  Applies to all Entity instances.
-#  Validates that all 12 mandatory Article 21(2) measures are
-#  implemented using sh:qualifiedMinCount = 1 per measure class.
+#  Validates that all 12 operational classes covering the ten
+#  Article 21(2)(a)-(j) categories are implemented.
 #################################################################
 
 :Article21ComplianceShape
     a sh:NodeShape ;
     sh:targetClass :Entity ;
     rdfs:label "Article 21 Compliance Shape" ;
-    rdfs:comment "Validates that an Entity implements all 12 mandatory cybersecurity risk-management measures required by Article 21(2) of the NIS2 Directive." ;
+    rdfs:comment "Validates that an Entity implements all 12 operational classes used by this ontology to cover the ten Article 21(2)(a)-(j) categories." ;
 
     # Article 21(2)(a) — Risk analysis and information system security policies
     sh:property [
@@ -100,13 +100,13 @@
         sh:message "Article 21(2)(g): Entity must implement at least one BasicCyberHygiene measure (basic cyber hygiene practices and cybersecurity training)."
     ] ;
 
-    # Article 21(2)(h) — Cybersecurity training and awareness
+    # Article 21(2)(g) — Separately modeled training and awareness component
     sh:property [
         sh:path :implementsMeasure ;
         sh:qualifiedMinCount 1 ;
         sh:qualifiedValueShape [ sh:class :TrainingAwareness ] ;
         sh:severity sh:Violation ;
-        sh:message "Article 21(2)(h): Entity must implement at least one TrainingAwareness measure (cybersecurity training and awareness raising for personnel)."
+        sh:message "Article 21(2)(g): Entity must implement at least one TrainingAwareness measure (the training component of basic cyber hygiene practices and cybersecurity training)."
     ] ;
 
     # Article 21(2)(i) — Human resources security
@@ -118,31 +118,31 @@
         sh:message "Article 21(2)(i): Entity must implement at least one HumanResourcesSecurity measure (human resources security, access control and asset management)."
     ] ;
 
-    # Article 21(2)(j) — Cryptography and encryption
+    # Article 21(2)(h) — Cryptography and encryption
     sh:property [
         sh:path :implementsMeasure ;
         sh:qualifiedMinCount 1 ;
         sh:qualifiedValueShape [ sh:class :Encryption ] ;
         sh:severity sh:Violation ;
-        sh:message "Article 21(2)(j): Entity must implement at least one Encryption measure (use of cryptography and encryption to protect data confidentiality and integrity)."
+        sh:message "Article 21(2)(h): Entity must implement at least one Encryption measure (policies and procedures regarding cryptography and, where appropriate, encryption)."
     ] ;
 
-    # Article 21(2)(k) — Multi-factor authentication
+    # Article 21(2)(j) — Separately modeled multi-factor authentication component
     sh:property [
         sh:path :implementsMeasure ;
         sh:qualifiedMinCount 1 ;
         sh:qualifiedValueShape [ sh:class :MultiFactorAuthentication ] ;
         sh:severity sh:Violation ;
-        sh:message "Article 21(2)(k): Entity must implement at least one MultiFactorAuthentication measure (MFA or continuous authentication solutions)."
+        sh:message "Article 21(2)(j): Entity must implement at least one MultiFactorAuthentication measure (MFA or continuous authentication solutions)."
     ] ;
 
-    # Article 21(2)(l) — Secured communications
+    # Article 21(2)(j) — Separately modeled secured communications component
     sh:property [
         sh:path :implementsMeasure ;
         sh:qualifiedMinCount 1 ;
         sh:qualifiedValueShape [ sh:class :SecureCommunications ] ;
         sh:severity sh:Violation ;
-        sh:message "Article 21(2)(l): Entity must implement at least one SecureCommunications measure (secured voice, video and text communications)."
+        sh:message "Article 21(2)(j): Entity must implement at least one SecureCommunications measure (secured voice, video and text communications and secured emergency communications where appropriate)."
     ] ;
 
     # All implemented measures must be RiskManagementMeasure (Article 21(1))

@@ -214,14 +214,14 @@
             </owl:Class>
         </owl:equivalentClass>
         <rdfs:label>Non-Compliant Entity</rdfs:label>
-        <rdfs:comment>An entity that does not implement all 12 mandatory Article 21(2) measures. Automatically inferred by an OWL 2 reasoner as the complement of CompliantEntity within Entity.</rdfs:comment>
+        <rdfs:comment>An Entity outside CompliantEntity. Under open-world semantics, absence of asserted operational classes alone is not sufficient to infer this complement class.</rdfs:comment>
     </owl:Class>
 
     <!--
         CompliantEntity — OWL 2 DL equivalent class definition.
         An entity is inferred as CompliantEntity by an OWL 2 reasoner (e.g. HermiT, Pellet)
-        if and only if it implements at least one instance of each of the 12 mandatory
-        Article 21 measures. This enables automated compliance classification.
+        if and only if it implements at least one instance of each of the 12 operational
+        classes covering Article 21(2)(a)-(j).
     -->
     <owl:Class rdf:about="https://w3id.org/nis2/article21#CompliantEntity">
         <rdfs:subClassOf rdf:resource="https://w3id.org/nis2/article21#Entity"/>
@@ -293,9 +293,9 @@
             </owl:Class>
         </owl:equivalentClass>
         <rdfs:label>Compliant Entity</rdfs:label>
-        <rdfs:comment>An entity that implements all 12 mandatory cybersecurity risk-management measures
-        required by Article 21(2) of the NIS2 Directive. An OWL 2 reasoner will automatically classify
-        any Entity individual that satisfies all 12 someValuesFrom restrictions as a CompliantEntity.</rdfs:comment>
+        <rdfs:comment>An entity that implements all 12 operational classes used to cover the ten
+        Article 21(2)(a)-(j) legal categories. An OWL 2 reasoner can classify any Entity individual
+        satisfying all 12 someValuesFrom restrictions as a CompliantEntity.</rdfs:comment>
     </owl:Class>
 
     <!-- ==================== Measure hierarchy ==================== -->
@@ -398,12 +398,12 @@
         <skos:closeMatch rdf:resource="https://www.cisa.gov/topics/cyber-threats-and-advisories/cyber-hygiene-services"/>
     </owl:Class>
 
-    <!-- Article 21(2)(h) — Cybersecurity training and awareness -->
+    <!-- Article 21(2)(g) — Separately modeled training and awareness component -->
     <owl:Class rdf:about="https://w3id.org/nis2/article21#TrainingAwareness">
         <rdfs:subClassOf rdf:resource="https://w3id.org/nis2/article21#OrganizationalMeasure"/>
         <rdfs:label>Training and Awareness</rdfs:label>
-        <rdfs:comment>Cybersecurity training and awareness raising for personnel (Article 21(2)(h))</rdfs:comment>
-        <articleReference xmlns="https://w3id.org/nis2/article21#">Article 21(2)(h)</articleReference>
+        <rdfs:comment>Cybersecurity training and awareness component of basic cyber hygiene practices and cybersecurity training (Article 21(2)(g))</rdfs:comment>
+        <articleReference xmlns="https://w3id.org/nis2/article21#">Article 21(2)(g)</articleReference>
     </owl:Class>
 
     <!-- Article 21(2)(i) — Human resources security, access control and asset management -->
@@ -414,32 +414,32 @@
         <articleReference xmlns="https://w3id.org/nis2/article21#">Article 21(2)(i)</articleReference>
     </owl:Class>
 
-    <!-- Article 21(2)(j) — Cryptography and encryption -->
+    <!-- Article 21(2)(h) — Cryptography and encryption -->
     <owl:Class rdf:about="https://w3id.org/nis2/article21#Encryption">
         <rdfs:subClassOf rdf:resource="https://w3id.org/nis2/article21#TechnicalMeasure"/>
         <rdfs:label>Encryption</rdfs:label>
-        <rdfs:comment>Use of cryptography and, where appropriate, encryption to protect the
-        confidentiality and integrity of data (Article 21(2)(j))</rdfs:comment>
-        <articleReference xmlns="https://w3id.org/nis2/article21#">Article 21(2)(j)</articleReference>
+        <rdfs:comment>Policies and procedures regarding the use of cryptography and, where appropriate,
+        encryption (Article 21(2)(h))</rdfs:comment>
+        <articleReference xmlns="https://w3id.org/nis2/article21#">Article 21(2)(h)</articleReference>
         <skos:closeMatch rdf:resource="https://www.enisa.europa.eu/topics/cryptography"/>
     </owl:Class>
 
-    <!-- Article 21(2)(k) — Multi-factor authentication -->
+    <!-- Article 21(2)(j) — Separately modeled multi-factor authentication component -->
     <owl:Class rdf:about="https://w3id.org/nis2/article21#MultiFactorAuthentication">
         <rdfs:subClassOf rdf:resource="https://w3id.org/nis2/article21#TechnicalMeasure"/>
         <rdfs:label>Multi-Factor Authentication</rdfs:label>
-        <rdfs:comment>Use of multi-factor authentication or continuous authentication solutions to protect access to network and information systems (Article 21(2)(k))</rdfs:comment>
-        <articleReference xmlns="https://w3id.org/nis2/article21#">Article 21(2)(k)</articleReference>
+        <rdfs:comment>Use of multi-factor authentication or continuous authentication solutions (Article 21(2)(j))</rdfs:comment>
+        <articleReference xmlns="https://w3id.org/nis2/article21#">Article 21(2)(j)</articleReference>
         <skos:closeMatch rdf:resource="https://www.enisa.europa.eu/topics/incident-response/glossary/multi-factor-authentication"/>
     </owl:Class>
 
-    <!-- Article 21(2)(l) — Secured communications -->
+    <!-- Article 21(2)(j) — Separately modeled secured communications component -->
     <owl:Class rdf:about="https://w3id.org/nis2/article21#SecureCommunications">
         <rdfs:subClassOf rdf:resource="https://w3id.org/nis2/article21#TechnicalMeasure"/>
         <rdfs:label>Secure Communications</rdfs:label>
         <rdfs:comment>Secured voice, video and text communications, and secured emergency
-        communication systems within the entity where appropriate (Article 21(2)(l))</rdfs:comment>
-        <articleReference xmlns="https://w3id.org/nis2/article21#">Article 21(2)(l)</articleReference>
+        communication systems within the entity where appropriate (Article 21(2)(j))</rdfs:comment>
+        <articleReference xmlns="https://w3id.org/nis2/article21#">Article 21(2)(j)</articleReference>
     </owl:Class>
 
     <!-- ==================== Supporting classes ==================== -->
@@ -723,15 +723,14 @@
     </owl:NamedIndividual>
 
     <!--
-        ExampleCompliantEntity — demonstrates automated reasoning.
-        Because this individual implements all 12 Article 21(2) measures it will be
-        automatically classified as a CompliantEntity by any OWL 2 DL reasoner.
+        ExampleCompliantEntity — demonstrates positive classification by implementing
+        all 12 operational classes.
     -->
     <owl:NamedIndividual rdf:about="https://w3id.org/nis2/article21#ExampleCompliantEntity">
         <rdf:type rdf:resource="https://w3id.org/nis2/article21#EssentialEntity"/>
         <rdfs:label>Example Compliant Essential Entity</rdfs:label>
-        <rdfs:comment>An essential entity that implements all 12 mandatory Article 21 measures.
-        An OWL 2 reasoner will automatically infer this individual as a CompliantEntity.</rdfs:comment>
+        <rdfs:comment>An essential entity that implements all 12 operational classes covering the
+        ten Article 21(2)(a)-(j) categories. An OWL 2 reasoner can infer this individual as a CompliantEntity.</rdfs:comment>
         <implementsMeasure xmlns="https://w3id.org/nis2/article21#" rdf:resource="https://w3id.org/nis2/article21#ExampleRiskAnalysisPolicy"/>
         <implementsMeasure xmlns="https://w3id.org/nis2/article21#" rdf:resource="https://w3id.org/nis2/article21#ExampleIncidentHandling"/>
         <implementsMeasure xmlns="https://w3id.org/nis2/article21#" rdf:resource="https://w3id.org/nis2/article21#ExampleBusinessContinuity"/>
@@ -747,15 +746,13 @@
     </owl:NamedIndividual>
 
     <!--
-        ExampleNonCompliantEntity — demonstrates reasoning for non-compliance.
-        This entity only implements 5 of the 12 required measures, so a reasoner will
-        NOT classify it as CompliantEntity.
+        ExampleNonCompliantEntity — linked to 5 of the 12 operational classes.
     -->
     <owl:NamedIndividual rdf:about="https://w3id.org/nis2/article21#ExampleNonCompliantEntity">
         <rdf:type rdf:resource="https://w3id.org/nis2/article21#ImportantEntity"/>
         <rdfs:label>Example Non-Compliant Important Entity</rdfs:label>
-        <rdfs:comment>An important entity that implements only 5 of the 12 mandatory Article 21 measures.
-        A reasoner will NOT classify this individual as CompliantEntity, demonstrating gap detection.</rdfs:comment>
+        <rdfs:comment>An important entity linked to 5 of the 12 operational classes. It does not
+        satisfy the positive CompliantEntity definition in the asserted example graph.</rdfs:comment>
         <implementsMeasure xmlns="https://w3id.org/nis2/article21#" rdf:resource="https://w3id.org/nis2/article21#ExampleRiskAnalysisPolicy"/>
         <implementsMeasure xmlns="https://w3id.org/nis2/article21#" rdf:resource="https://w3id.org/nis2/article21#ExampleIncidentHandling"/>
         <implementsMeasure xmlns="https://w3id.org/nis2/article21#" rdf:resource="https://w3id.org/nis2/article21#ExampleEncryption"/>

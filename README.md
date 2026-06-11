@@ -3,9 +3,9 @@
 This ontology represents Article 21 of Directive (EU) 2022/2555 (NIS2 Directive) concerning
 cybersecurity risk-management measures that essential and important entities must implement.
 
-It supports **automated compliance validation** and **OWL 2 DL reasoning** — a reasoner such as
-HermiT or Pellet will automatically classify entities as `CompliantEntity` or not based on which
-of the 12 mandatory measures they implement.
+It supports ontology-based coverage analysis and OWL 2 DL reasoning. Article 21(2) contains ten
+legal categories, `(a)` through `(j)`. The ontology operationalizes them as twelve classes by
+separating the training component of `(g)` and the authentication/communications components of `(j)`.
 
 ## Overview
 
@@ -28,7 +28,7 @@ to the security of network and information systems. These measures must:
 | `Entity` | Base class for essential or important entities (Article 3) |
 | `EssentialEntity` | Essential entities as defined in Article 3(1) |
 | `ImportantEntity` | Important entities as defined in Article 3(2) |
-| `CompliantEntity` | **OWL 2 DL inferred class** — entities implementing all 12 Article 21(2) measures |
+| `CompliantEntity` | **OWL 2 DL inferred class** — entities covering all 12 operational classes |
 
 > `EssentialEntity` and `ImportantEntity` are declared `owl:disjointWith` each other.
 
@@ -43,10 +43,10 @@ to the security of network and information systems. These measures must:
 
 The three measure categories are declared `owl:AllDisjointClasses`.
 
-#### Article 21(2) Mandatory Measures
+#### Article 21(2) Operational Classes
 
-All 12 measures are modelled as OWL classes and referenced in the `CompliantEntity` equivalentClass
-restriction so a reasoner can infer compliance automatically.
+The ten legal categories are modeled through twelve OWL classes and referenced in the
+`CompliantEntity` equivalentClass restriction.
 
 | # | Class | Article Ref | Category |
 |---|-------|-------------|----------|
@@ -57,11 +57,11 @@ restriction so a reasoner can infer compliance automatically.
 | e | `SecureDevelopment` | Art. 21(2)(e) | Technical |
 | f | `EffectivenessAssessment` | Art. 21(2)(f) | Organizational |
 | g | `BasicCyberHygiene` | Art. 21(2)(g) | Operational |
-| h | `TrainingAwareness` | Art. 21(2)(h) | Organizational |
+| g-2 | `TrainingAwareness` | Art. 21(2)(g), training component | Organizational |
 | i | `HumanResourcesSecurity` | Art. 21(2)(i) | Organizational |
-| j | `Encryption` | Art. 21(2)(j) | Technical |
-| k | `MultiFactorAuthentication` | Art. 21(2)(k) | Technical |
-| l | `SecureCommunications` | Art. 21(2)(l) | Technical |
+| h | `Encryption` | Art. 21(2)(h) | Technical |
+| j-1 | `MultiFactorAuthentication` | Art. 21(2)(j), authentication component | Technical |
+| j-2 | `SecureCommunications` | Art. 21(2)(j), communications component | Technical |
 
 #### Supporting Classes
 
@@ -103,12 +103,12 @@ The key feature is the `CompliantEntity` **equivalent class definition**:
         :Entity
         [ owl:onProperty :implementsMeasure ; owl:someValuesFrom :RiskAnalysisPolicy ]
         [ owl:onProperty :implementsMeasure ; owl:someValuesFrom :IncidentHandling ]
-        # ... all 12 Article 21(2) measures
+        # ... all 12 operational classes covering Article 21(2)(a)-(j)
     )
 ] .
 ```
 
-Any `Entity` individual that implements at least one instance of each of the 12 mandatory measures
+Any `Entity` individual that implements at least one instance of each of the 12 operational classes
 will be **automatically inferred** as a `CompliantEntity` by a DL reasoner.
 
 ### To run full OWL 2 DL reasoning

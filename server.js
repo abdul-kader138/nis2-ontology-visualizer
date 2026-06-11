@@ -9,7 +9,8 @@ const { Parser: SparqlParser } = require('sparqljs');
 
 const BASE_URI = 'https://w3id.org/nis2/article21#';
 
-// Required Article 21(2) measures — must all be present for compliance
+// Operational classes covering the ten Article 21(2)(a)-(j) legal categories.
+// Point (g) is split into hygiene/training and point (j) into MFA/communications.
 const REQUIRED_MEASURES = [
   'RiskAnalysisPolicy',
   'IncidentHandling',
@@ -328,7 +329,7 @@ app.get('/api/validate', async (req, res) => {
       result.info.push('✓ owl:disjointWith axioms present — EssentialEntity and ImportantEntity are disjoint');
     }
 
-    // Check all 12 required Article 21 measures are defined as classes
+    // Check all 12 operational classes are defined.
     const foundMeasures = new Set();
     for (const q of quads) {
       if (
@@ -347,7 +348,7 @@ app.get('/api/validate', async (req, res) => {
         message: `Missing required Article 21 measures: ${missingMeasures.join(', ')}`,
       });
     } else {
-      result.info.push(`✓ All ${REQUIRED_MEASURES.length} required Article 21(2) measures present as classes`);
+      result.info.push(`✓ All ${REQUIRED_MEASURES.length} operational classes covering Article 21(2)(a)-(j) are present`);
     }
 
     // Check for circular class hierarchy
@@ -793,7 +794,7 @@ app.get('/api/shacl', async (req, res) => {
       const eLabel = localName(entity);
 
       if (missing.length === 0) {
-        info.push(`✓ ${eLabel}: all 12 Article 21(2) measures implemented`);
+        info.push(`✓ ${eLabel}: all 12 operational classes covering Article 21(2)(a)-(j) are implemented`);
       } else {
         for (const m of missing) {
           violations.push({

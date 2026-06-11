@@ -10,7 +10,7 @@ A Node.js web application for visualizing and validating the NIS2 Article 21 Cyb
 - **Node Information Panel**: Click any node to see its label, type, category, ID, and a short description (from labels/comments/properties).
 - **Statistics Bar**: Live counts of **Nodes**, **Relationships**, and **distinct Types (Classes)** for the currently visible subgraph.
 - **Ontology Validation Report**: Run a built‑in validator against the ontology (syntax, required Article 21 measures, orphaned nodes, class hierarchy issues).
-- **Article 21 Measure Coverage**: Checks for all 12 measures (10 core + Multi‑Factor Authentication + Secure Communications).
+- **Article 21 Coverage**: Checks twelve operational classes covering the ten legal categories `(a)` through `(j)`.
 - **UI Measure Toggle (Simulation)**: Enable/disable measures from the UI to see how compliance and validation change without modifying the OWL/TTL files.
 - **Performance Optimizations**: In‑memory caching (60s TTL) to avoid re‑parsing the ontology on every request.
 - **SPARQL Query Endpoint**: Basic SPARQL query support for programmatic access to ontology data.
