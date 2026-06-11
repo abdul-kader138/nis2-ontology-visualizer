@@ -1,0 +1,691 @@
+@prefix :     <https://w3id.org/nis2/article21#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix dc:   <http://purl.org/dc/elements/1.1/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+#################################################################
+#    Ontology Declaration
+#################################################################
+
+<https://w3id.org/nis2/article21>
+    a owl:Ontology ;
+    owl:versionIRI <https://w3id.org/nis2/article21/1.0> ;
+    owl:versionInfo "1.0" ;
+    dc:title "NIS2 Article 21 Cybersecurity Risk-Management Measures Ontology" ;
+    dc:description "OWL 2 ontology representing Article 21 of Directive (EU) 2022/2555 (NIS2 Directive) concerning cybersecurity risk-management measures for essential and important entities. Supports automated compliance validation and OWL 2 DL reasoning." ;
+    dc:creator "Master Thesis — NIS2 Compliance Ontology" ;
+    dc:date "2026-06-11" ;
+    dc:rights "Provided for educational and research purposes. Refer to the original directive for authoritative legal information." ;
+    dc:source "Directive (EU) 2022/2555 — OJ L 333, 27.12.2022, p. 80–152" ;
+    owl:imports <http://www.w3.org/2004/02/skos/core> ;
+    rdfs:label "NIS2 Article 21 Cybersecurity Risk-Management Measures" ;
+    rdfs:comment "Ontology representing Article 21 of Directive (EU) 2022/2555 (NIS2 Directive) concerning cybersecurity risk-management measures for essential and important entities. Includes OWL 2 DL restrictions for automated compliance reasoning." .
+
+#################################################################
+#    Object Properties
+#################################################################
+
+:implementsMeasure
+    a owl:ObjectProperty ;
+    owl:inverseOf :isImplementedBy ;
+    rdfs:domain :Entity ;
+    rdfs:range :RiskManagementMeasure ;
+    rdfs:label "implements measure" ;
+    rdfs:comment "Relates an entity to the risk-management measures it implements" .
+
+:isImplementedBy
+    a owl:ObjectProperty ;
+    owl:inverseOf :implementsMeasure ;
+    rdfs:domain :RiskManagementMeasure ;
+    rdfs:range :Entity ;
+    rdfs:label "is implemented by" ;
+    rdfs:comment "Inverse of implementsMeasure — relates a measure to the entities that implement it" .
+
+:addressesRisk
+    a owl:ObjectProperty ;
+    rdfs:domain :RiskManagementMeasure ;
+    rdfs:range :CybersecurityRisk ;
+    rdfs:label "addresses risk" ;
+    rdfs:comment "Relates a risk-management measure to the cybersecurity risk it addresses" .
+
+:preventsIncident
+    a owl:ObjectProperty ;
+    rdfs:domain :RiskManagementMeasure ;
+    rdfs:range :SecurityIncident ;
+    rdfs:label "prevents incident" ;
+    rdfs:comment "Relates a measure to security incidents it helps prevent" .
+
+:minimizesImpact
+    a owl:ObjectProperty ;
+    rdfs:domain :RiskManagementMeasure ;
+    rdfs:range :SecurityIncident ;
+    rdfs:label "minimizes impact" ;
+    rdfs:comment "Relates a measure to security incidents whose impact it minimizes" .
+
+:basedOnStandard
+    a owl:ObjectProperty ;
+    rdfs:domain :RiskManagementMeasure ;
+    rdfs:range :SecurityStandard ;
+    rdfs:label "based on standard" ;
+    rdfs:comment "Relates a measure to the security standard it is based on" .
+
+:appliesToSystem
+    a owl:ObjectProperty ;
+    rdfs:domain :RiskManagementMeasure ;
+    rdfs:range :NetworkInformationSystem ;
+    rdfs:label "applies to system" ;
+    rdfs:comment "Relates a measure to the network and information system it applies to" .
+
+:hasSubMeasure
+    a owl:ObjectProperty, owl:TransitiveProperty ;
+    rdfs:domain :RiskManagementMeasure ;
+    rdfs:range :RiskManagementMeasure ;
+    rdfs:label "has sub-measure" ;
+    rdfs:comment "Relates a measure to its sub-measures. Declared transitive so sub-measures of sub-measures are inferred." .
+
+#   usesStandard — OWL 2 property chain axiom.
+#   If an entity implementsMeasure m, and m basedOnStandard s,
+#   then the entity usesStandard s (automatically inferred by a reasoner).
+
+:usesStandard
+    a owl:ObjectProperty ;
+    owl:propertyChainAxiom ( :implementsMeasure :basedOnStandard ) ;
+    rdfs:domain :Entity ;
+    rdfs:range :SecurityStandard ;
+    rdfs:label "uses standard" ;
+    rdfs:comment "Inferred property: an entity uses a standard if it implements any measure that is based on that standard. Derived via owl:propertyChainAxiom over implementsMeasure ∘ basedOnStandard." .
+
+#################################################################
+#    Annotation Properties
+#################################################################
+
+:articleReference
+    a owl:AnnotationProperty ;
+    rdfs:label "article reference" ;
+    rdfs:comment "The specific article, paragraph and sub-paragraph of Directive (EU) 2022/2555 (NIS2) that this element implements or corresponds to." .
+
+#################################################################
+#    Data Properties
+#################################################################
+
+:isProportionate
+    a owl:DatatypeProperty, owl:FunctionalProperty ;
+    rdfs:domain :RiskManagementMeasure ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "is proportionate" ;
+    rdfs:comment "Indicates whether a measure is proportionate to the risk (Article 21(1))" .
+
+:isAppropriate
+    a owl:DatatypeProperty, owl:FunctionalProperty ;
+    rdfs:domain :RiskManagementMeasure ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "is appropriate" ;
+    rdfs:comment "Indicates whether a measure is appropriate for the risk (Article 21(1))" .
+
+:isStateOfTheArt
+    a owl:DatatypeProperty, owl:FunctionalProperty ;
+    rdfs:domain :RiskManagementMeasure ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "is state of the art" ;
+    rdfs:comment "Indicates whether a measure is in line with state-of-the-art practices (Article 21(1))" .
+
+:measureDescription
+    a owl:DatatypeProperty ;
+    rdfs:domain :RiskManagementMeasure ;
+    rdfs:range xsd:string ;
+    rdfs:label "measure description" ;
+    rdfs:comment "Provides a textual description of the risk-management measure" .
+
+:riskLevel
+    a owl:DatatypeProperty, owl:FunctionalProperty ;
+    rdfs:domain :CybersecurityRisk ;
+    rdfs:range xsd:string ;
+    rdfs:label "risk level" ;
+    rdfs:comment "Level of the cybersecurity risk: low, medium, high, or critical" .
+
+#################################################################
+#    Classes — Entity hierarchy
+#################################################################
+
+:Entity
+    a owl:Class ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty :implementsMeasure ;
+        owl:allValuesFrom :RiskManagementMeasure
+    ] ;
+    rdfs:label "Entity" ;
+    rdfs:comment "Essential or important entity as defined in the NIS2 Directive (Article 3)" ;
+    :articleReference "Article 3" .
+
+:EssentialEntity
+    a owl:Class ;
+    rdfs:subClassOf :Entity ;
+    owl:disjointWith :ImportantEntity ;
+    rdfs:label "Essential Entity" ;
+    rdfs:comment "Essential entity as defined in Article 3(1) of the NIS2 Directive" .
+
+:ImportantEntity
+    a owl:Class ;
+    rdfs:subClassOf :Entity ;
+    owl:disjointWith :EssentialEntity ;
+    rdfs:label "Important Entity" ;
+    rdfs:comment "Important entity as defined in Article 3(2) of the NIS2 Directive" .
+
+#   CompliantEntity — OWL 2 DL equivalent class definition.
+#   An entity is automatically inferred as CompliantEntity by an OWL 2 reasoner
+#   (e.g. HermiT, Pellet) if and only if it implements at least one instance of
+#   each of the 12 mandatory Article 21(2) measures.
+
+#   NonCompliantEntity — the logical complement of CompliantEntity within Entity.
+#   An OWL 2 reasoner infers this for any Entity that does NOT satisfy all 12 restrictions.
+
+:NonCompliantEntity
+    a owl:Class ;
+    rdfs:subClassOf :Entity ;
+    owl:equivalentClass [
+        a owl:Class ;
+        owl:intersectionOf (
+            :Entity
+            [ a owl:Class ; owl:complementOf :CompliantEntity ]
+        )
+    ] ;
+    rdfs:label "Non-Compliant Entity" ;
+    rdfs:comment "An entity that does not implement all 12 mandatory Article 21(2) measures. Automatically inferred by an OWL 2 reasoner as the complement of CompliantEntity within Entity." .
+
+:CompliantEntity
+    a owl:Class ;
+    rdfs:subClassOf :Entity ;
+    owl:equivalentClass [
+        a owl:Class ;
+        owl:intersectionOf (
+            :Entity
+            [ a owl:Restriction ;
+              owl:onProperty :implementsMeasure ;
+              owl:someValuesFrom :RiskAnalysisPolicy ]
+            [ a owl:Restriction ;
+              owl:onProperty :implementsMeasure ;
+              owl:someValuesFrom :IncidentHandling ]
+            [ a owl:Restriction ;
+              owl:onProperty :implementsMeasure ;
+              owl:someValuesFrom :BusinessContinuityManagement ]
+            [ a owl:Restriction ;
+              owl:onProperty :implementsMeasure ;
+              owl:someValuesFrom :SupplyChainSecurity ]
+            [ a owl:Restriction ;
+              owl:onProperty :implementsMeasure ;
+              owl:someValuesFrom :SecureDevelopment ]
+            [ a owl:Restriction ;
+              owl:onProperty :implementsMeasure ;
+              owl:someValuesFrom :EffectivenessAssessment ]
+            [ a owl:Restriction ;
+              owl:onProperty :implementsMeasure ;
+              owl:someValuesFrom :BasicCyberHygiene ]
+            [ a owl:Restriction ;
+              owl:onProperty :implementsMeasure ;
+              owl:someValuesFrom :TrainingAwareness ]
+            [ a owl:Restriction ;
+              owl:onProperty :implementsMeasure ;
+              owl:someValuesFrom :HumanResourcesSecurity ]
+            [ a owl:Restriction ;
+              owl:onProperty :implementsMeasure ;
+              owl:someValuesFrom :Encryption ]
+            [ a owl:Restriction ;
+              owl:onProperty :implementsMeasure ;
+              owl:someValuesFrom :MultiFactorAuthentication ]
+            [ a owl:Restriction ;
+              owl:onProperty :implementsMeasure ;
+              owl:someValuesFrom :SecureCommunications ]
+        )
+    ] ;
+    rdfs:label "Compliant Entity" ;
+    rdfs:comment "An entity that implements all 12 mandatory cybersecurity risk-management measures required by Article 21(2) of the NIS2 Directive. An OWL 2 reasoner will automatically classify any Entity individual satisfying all 12 someValuesFrom restrictions as a CompliantEntity." .
+
+#################################################################
+#    Classes — Measure hierarchy
+#################################################################
+
+:RiskManagementMeasure
+    a owl:Class ;
+    rdfs:label "Risk Management Measure" ;
+    rdfs:comment "Technical, operational, or organizational measure to manage cybersecurity risks as required by Article 21 of the NIS2 Directive" .
+
+:TechnicalMeasure
+    a owl:Class ;
+    rdfs:subClassOf :RiskManagementMeasure ;
+    rdfs:label "Technical Measure" ;
+    rdfs:comment "Technical measure for managing cybersecurity risks" .
+
+:OperationalMeasure
+    a owl:Class ;
+    rdfs:subClassOf :RiskManagementMeasure ;
+    rdfs:label "Operational Measure" ;
+    rdfs:comment "Operational measure for managing cybersecurity risks" .
+
+:OrganizationalMeasure
+    a owl:Class ;
+    rdfs:subClassOf :RiskManagementMeasure ;
+    rdfs:label "Organizational Measure" ;
+    rdfs:comment "Organizational measure for managing cybersecurity risks" .
+
+# Disjointness among the three measure categories
+[ a owl:AllDisjointClasses ;
+  owl:members ( :TechnicalMeasure :OperationalMeasure :OrganizationalMeasure ) ] .
+
+# Article 21(2)(a)
+:RiskAnalysisPolicy
+    a owl:Class ;
+    rdfs:subClassOf :OrganizationalMeasure ;
+    rdfs:label "Risk Analysis Policy" ;
+    rdfs:comment "Policies on risk analysis and information system security (Article 21(2)(a))" ;
+    :articleReference "Article 21(2)(a)" ;
+    skos:exactMatch <https://www.enisa.europa.eu/topics/cybersecurity-policy/nis-directive-new/nis2-policies#risk-analysis> .
+
+# Article 21(2)(b)
+:IncidentHandling
+    a owl:Class ;
+    rdfs:subClassOf :OperationalMeasure ;
+    rdfs:label "Incident Handling" ;
+    rdfs:comment "Incident handling procedures and capabilities (Article 21(2)(b))" ;
+    :articleReference "Article 21(2)(b)" ;
+    skos:closeMatch <https://www.enisa.europa.eu/topics/incident-response> .
+
+# Article 21(2)(c)
+:BusinessContinuityManagement
+    a owl:Class ;
+    rdfs:subClassOf :OperationalMeasure ;
+    rdfs:label "Business Continuity Management" ;
+    rdfs:comment "Business continuity and crisis management measures including backup management and disaster recovery (Article 21(2)(c))" ;
+    :articleReference "Article 21(2)(c)" ;
+    skos:closeMatch <https://www.iso.org/standard/75106.html> .
+
+# Article 21(2)(d)
+:SupplyChainSecurity
+    a owl:Class ;
+    rdfs:subClassOf :OrganizationalMeasure ;
+    rdfs:label "Supply Chain Security" ;
+    rdfs:comment "Supply chain security including security-related aspects of relationships with suppliers or service providers (Article 21(2)(d))" ;
+    :articleReference "Article 21(2)(d)" ;
+    skos:closeMatch <https://www.enisa.europa.eu/topics/supply-chain-attacks> .
+
+# Article 21(2)(e)
+:SecureDevelopment
+    a owl:Class ;
+    rdfs:subClassOf :TechnicalMeasure ;
+    rdfs:label "Secure Development" ;
+    rdfs:comment "Security in network and information systems acquisition, development and maintenance, including vulnerability handling and disclosure (Article 21(2)(e))" ;
+    :articleReference "Article 21(2)(e)" ;
+    skos:closeMatch <https://owasp.org/www-project-top-ten/> .
+
+# Article 21(2)(f)
+:EffectivenessAssessment
+    a owl:Class ;
+    rdfs:subClassOf :OrganizationalMeasure ;
+    rdfs:label "Effectiveness Assessment" ;
+    rdfs:comment "Policies and procedures to assess the effectiveness of cybersecurity risk-management measures (Article 21(2)(f))" ;
+    :articleReference "Article 21(2)(f)" .
+
+# Article 21(2)(g)
+:BasicCyberHygiene
+    a owl:Class ;
+    rdfs:subClassOf :OperationalMeasure ;
+    rdfs:label "Basic Cyber Hygiene" ;
+    rdfs:comment "Basic cyber hygiene practices and cybersecurity training (Article 21(2)(g))" ;
+    :articleReference "Article 21(2)(g)" ;
+    skos:closeMatch <https://www.cisa.gov/topics/cyber-threats-and-advisories/cyber-hygiene-services> .
+
+# Article 21(2)(h)
+:TrainingAwareness
+    a owl:Class ;
+    rdfs:subClassOf :OrganizationalMeasure ;
+    rdfs:label "Training and Awareness" ;
+    rdfs:comment "Cybersecurity training and awareness raising for personnel (Article 21(2)(h))" ;
+    :articleReference "Article 21(2)(h)" .
+
+# Article 21(2)(i)
+:HumanResourcesSecurity
+    a owl:Class ;
+    rdfs:subClassOf :OrganizationalMeasure ;
+    rdfs:label "Human Resources Security" ;
+    rdfs:comment "Human resources security, access control policies and asset management (Article 21(2)(i))" ;
+    :articleReference "Article 21(2)(i)" .
+
+# Article 21(2)(j)
+:Encryption
+    a owl:Class ;
+    rdfs:subClassOf :TechnicalMeasure ;
+    rdfs:label "Encryption" ;
+    rdfs:comment "Use of cryptography and, where appropriate, encryption to protect the confidentiality and integrity of data (Article 21(2)(j))" ;
+    :articleReference "Article 21(2)(j)" ;
+    skos:closeMatch <https://www.enisa.europa.eu/topics/cryptography> .
+
+# Article 21(2)(k)
+:MultiFactorAuthentication
+    a owl:Class ;
+    rdfs:subClassOf :TechnicalMeasure ;
+    rdfs:label "Multi-Factor Authentication" ;
+    rdfs:comment "Use of multi-factor authentication or continuous authentication solutions to protect access to network and information systems (Article 21(2)(k))" ;
+    :articleReference "Article 21(2)(k)" ;
+    skos:closeMatch <https://www.enisa.europa.eu/topics/incident-response/glossary/multi-factor-authentication> .
+
+# Article 21(2)(l)
+:SecureCommunications
+    a owl:Class ;
+    rdfs:subClassOf :TechnicalMeasure ;
+    rdfs:label "Secure Communications" ;
+    rdfs:comment "Secured voice, video and text communications, and secured emergency communication systems within the entity where appropriate (Article 21(2)(l))" ;
+    :articleReference "Article 21(2)(l)" .
+
+#################################################################
+#    Classes — Supporting concepts
+#################################################################
+
+:CybersecurityRisk
+    a owl:Class ;
+    rdfs:label "Cybersecurity Risk" ;
+    rdfs:comment "Risk to the security of network and information systems as defined in the NIS2 Directive" .
+
+:SecurityIncident
+    a owl:Class ;
+    rdfs:label "Security Incident" ;
+    rdfs:comment "Any event having an actual adverse effect on the availability, authenticity, integrity or confidentiality of stored, transmitted or processed data or of the services offered by, or accessible via, network and information systems (Article 6(6) NIS2)" .
+
+:NetworkInformationSystem
+    a owl:Class ;
+    rdfs:label "Network and Information System" ;
+    rdfs:comment "Network and information system as defined in Article 6(1) of the NIS2 Directive" .
+
+:SecurityStandard
+    a owl:Class ;
+    rdfs:label "Security Standard" ;
+    rdfs:comment "European or international standard relevant to cybersecurity risk management" .
+
+#################################################################
+#    Individuals — Security Standards
+#################################################################
+
+:ISO27001
+    a owl:NamedIndividual, :SecurityStandard ;
+    rdfs:label "ISO/IEC 27001" ;
+    rdfs:comment "International standard for information security management systems (ISMS)" .
+
+:ISO27002
+    a owl:NamedIndividual, :SecurityStandard ;
+    rdfs:label "ISO/IEC 27002" ;
+    rdfs:comment "Information security controls guidance (companion to ISO/IEC 27001)" .
+
+:NISTFramework
+    a owl:NamedIndividual, :SecurityStandard ;
+    rdfs:label "NIST Cybersecurity Framework" ;
+    rdfs:comment "NIST CSF 2.0 — framework for improving critical infrastructure cybersecurity" .
+
+:ENISAGuidelines
+    a owl:NamedIndividual, :SecurityStandard ;
+    rdfs:label "ENISA Guidelines" ;
+    rdfs:comment "European Union Agency for Cybersecurity (ENISA) guidelines and good practices" .
+
+:CISControls
+    a owl:NamedIndividual, :SecurityStandard ;
+    rdfs:label "CIS Controls v8" ;
+    rdfs:comment "Center for Internet Security Controls — prioritised set of actions for cyber defence" .
+
+#################################################################
+#    Individuals — Cybersecurity Risks
+#################################################################
+
+:DataBreachRisk
+    a owl:NamedIndividual, :CybersecurityRisk ;
+    rdfs:label "Data Breach Risk" ;
+    rdfs:comment "Risk of unauthorised access to, disclosure of, or loss of personal or confidential data" ;
+    :riskLevel "high" .
+
+:RansomwareRisk
+    a owl:NamedIndividual, :CybersecurityRisk ;
+    rdfs:label "Ransomware Risk" ;
+    rdfs:comment "Risk of malicious software encrypting systems or data and demanding payment for restoration" ;
+    :riskLevel "critical" .
+
+:DDoSRisk
+    a owl:NamedIndividual, :CybersecurityRisk ;
+    rdfs:label "Distributed Denial-of-Service Risk" ;
+    rdfs:comment "Risk of service disruption through volumetric network attacks overwhelming infrastructure" ;
+    :riskLevel "high" .
+
+:InsiderThreatRisk
+    a owl:NamedIndividual, :CybersecurityRisk ;
+    rdfs:label "Insider Threat Risk" ;
+    rdfs:comment "Risk of malicious or negligent actions by authorised users causing security breaches" ;
+    :riskLevel "medium" .
+
+:SupplyChainCompromiseRisk
+    a owl:NamedIndividual, :CybersecurityRisk ;
+    rdfs:label "Supply Chain Compromise Risk" ;
+    rdfs:comment "Risk of attackers compromising software or hardware through supplier or third-party access" ;
+    :riskLevel "critical" .
+
+#################################################################
+#    Individuals — Security Incidents
+#################################################################
+
+:UnauthorizedAccessIncident
+    a owl:NamedIndividual, :SecurityIncident ;
+    rdfs:label "Unauthorised Access Incident" ;
+    rdfs:comment "An incident where an attacker gains unauthorised access to systems or data" .
+
+:DataBreachIncident
+    a owl:NamedIndividual, :SecurityIncident ;
+    rdfs:label "Data Breach Incident" ;
+    rdfs:comment "An incident resulting in the confirmed disclosure of confidential data to unauthorised parties" .
+
+:ServiceDisruptionIncident
+    a owl:NamedIndividual, :SecurityIncident ;
+    rdfs:label "Service Disruption Incident" ;
+    rdfs:comment "An incident causing significant disruption or unavailability of an essential service" .
+
+:RansomwareIncident
+    a owl:NamedIndividual, :SecurityIncident ;
+    rdfs:label "Ransomware Incident" ;
+    rdfs:comment "An incident where ransomware has encrypted systems or data within the entity" .
+
+#################################################################
+#    Individuals — Article 21(2) Measure Instances
+#################################################################
+
+:ExampleRiskAnalysisPolicy
+    a owl:NamedIndividual, :RiskAnalysisPolicy ;
+    rdfs:label "Example Risk Analysis Policy" ;
+    :measureDescription "Policies on risk analysis and information system security covering asset identification, threat assessment and risk treatment" ;
+    :isAppropriate true ;
+    :isProportionate true ;
+    :isStateOfTheArt true ;
+    :basedOnStandard :ISO27001 ;
+    :addressesRisk :DataBreachRisk ;
+    :addressesRisk :InsiderThreatRisk ;
+    :appliesToSystem :CoreBankingSystem ;
+    :appliesToSystem :InternalITInfrastructure .
+
+:ExampleIncidentHandling
+    a owl:NamedIndividual, :IncidentHandling ;
+    rdfs:label "Example Incident Handling" ;
+    :measureDescription "Incident detection, classification, response and recovery procedures including reporting obligations" ;
+    :isAppropriate true ;
+    :isProportionate true ;
+    :isStateOfTheArt true ;
+    :basedOnStandard :ENISAGuidelines ;
+    :addressesRisk :RansomwareRisk ;
+    :preventsIncident :RansomwareIncident ;
+    :minimizesImpact :ServiceDisruptionIncident ;
+    :appliesToSystem :CoreBankingSystem ;
+    :appliesToSystem :WebApplicationPlatform ;
+    :appliesToSystem :InternalITInfrastructure .
+
+:ExampleBusinessContinuity
+    a owl:NamedIndividual, :BusinessContinuityManagement ;
+    rdfs:label "Example Business Continuity Management" ;
+    :measureDescription "Business continuity and crisis management including backup management, disaster recovery and crisis management procedures" ;
+    :isAppropriate true ;
+    :isProportionate true ;
+    :isStateOfTheArt true ;
+    :basedOnStandard :ISO27001 ;
+    :addressesRisk :DDoSRisk ;
+    :minimizesImpact :ServiceDisruptionIncident ;
+    :appliesToSystem :CoreBankingSystem .
+
+:ExampleSupplyChainSecurity
+    a owl:NamedIndividual, :SupplyChainSecurity ;
+    rdfs:label "Example Supply Chain Security" ;
+    :measureDescription "Security measures covering supplier relationships, third-party risk assessments, and contractual security requirements" ;
+    :isAppropriate true ;
+    :isProportionate true ;
+    :isStateOfTheArt true ;
+    :basedOnStandard :ISO27002 ;
+    :addressesRisk :SupplyChainCompromiseRisk .
+
+:ExampleSecureDevelopment
+    a owl:NamedIndividual, :SecureDevelopment ;
+    rdfs:label "Example Secure Development" ;
+    :measureDescription "Secure software development lifecycle including vulnerability testing, patch management and responsible disclosure practices" ;
+    :isAppropriate true ;
+    :isProportionate true ;
+    :isStateOfTheArt true ;
+    :basedOnStandard :NISTFramework ;
+    :addressesRisk :SupplyChainCompromiseRisk ;
+    :preventsIncident :UnauthorizedAccessIncident ;
+    :appliesToSystem :WebApplicationPlatform .
+
+:ExampleEffectivenessAssessment
+    a owl:NamedIndividual, :EffectivenessAssessment ;
+    rdfs:label "Example Effectiveness Assessment" ;
+    :measureDescription "Procedures for regular assessment and audit of cybersecurity risk-management measures including KPIs and metrics" ;
+    :isAppropriate true ;
+    :isProportionate true ;
+    :isStateOfTheArt true ;
+    :basedOnStandard :ISO27001 ;
+    :addressesRisk :DataBreachRisk .
+
+:ExampleBasicCyberHygiene
+    a owl:NamedIndividual, :BasicCyberHygiene ;
+    rdfs:label "Example Basic Cyber Hygiene" ;
+    :measureDescription "Basic cyber hygiene practices including zero-trust principles, software updates, device configuration, network segmentation and phishing awareness" ;
+    :isAppropriate true ;
+    :isProportionate true ;
+    :isStateOfTheArt true ;
+    :basedOnStandard :CISControls ;
+    :addressesRisk :InsiderThreatRisk ;
+    :preventsIncident :UnauthorizedAccessIncident .
+
+:ExampleTrainingAwareness
+    a owl:NamedIndividual, :TrainingAwareness ;
+    rdfs:label "Example Training and Awareness" ;
+    :measureDescription "Cybersecurity awareness training programmes for all personnel, and specialised training for security staff" ;
+    :isAppropriate true ;
+    :isProportionate true ;
+    :isStateOfTheArt true ;
+    :basedOnStandard :ENISAGuidelines ;
+    :addressesRisk :InsiderThreatRisk .
+
+:ExampleHumanResourcesSecurity
+    a owl:NamedIndividual, :HumanResourcesSecurity ;
+    rdfs:label "Example Human Resources Security" ;
+    :measureDescription "Human resources security covering background checks, role-based access control, asset management and personnel security on-boarding and off-boarding" ;
+    :isAppropriate true ;
+    :isProportionate true ;
+    :isStateOfTheArt true ;
+    :basedOnStandard :ISO27002 ;
+    :addressesRisk :InsiderThreatRisk ;
+    :preventsIncident :DataBreachIncident .
+
+:ExampleEncryption
+    a owl:NamedIndividual, :Encryption ;
+    rdfs:label "Example Encryption" ;
+    :measureDescription "Use of strong cryptographic algorithms and key management for data at rest and in transit" ;
+    :isAppropriate true ;
+    :isProportionate true ;
+    :isStateOfTheArt true ;
+    :basedOnStandard :NISTFramework ;
+    :addressesRisk :DataBreachRisk ;
+    :preventsIncident :DataBreachIncident ;
+    :appliesToSystem :CoreBankingSystem ;
+    :appliesToSystem :WebApplicationPlatform .
+
+:ExampleMultiFactorAuthentication
+    a owl:NamedIndividual, :MultiFactorAuthentication ;
+    rdfs:label "Example Multi-Factor Authentication" ;
+    :measureDescription "Deployment of MFA or continuous authentication for privileged and remote access to network and information systems" ;
+    :isAppropriate true ;
+    :isProportionate true ;
+    :isStateOfTheArt true ;
+    :basedOnStandard :CISControls ;
+    :addressesRisk :DataBreachRisk ;
+    :preventsIncident :UnauthorizedAccessIncident ;
+    :appliesToSystem :InternalITInfrastructure ;
+    :appliesToSystem :CoreBankingSystem .
+
+:ExampleSecureCommunications
+    a owl:NamedIndividual, :SecureCommunications ;
+    rdfs:label "Example Secure Communications" ;
+    :measureDescription "Secured voice, video and text communications channels including end-to-end encrypted messaging and secured emergency communication systems" ;
+    :isAppropriate true ;
+    :isProportionate true ;
+    :isStateOfTheArt true ;
+    :basedOnStandard :ENISAGuidelines ;
+    :addressesRisk :DataBreachRisk .
+
+#################################################################
+#    Individuals — Entity Instances (demonstrate reasoning)
+#################################################################
+
+#   ExampleCompliantEntity — implements all 12 Article 21(2) measures.
+#   An OWL 2 reasoner will automatically infer this as a CompliantEntity.
+
+:ExampleCompliantEntity
+    a owl:NamedIndividual, :EssentialEntity ;
+    rdfs:label "Example Compliant Essential Entity" ;
+    rdfs:comment "An essential entity that implements all 12 mandatory Article 21 measures. An OWL 2 reasoner will automatically infer this individual as a CompliantEntity." ;
+    :implementsMeasure :ExampleRiskAnalysisPolicy ;
+    :implementsMeasure :ExampleIncidentHandling ;
+    :implementsMeasure :ExampleBusinessContinuity ;
+    :implementsMeasure :ExampleSupplyChainSecurity ;
+    :implementsMeasure :ExampleSecureDevelopment ;
+    :implementsMeasure :ExampleEffectivenessAssessment ;
+    :implementsMeasure :ExampleBasicCyberHygiene ;
+    :implementsMeasure :ExampleTrainingAwareness ;
+    :implementsMeasure :ExampleHumanResourcesSecurity ;
+    :implementsMeasure :ExampleEncryption ;
+    :implementsMeasure :ExampleMultiFactorAuthentication ;
+    :implementsMeasure :ExampleSecureCommunications .
+
+#   ExampleNonCompliantEntity — implements only 5 of the 12 required measures.
+#   A reasoner will NOT classify this as CompliantEntity, demonstrating gap detection.
+
+:ExampleNonCompliantEntity
+    a owl:NamedIndividual, :ImportantEntity ;
+    rdfs:label "Example Non-Compliant Important Entity" ;
+    rdfs:comment "An important entity that implements only 5 of the 12 mandatory Article 21 measures. A reasoner will NOT classify this individual as CompliantEntity, demonstrating gap detection." ;
+    :implementsMeasure :ExampleRiskAnalysisPolicy ;
+    :implementsMeasure :ExampleIncidentHandling ;
+    :implementsMeasure :ExampleEncryption ;
+    :implementsMeasure :ExampleBasicCyberHygiene ;
+    :implementsMeasure :ExampleTrainingAwareness .
+
+#################################################################
+#    Individuals — Network and Information Systems
+#################################################################
+
+:CoreBankingSystem
+    a owl:NamedIndividual, :NetworkInformationSystem ;
+    rdfs:label "Core Banking System" ;
+    rdfs:comment "The primary network and information system hosting banking transaction processing and customer data" .
+
+:WebApplicationPlatform
+    a owl:NamedIndividual, :NetworkInformationSystem ;
+    rdfs:label "Web Application Platform" ;
+    rdfs:comment "The customer-facing web application and API platform serving external users" .
+
+:InternalITInfrastructure
+    a owl:NamedIndividual, :NetworkInformationSystem ;
+    rdfs:label "Internal IT Infrastructure" ;
+    rdfs:comment "The internal corporate IT infrastructure including endpoints, servers, and network equipment" .

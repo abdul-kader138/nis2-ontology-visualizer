@@ -1,0 +1,2080 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NIS2 Article 21 Ontology — Automated Validation &amp; Reasoning</title>
+    <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .controls {
+            padding: 20px;
+            background: #f5f5f5;
+            border-bottom: 2px solid #e0e0e0;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .controls button {
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+
+        .controls button:hover {
+            background: #5568d3;
+        }
+
+        .controls select {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .legend {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+            border: 1px solid #333;
+        }
+
+        #network {
+            width: 100%;
+            height: 800px;
+            border: 1px solid #ddd;
+        }
+
+        .info-panel {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            max-width: 300px;
+            display: none;
+        }
+
+        .info-panel h3 {
+            margin-bottom: 10px;
+            color: #667eea;
+        }
+
+        .info-panel p {
+            margin: 5px 0;
+            font-size: 14px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+            font-size: 18px;
+            color: #667eea;
+        }
+
+        .stats {
+            padding: 15px 20px;
+            background: #f9f9f9;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+        }
+
+        /* Validation Panel - Clean Modern Design */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            display: none;
+            backdrop-filter: blur(4px);
+        }
+
+        .validation-panel {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #ffffff;
+            width: 90%;
+            max-width: 850px;
+            max-height: 85vh;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            display: none;
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        .validation-header {
+            background: #1f2937;
+            color: white;
+            padding: 20px 28px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .validation-header h2 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 500;
+            letter-spacing: -0.3px;
+        }
+
+        .validation-close {
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 28px;
+            cursor: pointer;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            transition: all 0.2s;
+            line-height: 1;
+        }
+
+        .validation-close:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .validation-content {
+            padding: 28px;
+            max-height: calc(85vh - 80px);
+            overflow-y: auto;
+            background: #f9fafb;
+        }
+
+        /* Query Panel Styles */
+        .query-panel {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #ffffff;
+            width: 90%;
+            max-width: 900px;
+            max-height: 90vh;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            display: none;
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        .query-content {
+            padding: 28px;
+            max-height: calc(90vh - 80px);
+            overflow-y: auto;
+            background: #f9fafb;
+        }
+
+        .query-examples {
+            margin-bottom: 24px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .example-queries {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .example-query-btn {
+            padding: 8px 16px;
+            background: #e0e7ff;
+            color: #4338ca;
+            border: 1px solid #c7d2fe;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .example-query-btn:hover {
+            background: #c7d2fe;
+            color: #312e81;
+            transform: translateY(-1px);
+        }
+
+        .query-input-section {
+            margin-bottom: 20px;
+        }
+
+        .query-textarea {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            resize: vertical;
+            background: white;
+            transition: border-color 0.2s;
+        }
+
+        .query-textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .query-actions {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .query-execute-btn {
+            padding: 12px 24px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+
+        .query-execute-btn:hover {
+            background: #5568d3;
+        }
+
+        .query-execute-btn:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        .query-clear-btn {
+            padding: 12px 24px;
+            background: #f3f4f6;
+            color: #374151;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .query-clear-btn:hover {
+            background: #e5e7eb;
+            border-color: #9ca3af;
+        }
+
+        .query-results {
+            margin-top: 20px;
+        }
+
+        .query-results-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .query-results-table thead {
+            background: #1f2937;
+            color: white;
+        }
+
+        .query-results-table th {
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .query-results-table td {
+            padding: 12px 16px;
+            border-top: 1px solid #e5e7eb;
+            font-size: 13px;
+            color: #374151;
+        }
+
+        .query-results-table tbody tr:hover {
+            background: #f9fafb;
+        }
+
+        .query-results-info {
+            padding: 16px;
+            background: #ecfdf5;
+            border: 1px solid #a7f3d0;
+            border-radius: 8px;
+            color: #065f46;
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+
+        .query-results-error {
+            padding: 16px;
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 8px;
+            color: #991b1b;
+            font-size: 14px;
+        }
+
+        .query-results-empty {
+            padding: 40px;
+            text-align: center;
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .query-loading {
+            padding: 20px;
+            text-align: center;
+            color: #667eea;
+            font-size: 14px;
+        }
+
+        .validation-status-badge {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 20px;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 14px;
+            margin-bottom: 24px;
+            border: 1px solid;
+        }
+
+        .validation-status-badge.passed {
+            background: #ecfdf5;
+            color: #065f46;
+            border-color: #a7f3d0;
+        }
+
+        .validation-status-badge.failed {
+            background: #fef2f2;
+            color: #991b1b;
+            border-color: #fecaca;
+        }
+
+        .validation-status-badge.partial {
+            background: #fffbeb;
+            color: #92400e;
+            border-color: #fde68a;
+        }
+
+        .validation-meta {
+            display: flex;
+            justify-content: space-between;
+            padding: 14px 0;
+            border-bottom: 1px solid #e5e7eb;
+            margin-bottom: 24px;
+            font-size: 13px;
+            color: #6b7280;
+        }
+
+        .validation-meta strong {
+            color: #374151;
+            font-weight: 500;
+        }
+
+        .validation-section {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .validation-section-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .validation-section-header h3 {
+            margin: 0;
+            font-size: 14px;
+            font-weight: 600;
+            color: #111827;
+            letter-spacing: -0.2px;
+        }
+
+        .validation-section-header .badge {
+            background: #f3f4f6;
+            color: #374151;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .validation-item {
+            padding: 12px 14px;
+            margin: 8px 0;
+            border-radius: 6px;
+            border-left: 3px solid;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .validation-item.error {
+            background: #fef2f2;
+            border-color: #ef4444;
+            color: #991b1b;
+        }
+
+        .validation-item.warning {
+            background: #fffbeb;
+            border-color: #f59e0b;
+            color: #92400e;
+        }
+
+        .validation-item.info {
+            background: #f0f9ff;
+            border-color: #0ea5e9;
+            color: #0c4a6e;
+        }
+
+        .validation-item.success {
+            background: #ecfdf5;
+            border-color: #22c55e;
+            color: #065f46;
+        }
+
+        .validation-item strong {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .validation-item small {
+            display: block;
+            margin-top: 6px;
+            font-size: 11px;
+            opacity: 0.7;
+        }
+
+        .validation-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .validation-stat {
+            text-align: center;
+            padding: 16px;
+            background: #f9fafb;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .validation-stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 4px;
+            letter-spacing: -0.5px;
+        }
+
+        .validation-stat-label {
+            font-size: 11px;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 500;
+        }
+
+        .compliance-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+            margin-top: 6px;
+        }
+
+        .compliance-indicator.compliant {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .compliance-indicator.non-compliant {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        /* Measure Toggle Panel */
+        .measure-toggle-panel {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            max-width: 320px;
+            max-height: 80vh;
+            overflow-y: auto;
+            z-index: 100;
+            display: none;
+        }
+
+        .measure-toggle-panel h3 {
+            margin: 0 0 15px 0;
+            color: #667eea;
+            font-size: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .measure-toggle-panel .toggle-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .measure-toggle-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .measure-toggle-item:last-child {
+            border-bottom: none;
+        }
+
+        .measure-toggle-item input[type="checkbox"] {
+            margin-right: 10px;
+            cursor: pointer;
+        }
+
+        .measure-toggle-item label {
+            cursor: pointer;
+            font-size: 13px;
+            flex: 1;
+        }
+
+        .measure-toggle-item.disabled {
+            opacity: 0.5;
+        }
+
+        .toggle-all-buttons {
+            display: flex;
+            gap: 8px;
+            margin-top: 15px;
+        }
+
+        .toggle-all-buttons button {
+            flex: 1;
+            padding: 6px 12px;
+            font-size: 12px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .toggle-all-buttons button:hover {
+            background: #5568d3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>NIS2 Article 21 Ontology</h1>
+            <p>Automated Validation &amp; Reasoning Framework — Cybersecurity Risk-Management Measures</p>
+        </div>
+        
+        <div class="controls">
+            <button onclick="applyHierarchicalLayout()">Hierarchical Layout</button>
+            <button onclick="applyOrganicLayout()">Organic Layout</button>
+            <button onclick="resetView()">Reset View</button>
+            <button onclick="fitToScreen()">Fit to Screen</button>
+            <button onclick="validateOntology()" style="background: #28a745;">Validate Ontology</button>
+            <button onclick="runReasoner()" style="background: #dc3545;">Run Reasoner</button>
+            <button onclick="runShaclValidation()" style="background: #6610f2;">SHACL Shapes</button>
+            <button onclick="openEntityChecker()" style="background: #e67e22; font-weight:700;">Check Real Entity</button>
+            <button onclick="toggleMeasurePanel()" style="background: #6c757d;">Toggle Measures</button>
+            <button onclick="openQueryPanel()" style="background: #17a2b8;">SPARQL Query</button>
+            <select id="filterCategory" onchange="filterByCategory()">
+                <option value="all">All Categories</option>
+                <option value="entity">Entities</option>
+                <option value="measure">Measures</option>
+                <option value="supporting">Supporting Classes</option>
+            </select>
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #E6F3FF;"></div>
+                    <span>Entities</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #E6FFE6;"></div>
+                    <span>Measures</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #FFE6CC;"></div>
+                    <span>Supporting</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Measure Toggle Panel -->
+        <div class="measure-toggle-panel" id="measureTogglePanel">
+            <div class="toggle-header">
+                <h3>Article 21 Measures</h3>
+                <button onclick="toggleMeasurePanel()" style="background:transparent; border:none; font-size:20px; cursor:pointer; color:#999;">×</button>
+            </div>
+            <p style="font-size:12px; color:#666; margin-bottom:10px;">Toggle measures to simulate compliance gaps. Graph updates in real time.</p>
+            <div id="liveComplianceBadge" style="padding:8px 12px; border-radius:6px; font-size:12px; font-weight:600; border:1px solid #86efac; background:#dcfce7; color:#166534; margin-bottom:12px; text-align:center;">
+                ✓ Compliant (12/12 measures)
+            </div>
+            <div id="measureCheckboxes"></div>
+            <div class="toggle-all-buttons">
+                <button onclick="enableAllMeasures()">Enable All</button>
+                <button onclick="disableAllMeasures()">Disable All</button>
+            </div>
+        </div>
+
+        <div id="loading" class="loading">Loading ontology...</div>
+        <div id="network"></div>
+        
+        <div class="stats" id="stats">
+            <div class="stat-item">
+                <div class="stat-value" id="nodeCount">0</div>
+                <div class="stat-label">Nodes</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="edgeCount">0</div>
+                <div class="stat-label">Relationships</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="classCount">0</div>
+                <div class="stat-label">Classes</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Entity Checker Panel -->
+    <div class="validation-panel" id="entityCheckerPanel" style="max-width:680px;">
+        <div class="validation-header">
+            <h2>NIS2 Article 21 — Real Entity Compliance Check</h2>
+            <button class="validation-close" onclick="closeEntityChecker()" title="Close">×</button>
+        </div>
+        <div class="validation-content" style="padding:24px;">
+            <p style="font-size:13px; color:#6b7280; margin-bottom:20px; line-height:1.5;">
+                Enter a real entity name, select its type, and check which Article 21(2) measures it implements.
+                The OWL reasoner will automatically classify it as <strong>Compliant</strong> or <strong>Non-Compliant</strong>.
+            </p>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px;">
+                <div>
+                    <label style="font-weight:600; font-size:13px; color:#374151; display:block; margin-bottom:6px;">Entity Name</label>
+                    <input id="entityNameInput" type="text" placeholder="e.g. National Bank of Example"
+                        style="width:100%; padding:10px 12px; border:1.5px solid #d1d5db; border-radius:8px; font-size:14px; outline:none;"
+                        onfocus="this.style.borderColor='#667eea'" onblur="this.style.borderColor='#d1d5db'"/>
+                </div>
+                <div>
+                    <label style="font-weight:600; font-size:13px; color:#374151; display:block; margin-bottom:6px;">Entity Type (NIS2 Article 3)</label>
+                    <select id="entityTypeSelect"
+                        style="width:100%; padding:10px 12px; border:1.5px solid #d1d5db; border-radius:8px; font-size:14px; background:white; outline:none;">
+                        <option value="EssentialEntity">Essential Entity (Article 3(1))</option>
+                        <option value="ImportantEntity">Important Entity (Article 3(2))</option>
+                    </select>
+                </div>
+            </div>
+
+            <label style="font-weight:600; font-size:13px; color:#374151; display:block; margin-bottom:10px;">
+                Article 21(2) Measures Implemented <span style="font-weight:400; color:#9ca3af;">(select all that apply)</span>
+            </label>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-bottom:16px;" id="entityMeasureGrid"></div>
+
+            <div style="display:flex; gap:10px; margin-bottom:20px;">
+                <button onclick="selectAllEntityMeasures(true)"
+                    style="padding:7px 14px; background:#e8f5e9; color:#2e7d32; border:1px solid #a5d6a7; border-radius:6px; cursor:pointer; font-size:12px; font-weight:600;">
+                    Select All
+                </button>
+                <button onclick="selectAllEntityMeasures(false)"
+                    style="padding:7px 14px; background:#fce4ec; color:#c62828; border:1px solid #f48fb1; border-radius:6px; cursor:pointer; font-size:12px; font-weight:600;">
+                    Clear All
+                </button>
+            </div>
+
+            <button onclick="runEntityCheck()"
+                style="width:100%; padding:12px; background:linear-gradient(135deg,#e67e22,#d35400); color:white; border:none; border-radius:8px; font-size:15px; font-weight:700; cursor:pointer; letter-spacing:0.3px;">
+                Check NIS2 Article 21 Compliance
+            </button>
+
+            <div id="entityCheckResult" style="margin-top:20px;"></div>
+        </div>
+    </div>
+
+    <!-- SHACL Panel -->
+    <div class="validation-panel" id="shaclPanel">
+        <div class="validation-header">
+            <h2>SHACL Shapes Validation</h2>
+            <button class="validation-close" onclick="closeShaclPanel()" title="Close">×</button>
+        </div>
+        <div class="validation-content" id="shaclContent"></div>
+    </div>
+
+    <!-- Reasoning Panel -->
+    <div class="validation-panel" id="reasoningPanel">
+        <div class="validation-header">
+            <h2>OWL 2 Compliance Reasoner</h2>
+            <button class="validation-close" onclick="closeReasoningPanel()" title="Close">×</button>
+        </div>
+        <div class="validation-content" id="reasoningContent"></div>
+    </div>
+
+    <div class="overlay" id="overlay" onclick="closeAllPanels()"></div>
+
+    <div class="validation-panel" id="validationPanel">
+        <div class="validation-header">
+            <h2>Ontology Validation Report</h2>
+            <button class="validation-close" onclick="closeValidationPanel()" title="Close">×</button>
+        </div>
+        <div class="validation-content" id="validationContent"></div>
+    </div>
+
+    <div class="query-panel" id="queryPanel">
+        <div class="validation-header">
+            <h2>SPARQL Query Interface</h2>
+            <button class="validation-close" onclick="closeQueryPanel()" title="Close">×</button>
+        </div>
+        <div class="query-content">
+            <div class="query-examples">
+                <label style="font-weight: 600; margin-bottom: 8px; display: block; color: #374151;">Example Queries:</label>
+                <div class="example-queries">
+                    <button class="example-query-btn" onclick="loadExampleQuery('all')">All Triples</button>
+                    <button class="example-query-btn" onclick="loadExampleQuery('classes')">All Classes</button>
+                    <button class="example-query-btn" onclick="loadExampleQuery('measures')">All Measures</button>
+                    <button class="example-query-btn" onclick="loadExampleQuery('properties')">All Properties</button>
+                    <button class="example-query-btn" onclick="loadExampleQuery('instances')">All Instances</button>
+                    <button class="example-query-btn" onclick="loadExampleQuery('compliance')">Compliance Check</button>
+                </div>
+                <label style="font-weight: 600; margin: 10px 0 8px; display: block; color: #374151;">Competency Questions (thesis):</label>
+                <div class="example-queries">
+                    <button class="example-query-btn" style="background:#6610f2;color:white;" onclick="loadExampleQuery('cq1')">CQ1: Critical Risks</button>
+                    <button class="example-query-btn" style="background:#6610f2;color:white;" onclick="loadExampleQuery('cq2')">CQ2: Standards Used</button>
+                    <button class="example-query-btn" style="background:#6610f2;color:white;" onclick="loadExampleQuery('cq3')">CQ3: Incident Prevention</button>
+                    <button class="example-query-btn" style="background:#6610f2;color:white;" onclick="loadExampleQuery('cq4')">CQ4: System Coverage</button>
+                    <button class="example-query-btn" style="background:#6610f2;color:white;" onclick="loadExampleQuery('cq5')">CQ5: Entity Measures</button>
+                </div>
+            </div>
+            <div class="query-input-section">
+                <label style="font-weight: 600; margin-bottom: 8px; display: block; color: #374151;">SPARQL Query:</label>
+                <textarea id="sparqlQuery" class="query-textarea" placeholder="Enter your SPARQL query here...&#10;&#10;Example:&#10;SELECT * WHERE { ?s ?p ?o }" rows="8"></textarea>
+            </div>
+            <div class="query-actions">
+                <button class="query-execute-btn" onclick="executeQuery()">Execute Query</button>
+                <button class="query-clear-btn" onclick="clearQuery()">Clear</button>
+            </div>
+            <div id="queryResults" class="query-results"></div>
+        </div>
+    </div>
+
+    <div class="info-panel" id="infoPanel">
+        <h3>Node Information</h3>
+        <p id="nodeInfo"></p>
+    </div>
+
+    <script>
+        let network = null;
+        let allNodes = [];
+        let allEdges = [];
+        let filteredNodes = [];
+        let filteredEdges = [];
+        let backendClassCount = null;
+        let lastValidationResults = null;
+        let lastReasoningResults = null;
+
+        // Track enabled/disabled measures (UI simulation only - does not modify TTL file)
+        const allArticle21Measures = [
+            'RiskAnalysisPolicy',
+            'IncidentHandling',
+            'BusinessContinuityManagement',
+            'SupplyChainSecurity',
+            'SecureDevelopment',
+            'EffectivenessAssessment',
+            'BasicCyberHygiene',
+            'TrainingAwareness',
+            'HumanResourcesSecurity',
+            'Encryption',
+            'MultiFactorAuthentication',
+            'SecureCommunications'
+        ];
+
+        // Initialize all measures as enabled
+        let enabledMeasures = new Set(allArticle21Measures);
+
+        // Measure display names
+        const measureDisplayNames = {
+            'RiskAnalysisPolicy': 'Risk Analysis Policy',
+            'IncidentHandling': 'Incident Handling',
+            'BusinessContinuityManagement': 'Business Continuity Management',
+            'SupplyChainSecurity': 'Supply Chain Security',
+            'SecureDevelopment': 'Secure Development',
+            'EffectivenessAssessment': 'Effectiveness Assessment',
+            'BasicCyberHygiene': 'Basic Cyber Hygiene',
+            'TrainingAwareness': 'Training and Awareness',
+            'HumanResourcesSecurity': 'Human Resources Security',
+            'Encryption': 'Encryption',
+            'MultiFactorAuthentication': 'Multi-Factor Authentication',
+            'SecureCommunications': 'Secure Communications'
+        };
+
+        // Initialize measure checkboxes
+        function initializeMeasureCheckboxes() {
+            const container = document.getElementById('measureCheckboxes');
+            container.innerHTML = '';
+            
+            allArticle21Measures.forEach(measure => {
+                const div = document.createElement('div');
+                div.className = 'measure-toggle-item';
+                div.id = `toggle-${measure}`;
+                
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.id = `checkbox-${measure}`;
+                checkbox.checked = enabledMeasures.has(measure);
+                checkbox.onchange = () => toggleMeasure(measure, checkbox.checked);
+                
+                const label = document.createElement('label');
+                label.htmlFor = `checkbox-${measure}`;
+                label.textContent = measureDisplayNames[measure];
+                
+                div.appendChild(checkbox);
+                div.appendChild(label);
+                container.appendChild(div);
+            });
+        }
+
+        function toggleMeasure(measure, enabled) {
+            if (enabled) {
+                enabledMeasures.add(measure);
+            } else {
+                enabledMeasures.delete(measure);
+            }
+            updateGraphForDisabledMeasures();
+            updateLiveComplianceStatus();
+        }
+
+        function enableAllMeasures() {
+            allArticle21Measures.forEach(m => enabledMeasures.add(m));
+            allArticle21Measures.forEach(m => {
+                const checkbox = document.getElementById(`checkbox-${m}`);
+                if (checkbox) checkbox.checked = true;
+            });
+            updateGraphForDisabledMeasures();
+            updateLiveComplianceStatus();
+        }
+
+        function disableAllMeasures() {
+            allArticle21Measures.forEach(m => enabledMeasures.delete(m));
+            allArticle21Measures.forEach(m => {
+                const checkbox = document.getElementById(`checkbox-${m}`);
+                if (checkbox) checkbox.checked = false;
+            });
+            updateGraphForDisabledMeasures();
+            updateLiveComplianceStatus();
+        }
+
+        // Live compliance badge in the toggle panel — updates as user checks/unchecks measures
+        function updateLiveComplianceStatus() {
+            const badge = document.getElementById('liveComplianceBadge');
+            if (!badge) return;
+            const count = enabledMeasures.size;
+            const total = allArticle21Measures.length;
+            const compliant = count === total;
+            badge.textContent = compliant
+                ? `✓ Compliant (${count}/${total} measures)`
+                : `✗ Non-Compliant (${count}/${total} measures)`;
+            badge.style.background = compliant ? '#dcfce7' : '#fee2e2';
+            badge.style.color = compliant ? '#166534' : '#991b1b';
+            badge.style.borderColor = compliant ? '#86efac' : '#fca5a5';
+        }
+
+        function toggleMeasurePanel() {
+            const panel = document.getElementById('measureTogglePanel');
+            if (panel.style.display === 'none' || !panel.style.display) {
+                panel.style.display = 'block';
+                initializeMeasureCheckboxes();
+            } else {
+                panel.style.display = 'none';
+            }
+        }
+
+        // Update graph visualization to gray out disabled measures
+        function updateGraphForDisabledMeasures() {
+            if (!network) return;
+            
+            const nodes = network.body.data.nodes;
+            nodes.forEach(node => {
+                const nodeId = node.id.includes('#') ? node.id.split('#')[1] : node.id.split('/').pop();
+                
+                if (allArticle21Measures.includes(nodeId)) {
+                    if (enabledMeasures.has(nodeId)) {
+                        // Enabled - normal color
+                        const originalNode = allNodes.find(n => n.id === node.id);
+                        if (originalNode) {
+                            node.color = {
+                                background: originalNode.color.background || 
+                                          (originalNode.category === 'entity' ? '#E6F3FF' : 
+                                           originalNode.category === 'measure' ? '#E6FFE6' : '#FFE6CC'),
+                                border: '#2B7CE9'
+                            };
+                        }
+                        node.opacity = 1;
+                    } else {
+                        // Disabled - grayed out
+                        node.color = {
+                            background: '#CCCCCC',
+                            border: '#999999'
+                        };
+                        node.opacity = 0.4;
+                    }
+                }
+            });
+            network.redraw();
+        }
+
+        // Load ontology data
+        async function loadOntology() {
+            try {
+                const response = await fetch('/api/ontology');
+                const data = await response.json();
+                
+                allNodes = data.nodes.map(node => ({
+                    id: node.id,
+                    label: node.label || node.type,
+                    type: node.type || 'unknown', // Preserve type for class counting
+                    group: node.category,
+                    category: node.category, // Also store as category for filtering
+                    title: node.tooltip || `${node.type}\n${Object.keys(node.properties).length > 0 ? '\nProperties: ' + Object.keys(node.properties).join(', ') : ''}`,
+                    color: {
+                        background: node.color,
+                        border: '#2B7CE9',
+                        highlight: {
+                            background: '#FFA500',
+                            border: '#FF8C00'
+                        }
+                    },
+                    shape: node.category === 'supporting' ? 'ellipse' : 'box',
+                    font: {
+                        size: 14,
+                        face: 'Arial'
+                    }
+                }));
+                
+                allEdges = data.edges.map(edge => ({
+                    from: edge.from,
+                    to: edge.to,
+                    label: edge.label,
+                    arrows: edge.arrows || 'to',
+                    dashes: edge.dashes || false,
+                    color: {
+                        color: edge.type === 'inheritance' ? '#000000' : '#848484',
+                        highlight: '#FF0000'
+                    },
+                    width: edge.type === 'inheritance' ? 2 : 1,
+                    font: {
+                        size: 12,
+                        align: 'middle'
+                    }
+                }));
+
+                filteredNodes = [...allNodes];
+                filteredEdges = [...allEdges];
+
+                updateStats();
+                initializeNetwork();
+                // Apply disabled measure visualization after network is initialized
+                setTimeout(() => {
+                    updateGraphForDisabledMeasures();
+                }, 100);
+                document.getElementById('loading').style.display = 'none';
+            } catch (error) {
+                document.getElementById('loading').textContent = 'Error loading ontology. Please check the server.';
+            }
+        }
+
+        function initializeNetwork() {
+            const container = document.getElementById('network');
+            const data = {
+                nodes: new vis.DataSet(filteredNodes),
+                edges: new vis.DataSet(filteredEdges)
+            };
+
+            const options = {
+                nodes: {
+                    shape: 'box',
+                    font: {
+                        size: 14,
+                        face: 'Arial'
+                    },
+                    borderWidth: 2,
+                    shadow: true
+                },
+                edges: {
+                    width: 2,
+                    smooth: {
+                        type: 'continuous',
+                        roundness: 0.5
+                    },
+                    font: {
+                        size: 11,
+                        align: 'middle'
+                    },
+                    arrows: {
+                        to: {
+                            enabled: true,
+                            scaleFactor: 1.2
+                        }
+                    }
+                },
+                physics: {
+                    enabled: true,
+                    stabilization: {
+                        iterations: 200
+                    }
+                },
+                interaction: {
+                    hover: true,
+                    tooltipDelay: 100,
+                    zoomView: true,
+                    dragView: true
+                }
+            };
+
+            network = new vis.Network(container, data, options);
+
+            // Event listeners
+            network.on('click', function(params) {
+                if (params.nodes.length > 0) {
+                    showNodeInfo(params.nodes[0]);
+                } else {
+                    hideNodeInfo();
+                }
+            });
+
+            network.on('hoverNode', function(params) {
+                container.style.cursor = 'pointer';
+            });
+
+            network.on('blurNode', function(params) {
+                container.style.cursor = 'default';
+            });
+        }
+
+        function applyHierarchicalLayout() {
+            if (!network) return;
+            network.setOptions({
+                layout: {
+                    hierarchical: {
+                        enabled: true,
+                        direction: 'UD',
+                        sortMethod: 'directed',
+                        levelSeparation: 150,
+                        nodeSpacing: 200,
+                        treeSpacing: 200
+                    }
+                },
+                physics: {
+                    enabled: false
+                }
+            });
+        }
+
+        function applyOrganicLayout() {
+            if (!network) return;
+            network.setOptions({
+                layout: {
+                    hierarchical: {
+                        enabled: false
+                    }
+                },
+                physics: {
+                    enabled: true,
+                    stabilization: {
+                        iterations: 200
+                    }
+                }
+            });
+        }
+
+        function resetView() {
+            if (!network) return;
+            network.fit({
+                animation: {
+                    duration: 1000,
+                    easingFunction: 'easeInOutQuad'
+                }
+            });
+        }
+
+        function fitToScreen() {
+            if (!network) return;
+            network.fit({
+                animation: {
+                    duration: 1000,
+                    easingFunction: 'easeInOutQuad'
+                }
+            });
+        }
+
+        function filterByCategory() {
+            const category = document.getElementById('filterCategory').value;
+
+            if (category === 'all') {
+                filteredNodes = [...allNodes];
+                filteredEdges = [...allEdges];
+            } else {
+                filteredNodes = allNodes.filter(node =>
+                    node.group === category || node.category === category
+                );
+                const visibleIds = new Set(filteredNodes.map(n => n.id));
+                filteredEdges = allEdges.filter(edge =>
+                    visibleIds.has(edge.from) && visibleIds.has(edge.to)
+                );
+            }
+
+            if (network) {
+                network.setData({
+                    nodes: new vis.DataSet(filteredNodes),
+                    edges: new vis.DataSet(filteredEdges)
+                });
+                updateStats();
+            }
+        }
+
+        function showNodeInfo(nodeId) {
+            const node = allNodes.find(n => n.id === nodeId);
+            if (node) {
+                const panel = document.getElementById('infoPanel');
+                const info = document.getElementById('nodeInfo');
+                const nodeIdShort = node.id.includes('#') ? node.id.split('#').pop() : node.id.split('/').pop();
+                info.innerHTML = `
+                    <strong>Label:</strong> ${node.label}<br>
+                    <strong>Type:</strong> ${node.type || 'Unknown'}<br>
+                    <strong>Category:</strong> ${node.group}<br>
+                    <strong>ID:</strong> ${nodeIdShort}<br>
+                    ${node.title ? `<br><strong>Description:</strong><br>${node.title.replace(/\n/g, '<br>')}` : ''}
+                `;
+                panel.style.display = 'block';
+            }
+        }
+
+        function hideNodeInfo() {
+            document.getElementById('infoPanel').style.display = 'none';
+        }
+
+        function updateStats() {
+            document.getElementById('nodeCount').textContent = filteredNodes.length;
+            document.getElementById('edgeCount').textContent = filteredEdges.length;
+            const classCountEl = document.getElementById('classCount');
+            // Prefer backend class count from validator when available for accuracy
+            if (backendClassCount !== null) {
+                classCountEl.textContent = backendClassCount;
+            } else {
+                // Fallback: distinct node types currently visible in the graph
+                classCountEl.textContent = new Set(filteredNodes.map(n => n.type)).size;
+            }
+        }
+
+        // Validation function
+        async function validateOntology() {
+            try {
+                const response = await fetch('/api/validate');
+                const results = await response.json();
+                
+                const modifiedResults = modifyValidationResults(results);
+                lastValidationResults = modifiedResults;
+
+                // Store backend class count so the bottom stats match validation statistics
+                if (modifiedResults.statistics && typeof modifiedResults.statistics.totalClasses === 'number') {
+                    backendClassCount = modifiedResults.statistics.totalClasses;
+                    document.getElementById('classCount').textContent = backendClassCount;
+                }
+
+                displayValidationResults(modifiedResults);
+            } catch (error) {
+                console.error('Validation error:', error);
+                alert('Error validating ontology: ' + error.message);
+            }
+        }
+
+        // Modify validation results to reflect disabled measures (UI simulation only - TTL file unchanged)
+        function modifyValidationResults(results) {
+            const modified = JSON.parse(JSON.stringify(results)); // Deep copy
+            
+            // Find which measures are disabled
+            const disabledMeasures = allArticle21Measures.filter(m => !enabledMeasures.has(m));
+            
+            if (disabledMeasures.length > 0) {
+                // Add warnings for disabled measures
+                if (!modified.warnings) modified.warnings = [];
+                
+                disabledMeasures.forEach(measure => {
+                    modified.warnings.push({
+                        type: 'Disabled Measure (UI Simulation)',
+                        message: `${measureDisplayNames[measure]} is currently disabled in the UI. Enable it to achieve full compliance. Note: This is a simulation - the TTL file is not modified.`
+                    });
+                });
+                
+                // Update statistics
+                if (modified.statistics) {
+                    modified.statistics.requiredMeasuresFound = enabledMeasures.size;
+                    modified.statistics.requiredMeasuresTotal = allArticle21Measures.length;
+                }
+                
+                // Update info messages
+                if (!modified.info) modified.info = [];
+                modified.info = modified.info.filter(msg => 
+                    !msg.includes('All') && !msg.includes('required Article 21 measures')
+                );
+                
+                if (enabledMeasures.size === allArticle21Measures.length) {
+                    modified.info.push(`✓ All ${allArticle21Measures.length} required Article 21 measures present`);
+                } else {
+                    modified.info.push(`⚠ Only ${enabledMeasures.size} of ${allArticle21Measures.length} required Article 21 measures are enabled (UI Simulation Mode)`);
+                }
+            }
+            
+            return modified;
+        }
+
+        function displayValidationResults(results) {
+            const panel = document.getElementById('validationPanel');
+            const content = document.getElementById('validationContent');
+            const overlay = document.getElementById('overlay');
+            
+            const timestamp = new Date().toLocaleString();
+            const hasErrors = results.errors && results.errors.length > 0;
+            const hasWarnings = results.warnings && results.warnings.length > 0;
+            const isCompliant = results.valid && !hasErrors && !hasWarnings;
+            const isPartiallyCompliant = results.valid && !hasErrors && hasWarnings;
+            
+            let html = '';
+            
+            // Overall status badge
+            let statusBadge = '';
+            let statusText = '';
+            if (isCompliant) {
+                statusBadge = 'passed';
+                statusText = '✓ VALIDATION PASSED - Ontology is compliant';
+            } else if (hasErrors) {
+                statusBadge = 'failed';
+                statusText = '✗ VALIDATION FAILED - Critical issues detected';
+            } else {
+                statusBadge = 'partial';
+                statusText = '⚠ VALIDATION PASSED WITH WARNINGS - Review recommended';
+            }
+            
+            html += `<div class="validation-status-badge ${statusBadge}">
+                <span>${statusText}</span>
+            </div>`;
+            
+            // Metadata
+            html += `<div class="validation-meta">
+                <span><strong>Validation Date:</strong> ${timestamp}</span>
+                <span><strong>Ontology Version:</strong> 1.0</span>
+            </div>`;
+            
+            // Statistics
+            if (results.statistics) {
+                const measuresCompliant = results.statistics.requiredMeasuresFound === results.statistics.requiredMeasuresTotal;
+                html += `<div class="validation-section">
+                    <div class="validation-section-header">
+                        <h3>Ontology Statistics</h3>
+                    </div>
+                    <div class="validation-stats">
+                        <div class="validation-stat">
+                            <div class="validation-stat-value">${results.statistics.totalQuads || 0}</div>
+                            <div class="validation-stat-label">RDF Triples</div>
+                        </div>
+                        <div class="validation-stat">
+                            <div class="validation-stat-value">${results.statistics.totalClasses || 0}</div>
+                            <div class="validation-stat-label">Classes</div>
+                        </div>
+                        <div class="validation-stat">
+                            <div class="validation-stat-value">${results.statistics.totalProperties || 0}</div>
+                            <div class="validation-stat-label">Properties</div>
+                        </div>
+                        <div class="validation-stat">
+                            <div class="validation-stat-value">${results.statistics.totalInstances || 0}</div>
+                            <div class="validation-stat-label">Instances</div>
+                        </div>
+                        <div class="validation-stat">
+                            <div class="validation-stat-value">${results.statistics.requiredMeasuresFound || 0}/${results.statistics.requiredMeasuresTotal || 0}</div>
+                            <div class="validation-stat-label">Article 21 Measures</div>
+                            <span class="compliance-indicator ${measuresCompliant ? 'compliant' : 'non-compliant'}">
+                                ${measuresCompliant ? '✓' : '✗'} ${measuresCompliant ? 'Compliant' : 'Non-Compliant'}
+                            </span>
+                        </div>
+                    </div>
+                </div>`;
+            }
+            
+            // Errors
+            if (results.errors && results.errors.length > 0) {
+                html += `<div class="validation-section">
+                    <div class="validation-section-header">
+                        <h3>Critical Issues</h3>
+                        <span class="badge" style="background: #dc3545;">${results.errors.length}</span>
+                    </div>`;
+                results.errors.forEach((error, index) => {
+                    html += `<div class="validation-item error">
+                        <strong>ISSUE #${index + 1} - ${error.type}</strong>
+                        ${error.message}
+                        ${error.line ? `<small>Location: Line ${error.line}</small>` : ''}
+                    </div>`;
+                });
+                html += `</div>`;
+            }
+            
+            // Warnings
+            if (results.warnings && results.warnings.length > 0) {
+                html += `<div class="validation-section">
+                    <div class="validation-section-header">
+                        <h3>Warnings & Recommendations</h3>
+                        <span class="badge" style="background: #ffc107; color: #856404;">${results.warnings.length}</span>
+                    </div>`;
+                results.warnings.forEach((warning, index) => {
+                    html += `<div class="validation-item warning">
+                        <strong>WARNING #${index + 1} - ${warning.type}</strong>
+                        ${warning.message}
+                    </div>`;
+                });
+                html += `</div>`;
+            }
+            
+            // Info/Success messages
+            if (results.info && results.info.length > 0) {
+                html += `<div class="validation-section">
+                    <div class="validation-section-header">
+                        <h3>Validation Details</h3>
+                    </div>`;
+                results.info.forEach(info => {
+                    const isSuccess = info.startsWith('✓');
+                    html += `<div class="validation-item ${isSuccess ? 'success' : 'info'}">
+                        ${info}
+                    </div>`;
+                });
+                html += `</div>`;
+            }
+            
+            // Footer with export button
+            html += `<div style="margin-top: 32px; padding-top: 24px; border-top: 1px solid #e5e7eb; text-align: center; color: #6b7280; font-size: 12px; line-height: 1.6;">
+                <p style="margin: 0 0 4px 0; font-weight: 500; color: #374151;"><strong>NIS2 Directive (EU) 2022/2555</strong> — Article 21 Compliance Validation</p>
+                <p style="margin: 0 0 12px 0; opacity: 0.8;">This report validates compliance with cybersecurity risk-management measures requirements</p>
+                <button onclick="exportReport('validation')" style="padding:8px 18px; background:#667eea; color:white; border:none; border-radius:6px; cursor:pointer; font-size:13px; font-weight:500;">Export Report (JSON)</button>
+            </div>`;
+            
+            content.innerHTML = html;
+            panel.style.display = 'block';
+            overlay.style.display = 'block';
+        }
+
+        function closeValidationPanel() {
+            document.getElementById('validationPanel').style.display = 'none';
+            document.getElementById('overlay').style.display = 'none';
+        }
+
+        function closeAllPanels() {
+            closeValidationPanel();
+            closeQueryPanel();
+            closeReasoningPanel();
+            closeShaclPanel();
+            closeEntityChecker();
+        }
+
+        // Reasoning Panel
+        async function runReasoner() {
+            const panel = document.getElementById('reasoningPanel');
+            const content = document.getElementById('reasoningContent');
+            const overlay = document.getElementById('overlay');
+            content.innerHTML = '<div class="query-loading">Running OWL 2 compliance inference...</div>';
+            panel.style.display = 'block';
+            overlay.style.display = 'block';
+
+            try {
+                const res = await fetch('/api/reason');
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Reasoning failed');
+                lastReasoningResults = data;
+                displayReasoningResults(data);
+            } catch (e) {
+                content.innerHTML = `<div class="query-results-error">Error: ${e.message}</div>`;
+            }
+        }
+
+        function displayReasoningResults(data) {
+            const content = document.getElementById('reasoningContent');
+            const s = data.summary;
+
+            let html = `<div class="validation-status-badge ${s.compliant > 0 ? 'passed' : 'partial'}">
+                <span>${s.compliant > 0 ? '✓' : '⚠'} ${s.compliant} compliant / ${s.nonCompliant} non-compliant out of ${s.totalEntities} entities</span>
+            </div>`;
+
+            html += `<div class="validation-meta">
+                <span><strong>Method:</strong> OWL 2 DL — CompliantEntity equivalentClass inference</span>
+                <span><strong>Ontology Version:</strong> 1.0</span>
+            </div>`;
+
+            html += `<p style="font-size:13px; color:#6b7280; margin-bottom:20px; line-height:1.5;">${data.description}</p>`;
+
+            if (data.inferredCompliant.length > 0) {
+                html += `<div class="validation-section"><div class="validation-section-header">
+                    <h3>Inferred as CompliantEntity</h3>
+                    <span class="badge" style="background:#22c55e; color:white;">${data.inferredCompliant.length}</span>
+                </div>`;
+                data.inferredCompliant.forEach(e => {
+                    html += `<div class="validation-item success">
+                        <strong>${e.entity}</strong>
+                        Type: ${e.type} &nbsp;|&nbsp; Implements all ${e.implements} required measures
+                    </div>`;
+                });
+                html += '</div>';
+            }
+
+            if (data.inferredNonCompliant.length > 0) {
+                html += `<div class="validation-section"><div class="validation-section-header">
+                    <h3>Not Compliant — Gaps Detected</h3>
+                    <span class="badge" style="background:#ef4444; color:white;">${data.inferredNonCompliant.length}</span>
+                </div>`;
+                data.inferredNonCompliant.forEach(e => {
+                    html += `<div class="validation-item warning">
+                        <strong>${e.entity}</strong> (${e.type})
+                        Implements ${e.implements}/12 measures.
+                        <small>Missing: ${e.missing.join(', ')}</small>
+                    </div>`;
+                });
+                html += '</div>';
+            }
+
+            if (data.disjointnessViolations.length > 0) {
+                html += `<div class="validation-section"><div class="validation-section-header">
+                    <h3>Disjointness Violations</h3>
+                    <span class="badge" style="background:#dc2626; color:white;">${data.disjointnessViolations.length}</span>
+                </div>`;
+                data.disjointnessViolations.forEach(v => {
+                    html += `<div class="validation-item error"><strong>Violation</strong>${v}</div>`;
+                });
+                html += '</div>';
+            } else {
+                html += `<div class="validation-section"><div class="validation-item success">
+                    ✓ No disjointness violations — EssentialEntity and ImportantEntity are disjoint
+                </div></div>`;
+            }
+
+            if (data.inferredStandards && data.inferredStandards.length > 0) {
+                // Group by entity
+                const byEntity = {};
+                data.inferredStandards.forEach(t => {
+                    if (!byEntity[t.entity]) byEntity[t.entity] = {};
+                    byEntity[t.entity][t.standard] = t.via;
+                });
+                html += `<div class="validation-section"><div class="validation-section-header">
+                    <h3>Inferred usesStandard (property chain)</h3>
+                    <span class="badge" style="background:#6610f2; color:white;">${data.inferredStandards.length}</span>
+                </div>
+                <p style="font-size:12px; color:#6b7280; margin-bottom:8px;">Derived via owl:propertyChainAxiom: implementsMeasure ∘ basedOnStandard</p>`;
+                Object.entries(byEntity).forEach(([entity, standards]) => {
+                    const stdList = Object.keys(standards).join(', ');
+                    html += `<div class="validation-item success">
+                        <strong>${entity}</strong> uses standards: <em>${stdList}</em>
+                    </div>`;
+                });
+                html += '</div>';
+            }
+
+            html += `<div style="margin-top:24px; padding-top:16px; border-top:1px solid #e5e7eb; text-align:center; color:#6b7280; font-size:12px;">
+                <p style="margin:0 0 10px 0;">For full OWL 2 DL reasoning, load the ontology into <strong>Protégé</strong> and run the <strong>HermiT</strong> or <strong>Pellet</strong> reasoner.</p>
+                <button onclick="exportReport('reasoning')" style="padding:8px 18px; background:#dc3545; color:white; border:none; border-radius:6px; cursor:pointer; font-size:13px; font-weight:500;">Export Report (JSON)</button>
+            </div>`;
+
+            document.getElementById('reasoningContent').innerHTML = html;
+        }
+
+        function closeReasoningPanel() {
+            document.getElementById('reasoningPanel').style.display = 'none';
+            document.getElementById('overlay').style.display = 'none';
+        }
+
+        function closeShaclPanel() {
+            document.getElementById('shaclPanel').style.display = 'none';
+            document.getElementById('overlay').style.display = 'none';
+        }
+
+        async function runShaclValidation() {
+            const panel = document.getElementById('shaclPanel');
+            const content = document.getElementById('shaclContent');
+            const overlay = document.getElementById('overlay');
+            content.innerHTML = '<div class="query-loading">Running SHACL shapes validation...</div>';
+            panel.style.display = 'block';
+            overlay.style.display = 'block';
+
+            try {
+                const res = await fetch('/api/shacl');
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'SHACL validation failed');
+                displayShaclResults(data);
+            } catch (e) {
+                content.innerHTML = `<div class="query-results-error">Error: ${e.message}</div>`;
+            }
+        }
+
+        function displayShaclResults(data) {
+            const content = document.getElementById('shaclContent');
+            const s = data.summary;
+            const conforms = data.conforms;
+
+            let html = `<div class="validation-status-badge ${conforms ? 'passed' : 'failed'}">
+                <span>${conforms ? '✓ Conforms' : '✗ Does Not Conform'} — ${s.totalViolations} violation(s), ${s.totalWarnings} warning(s)</span>
+            </div>`;
+
+            html += `<div class="validation-meta">
+                <span><strong>Shapes Graph:</strong> ${data.shapesFile}</span>
+                <span><strong>Checked:</strong> ${s.entitiesChecked} entities · ${s.measuresChecked} measures · ${s.risksChecked} risks</span>
+            </div>`;
+
+            if (data.violations.length > 0) {
+                html += `<div class="validation-section"><div class="validation-section-header">
+                    <h3>Violations</h3>
+                    <span class="badge" style="background:#dc2626; color:white;">${data.violations.length}</span>
+                </div>`;
+                data.violations.forEach(v => {
+                    html += `<div class="validation-item error">
+                        <strong>[${v.shape}]</strong> ${v.focusNode}
+                        <small>${v.message}</small>
+                    </div>`;
+                });
+                html += '</div>';
+            }
+
+            if (data.warnings.length > 0) {
+                html += `<div class="validation-section"><div class="validation-section-header">
+                    <h3>Warnings</h3>
+                    <span class="badge" style="background:#f59e0b; color:white;">${data.warnings.length}</span>
+                </div>`;
+                data.warnings.forEach(w => {
+                    html += `<div class="validation-item warning">
+                        <strong>[${w.shape}]</strong> ${w.focusNode}
+                        <small>${w.message}</small>
+                    </div>`;
+                });
+                html += '</div>';
+            }
+
+            const infoItems = data.info.filter(i => i.startsWith('✓'));
+            if (infoItems.length > 0) {
+                html += `<div class="validation-section"><div class="validation-section-header">
+                    <h3>Passed Constraints</h3>
+                    <span class="badge" style="background:#22c55e; color:white;">${infoItems.length}</span>
+                </div>`;
+                infoItems.forEach(i => {
+                    html += `<div class="validation-item success">${i}</div>`;
+                });
+                html += '</div>';
+            }
+
+            html += `<div style="margin-top:24px; padding-top:16px; border-top:1px solid #e5e7eb; text-align:center; color:#6b7280; font-size:12px;">
+                <p style="margin:0 0 10px 0;">Shapes defined in <strong>nis2_article21_compliance.shacl.ttl</strong>. Use <strong>pySHACL</strong> or <strong>TopBraid</strong> for full SHACL 1.0 compliance.</p>
+                <button onclick="exportShaclReport()" style="padding:8px 18px; background:#6610f2; color:white; border:none; border-radius:6px; cursor:pointer; font-size:13px; font-weight:500;">Export Report (JSON)</button>
+            </div>`;
+
+            content.innerHTML = html;
+        }
+
+        function exportShaclReport() {
+            fetch('/api/shacl').then(r => r.json()).then(data => {
+                const report = {
+                    exportedAt: new Date().toISOString(),
+                    ontology: 'https://w3id.org/nis2/article21',
+                    shapesGraph: 'https://w3id.org/nis2/article21/shacl',
+                    legalBasis: 'Directive (EU) 2022/2555, Article 21',
+                    reportType: 'shacl',
+                    ...data
+                };
+                const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `nis2_article21_shacl_report_${new Date().toISOString().slice(0,10)}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+            });
+        }
+
+        // ---------------------------------------------------------------------------
+        // Entity Checker
+        // ---------------------------------------------------------------------------
+
+        const measureLabels = {
+            'RiskAnalysisPolicy':           'Risk Analysis Policy (a)',
+            'IncidentHandling':             'Incident Handling (b)',
+            'BusinessContinuityManagement': 'Business Continuity (c)',
+            'SupplyChainSecurity':          'Supply Chain Security (d)',
+            'SecureDevelopment':            'Secure Development (e)',
+            'EffectivenessAssessment':      'Effectiveness Assessment (f)',
+            'BasicCyberHygiene':            'Basic Cyber Hygiene (g)',
+            'TrainingAwareness':            'Training & Awareness (h)',
+            'HumanResourcesSecurity':       'HR Security (i)',
+            'Encryption':                   'Encryption (j)',
+            'MultiFactorAuthentication':    'Multi-Factor Authentication (k)',
+            'SecureCommunications':         'Secure Communications (l)',
+        };
+
+        function openEntityChecker() {
+            const grid = document.getElementById('entityMeasureGrid');
+            if (!grid.children.length) {
+                allArticle21Measures.forEach(m => {
+                    grid.innerHTML += `
+                        <label style="display:flex; align-items:center; gap:8px; padding:8px 10px;
+                            background:#f9fafb; border:1px solid #e5e7eb; border-radius:6px; cursor:pointer; font-size:13px;">
+                            <input type="checkbox" class="entity-measure-cb" value="${m}"
+                                style="width:15px; height:15px; cursor:pointer;" checked>
+                            <span>${measureLabels[m]}</span>
+                        </label>`;
+                });
+            }
+            document.getElementById('entityCheckerPanel').style.display = 'block';
+            document.getElementById('overlay').style.display = 'block';
+            document.getElementById('entityCheckResult').innerHTML = '';
+            document.getElementById('entityNameInput').focus();
+        }
+
+        function closeEntityChecker() {
+            document.getElementById('entityCheckerPanel').style.display = 'none';
+            document.getElementById('overlay').style.display = 'none';
+        }
+
+        function selectAllEntityMeasures(checked) {
+            document.querySelectorAll('.entity-measure-cb').forEach(cb => cb.checked = checked);
+        }
+
+        async function runEntityCheck() {
+            const name = document.getElementById('entityNameInput').value.trim();
+            const type = document.getElementById('entityTypeSelect').value;
+            const selected = Array.from(document.querySelectorAll('.entity-measure-cb:checked')).map(cb => cb.value);
+            const resultDiv = document.getElementById('entityCheckResult');
+
+            if (!name) {
+                resultDiv.innerHTML = '<div class="query-results-error">Please enter an entity name.</div>';
+                return;
+            }
+
+            resultDiv.innerHTML = '<div class="query-loading">Running OWL 2 compliance inference...</div>';
+
+            try {
+                const res = await fetch('/api/check-entity', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ entityName: name, entityType: type, implementedMeasures: selected })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Check failed');
+                displayEntityResult(data);
+            } catch (e) {
+                resultDiv.innerHTML = `<div class="query-results-error">Error: ${e.message}</div>`;
+            }
+        }
+
+        function displayEntityResult(d) {
+            const div = document.getElementById('entityCheckResult');
+            const compliant = d.compliant;
+            const scoreColor = d.complianceScore === 100 ? '#22c55e' : d.complianceScore >= 50 ? '#f59e0b' : '#ef4444';
+
+            let html = `
+                <div style="border-top:2px solid #e5e7eb; padding-top:20px; margin-top:4px;">
+                <div class="validation-status-badge ${compliant ? 'passed' : 'failed'}" style="margin-bottom:16px;">
+                    <span>${compliant ? '✓ COMPLIANT' : '✗ NON-COMPLIANT'} — ${d.entityName} (${d.entityType})</span>
+                </div>
+
+                <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:20px;">
+                    <div style="text-align:center; padding:14px; background:#f9fafb; border-radius:8px; border:1px solid #e5e7eb;">
+                        <div style="font-size:28px; font-weight:800; color:${scoreColor};">${d.complianceScore}%</div>
+                        <div style="font-size:11px; color:#6b7280; margin-top:2px;">Compliance Score</div>
+                    </div>
+                    <div style="text-align:center; padding:14px; background:#f9fafb; border-radius:8px; border:1px solid #e5e7eb;">
+                        <div style="font-size:28px; font-weight:800; color:#3b82f6;">${d.implementedCount}/${d.totalRequired}</div>
+                        <div style="font-size:11px; color:#6b7280; margin-top:2px;">Measures Implemented</div>
+                    </div>
+                    <div style="text-align:center; padding:14px; background:#f9fafb; border-radius:8px; border:1px solid #e5e7eb;">
+                        <div style="font-size:16px; font-weight:700; color:${compliant ? '#22c55e' : '#ef4444'}; margin-top:4px;">${d.inferredClass}</div>
+                        <div style="font-size:11px; color:#6b7280; margin-top:2px;">OWL Inferred Class</div>
+                    </div>
+                </div>`;
+
+            if (!compliant && d.missingMeasures.length > 0) {
+                html += `<div class="validation-section" style="margin-bottom:14px;">
+                    <div class="validation-section-header">
+                        <h3>Missing Article 21(2) Measures</h3>
+                        <span class="badge" style="background:#ef4444; color:white;">${d.missingMeasures.length}</span>
+                    </div>`;
+                d.missingMeasures.forEach(m => {
+                    html += `<div class="validation-item error">
+                        <strong>${measureLabels[m] || m}</strong>
+                        <small>Article 21(2) — compliance gap detected</small>
+                    </div>`;
+                });
+                html += '</div>';
+            }
+
+            if (d.inferredStandards.length > 0) {
+                const unique = [...new Set(d.inferredStandards.map(s => s.standard))];
+                html += `<div class="validation-section" style="margin-bottom:14px;">
+                    <div class="validation-section-header">
+                        <h3>Inferred Security Standards (usesStandard)</h3>
+                        <span class="badge" style="background:#6610f2; color:white;">${unique.length}</span>
+                    </div>
+                    <div style="display:flex; flex-wrap:wrap; gap:8px; padding:10px 0;">`;
+                unique.forEach(s => {
+                    html += `<span style="padding:4px 12px; background:#ede9fe; color:#6d28d9; border-radius:20px; font-size:12px; font-weight:600;">${s}</span>`;
+                });
+                html += '</div></div>';
+            }
+
+            if (d.risksAddressed.length > 0) {
+                html += `<div class="validation-section" style="margin-bottom:14px;">
+                    <div class="validation-section-header">
+                        <h3>Cybersecurity Risks Addressed</h3>
+                        <span class="badge" style="background:#0891b2; color:white;">${d.risksAddressed.length}</span>
+                    </div>
+                    <div style="display:flex; flex-wrap:wrap; gap:8px; padding:10px 0;">`;
+                d.risksAddressed.forEach(r => {
+                    html += `<span style="padding:4px 12px; background:#e0f2fe; color:#0369a1; border-radius:20px; font-size:12px; font-weight:600;">${r.replace('Risk','').trim()}</span>`;
+                });
+                html += '</div></div>';
+            }
+
+            html += `<div style="padding:12px 14px; background:#f0fdf4; border:1px solid #86efac; border-radius:8px; font-size:12px; color:#166534;">
+                <strong>Legal basis:</strong> ${d.legalBasis}
+            </div></div>`;
+
+            div.innerHTML = html;
+        }
+
+        // Load ontology on page load
+        loadOntology();
+        
+        // Fetch accurate class count from backend on page load
+        async function loadClassCount() {
+            try {
+                const response = await fetch('/api/validate');
+                const results = await response.json();
+                if (results.statistics && results.statistics.totalClasses) {
+                    backendClassCount = results.statistics.totalClasses;
+                    document.getElementById('classCount').textContent = backendClassCount;
+                }
+            } catch (error) {
+                console.error('Error loading class count:', error);
+            }
+        }
+        
+        // Load class count after a short delay to ensure server is ready
+        setTimeout(loadClassCount, 500);
+        
+        // Initialize measure toggle panel
+        initializeMeasureCheckboxes();
+
+        // Query Panel Functions
+        function openQueryPanel() {
+            document.getElementById('queryPanel').style.display = 'block';
+            document.getElementById('overlay').style.display = 'block';
+        }
+
+        function closeQueryPanel() {
+            document.getElementById('queryPanel').style.display = 'none';
+            document.getElementById('overlay').style.display = 'none';
+        }
+
+        // Example queries
+        const exampleQueries = {
+            'all': 'SELECT * WHERE { ?s ?p ?o }',
+            'classes': `PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+SELECT * WHERE { ?s rdf:type owl:Class }`,
+            'measures': `PREFIX : <https://w3id.org/nis2/article21#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT * WHERE {
+    ?s rdfs:subClassOf :RiskManagementMeasure
+}`,
+            'properties': `PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+SELECT * WHERE {
+    ?s rdf:type owl:ObjectProperty
+}`,
+            'instances': `PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+SELECT * WHERE {
+    ?s rdf:type owl:NamedIndividual
+}`,
+            'compliance': `PREFIX : <https://w3id.org/nis2/article21#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+# Find all entities and the measures they implement
+SELECT ?entity ?measure WHERE {
+    ?entity rdf:type :EssentialEntity .
+    ?entity :implementsMeasure ?measure
+}`,
+            'cq1': `PREFIX : <https://w3id.org/nis2/article21#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+# CQ1: Which measures address critical or high cybersecurity risks?
+SELECT ?measureLabel ?riskLabel ?riskLevel WHERE {
+    ?measure :addressesRisk ?risk .
+    ?risk :riskLevel ?riskLevel .
+    ?measure rdfs:label ?measureLabel .
+    ?risk rdfs:label ?riskLabel .
+    FILTER (?riskLevel = "critical" || ?riskLevel = "high")
+}`,
+            'cq2': `PREFIX : <https://w3id.org/nis2/article21#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+# CQ2: Which security standards does the compliant entity rely on (via measures)?
+SELECT ?standardLabel WHERE {
+    :ExampleCompliantEntity :implementsMeasure ?measure .
+    ?measure :basedOnStandard ?standard .
+    ?standard rdfs:label ?standardLabel .
+}`,
+            'cq3': `PREFIX : <https://w3id.org/nis2/article21#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+# CQ3: Which measures prevent ransomware or data breach incidents?
+SELECT ?measureLabel ?incidentLabel WHERE {
+    ?measure :preventsIncident ?incident .
+    ?measure rdfs:label ?measureLabel .
+    ?incident rdfs:label ?incidentLabel .
+}`,
+            'cq4': `PREFIX : <https://w3id.org/nis2/article21#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+# CQ4: Which measures apply to the Core Banking System?
+SELECT ?measureLabel WHERE {
+    ?measure :appliesToSystem :CoreBankingSystem .
+    ?measure rdfs:label ?measureLabel .
+}`,
+            'cq5': `PREFIX : <https://w3id.org/nis2/article21#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+# CQ5: List all entities and the number of measures they implement
+SELECT ?entityLabel ?measure WHERE {
+    ?entity :implementsMeasure ?measure .
+    ?entity rdfs:label ?entityLabel .
+}`
+        };
+
+        function loadExampleQuery(type) {
+            const queryTextarea = document.getElementById('sparqlQuery');
+            if (exampleQueries[type]) {
+                queryTextarea.value = exampleQueries[type];
+            }
+        }
+
+        function clearQuery() {
+            document.getElementById('sparqlQuery').value = '';
+            document.getElementById('queryResults').innerHTML = '';
+        }
+
+        async function executeQuery() {
+            const query = document.getElementById('sparqlQuery').value.trim();
+            const resultsDiv = document.getElementById('queryResults');
+            const executeBtn = document.querySelector('.query-execute-btn');
+
+            if (!query) {
+                resultsDiv.innerHTML = '<div class="query-results-error">Please enter a SPARQL query.</div>';
+                return;
+            }
+
+            // Show loading state
+            executeBtn.disabled = true;
+            executeBtn.textContent = 'Executing...';
+            resultsDiv.innerHTML = '<div class="query-loading">⏳ Executing query...</div>';
+
+            try {
+                const encodedQuery = encodeURIComponent(query);
+                const response = await fetch(`/api/sparql?query=${encodedQuery}`);
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Query execution failed');
+                }
+
+                // Display results
+                if (data.results && data.results.bindings && data.results.bindings.length > 0) {
+                    const vars = data.head.vars || Object.keys(data.results.bindings[0] || {});
+                    let html = `<div class="query-results-info">✓ Query executed successfully. Found ${data.results.bindings.length} result(s).</div>`;
+                    html += '<table class="query-results-table"><thead><tr>';
+                    
+                    vars.forEach(v => {
+                        html += `<th>${v}</th>`;
+                    });
+                    html += '</tr></thead><tbody>';
+
+                    data.results.bindings.forEach(binding => {
+                        html += '<tr>';
+                        vars.forEach(v => {
+                            const value = binding[v]?.value || '';
+                            // Shorten long URIs for display
+                            const displayValue = value.length > 60 
+                                ? value.substring(0, 57) + '...' 
+                                : value;
+                            html += `<td title="${value}">${displayValue}</td>`;
+                        });
+                        html += '</tr>';
+                    });
+
+                    html += '</tbody></table>';
+                    resultsDiv.innerHTML = html;
+                } else {
+                    resultsDiv.innerHTML = '<div class="query-results-empty">No results found.</div>';
+                }
+            } catch (error) {
+                resultsDiv.innerHTML = `<div class="query-results-error">❌ Error: ${error.message}</div>`;
+            } finally {
+                executeBtn.disabled = false;
+                executeBtn.textContent = 'Execute Query';
+            }
+        }
+
+        // Export compliance or reasoning report as a JSON file
+        function exportReport(type) {
+            const data = type === 'validation' ? lastValidationResults : lastReasoningResults;
+            if (!data) {
+                alert('No report to export yet. Run the ' + (type === 'validation' ? 'Validate Ontology' : 'Run Reasoner') + ' first.');
+                return;
+            }
+            const report = {
+                exportedAt: new Date().toISOString(),
+                ontology: 'https://w3id.org/nis2/article21',
+                legalBasis: 'Directive (EU) 2022/2555, Article 21',
+                reportType: type,
+                ...data
+            };
+            const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `nis2_article21_${type}_report_${new Date().toISOString().slice(0,10)}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Allow Enter+Ctrl/Cmd to execute query
+        document.addEventListener('DOMContentLoaded', function() {
+            const queryTextarea = document.getElementById('sparqlQuery');
+            if (queryTextarea) {
+                queryTextarea.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                        e.preventDefault();
+                        executeQuery();
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
+

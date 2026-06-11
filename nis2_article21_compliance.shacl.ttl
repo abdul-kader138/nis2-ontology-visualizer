@@ -1,0 +1,225 @@
+@prefix :     <https://w3id.org/nis2/article21#> .
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix dc:   <http://purl.org/dc/elements/1.1/> .
+
+#################################################################
+#  NIS2 Article 21 Compliance — SHACL Shapes
+#
+#  This SHACL shapes graph provides a second, independent
+#  validation mechanism complementary to OWL 2 DL reasoning.
+#  Use a SHACL validator (e.g. pySHACL, TopBraid, SHACL API)
+#  to validate entity data against these constraints.
+#
+#  Legal basis: Directive (EU) 2022/2555, Article 21
+#################################################################
+
+<https://w3id.org/nis2/article21/shacl>
+    a owl:Ontology ;
+    dc:title "NIS2 Article 21 SHACL Compliance Shapes" ;
+    dc:description "SHACL shapes for validating NIS2 Article 21(2) compliance of essential and important entities." ;
+    dc:source "Directive (EU) 2022/2555, Article 21" ;
+    owl:versionInfo "1.0" .
+
+#################################################################
+#  Core Article 21 Compliance Shape
+#  Applies to all Entity instances.
+#  Validates that all 12 mandatory Article 21(2) measures are
+#  implemented using sh:qualifiedMinCount = 1 per measure class.
+#################################################################
+
+:Article21ComplianceShape
+    a sh:NodeShape ;
+    sh:targetClass :Entity ;
+    rdfs:label "Article 21 Compliance Shape" ;
+    rdfs:comment "Validates that an Entity implements all 12 mandatory cybersecurity risk-management measures required by Article 21(2) of the NIS2 Directive." ;
+
+    # Article 21(2)(a) — Risk analysis and information system security policies
+    sh:property [
+        sh:path :implementsMeasure ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedValueShape [ sh:class :RiskAnalysisPolicy ] ;
+        sh:severity sh:Violation ;
+        sh:message "Article 21(2)(a): Entity must implement at least one RiskAnalysisPolicy (policies on risk analysis and information system security)."
+    ] ;
+
+    # Article 21(2)(b) — Incident handling
+    sh:property [
+        sh:path :implementsMeasure ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedValueShape [ sh:class :IncidentHandling ] ;
+        sh:severity sh:Violation ;
+        sh:message "Article 21(2)(b): Entity must implement at least one IncidentHandling measure (incident handling procedures and capabilities)."
+    ] ;
+
+    # Article 21(2)(c) — Business continuity management
+    sh:property [
+        sh:path :implementsMeasure ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedValueShape [ sh:class :BusinessContinuityManagement ] ;
+        sh:severity sh:Violation ;
+        sh:message "Article 21(2)(c): Entity must implement at least one BusinessContinuityManagement measure (business continuity, backup management, disaster recovery and crisis management)."
+    ] ;
+
+    # Article 21(2)(d) — Supply chain security
+    sh:property [
+        sh:path :implementsMeasure ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedValueShape [ sh:class :SupplyChainSecurity ] ;
+        sh:severity sh:Violation ;
+        sh:message "Article 21(2)(d): Entity must implement at least one SupplyChainSecurity measure (supply chain security and supplier relationships)."
+    ] ;
+
+    # Article 21(2)(e) — Security in acquisition, development and maintenance
+    sh:property [
+        sh:path :implementsMeasure ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedValueShape [ sh:class :SecureDevelopment ] ;
+        sh:severity sh:Violation ;
+        sh:message "Article 21(2)(e): Entity must implement at least one SecureDevelopment measure (security in NIS acquisition, development and maintenance)."
+    ] ;
+
+    # Article 21(2)(f) — Effectiveness assessment
+    sh:property [
+        sh:path :implementsMeasure ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedValueShape [ sh:class :EffectivenessAssessment ] ;
+        sh:severity sh:Violation ;
+        sh:message "Article 21(2)(f): Entity must implement at least one EffectivenessAssessment measure (policies and procedures to assess the effectiveness of cybersecurity risk-management measures)."
+    ] ;
+
+    # Article 21(2)(g) — Basic cyber hygiene
+    sh:property [
+        sh:path :implementsMeasure ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedValueShape [ sh:class :BasicCyberHygiene ] ;
+        sh:severity sh:Violation ;
+        sh:message "Article 21(2)(g): Entity must implement at least one BasicCyberHygiene measure (basic cyber hygiene practices and cybersecurity training)."
+    ] ;
+
+    # Article 21(2)(h) — Cybersecurity training and awareness
+    sh:property [
+        sh:path :implementsMeasure ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedValueShape [ sh:class :TrainingAwareness ] ;
+        sh:severity sh:Violation ;
+        sh:message "Article 21(2)(h): Entity must implement at least one TrainingAwareness measure (cybersecurity training and awareness raising for personnel)."
+    ] ;
+
+    # Article 21(2)(i) — Human resources security
+    sh:property [
+        sh:path :implementsMeasure ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedValueShape [ sh:class :HumanResourcesSecurity ] ;
+        sh:severity sh:Violation ;
+        sh:message "Article 21(2)(i): Entity must implement at least one HumanResourcesSecurity measure (human resources security, access control and asset management)."
+    ] ;
+
+    # Article 21(2)(j) — Cryptography and encryption
+    sh:property [
+        sh:path :implementsMeasure ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedValueShape [ sh:class :Encryption ] ;
+        sh:severity sh:Violation ;
+        sh:message "Article 21(2)(j): Entity must implement at least one Encryption measure (use of cryptography and encryption to protect data confidentiality and integrity)."
+    ] ;
+
+    # Article 21(2)(k) — Multi-factor authentication
+    sh:property [
+        sh:path :implementsMeasure ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedValueShape [ sh:class :MultiFactorAuthentication ] ;
+        sh:severity sh:Violation ;
+        sh:message "Article 21(2)(k): Entity must implement at least one MultiFactorAuthentication measure (MFA or continuous authentication solutions)."
+    ] ;
+
+    # Article 21(2)(l) — Secured communications
+    sh:property [
+        sh:path :implementsMeasure ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedValueShape [ sh:class :SecureCommunications ] ;
+        sh:severity sh:Violation ;
+        sh:message "Article 21(2)(l): Entity must implement at least one SecureCommunications measure (secured voice, video and text communications)."
+    ] ;
+
+    # All implemented measures must be RiskManagementMeasure (Article 21(1))
+    sh:property [
+        sh:path :implementsMeasure ;
+        sh:class :RiskManagementMeasure ;
+        sh:severity sh:Violation ;
+        sh:message "Article 21(1): All measures implemented by an entity must be instances of RiskManagementMeasure."
+    ] .
+
+#################################################################
+#  Measure Quality Shape
+#  Validates that each RiskManagementMeasure instance is marked
+#  as appropriate, proportionate and state-of-the-art (Art. 21(1))
+#################################################################
+
+:MeasureQualityShape
+    a sh:NodeShape ;
+    sh:targetClass :RiskManagementMeasure ;
+    rdfs:label "Measure Quality Shape" ;
+    rdfs:comment "Validates that each risk-management measure satisfies the qualitative requirements of Article 21(1): appropriate, proportionate and state-of-the-art." ;
+
+    sh:property [
+        sh:path :isAppropriate ;
+        sh:datatype xsd:boolean ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:hasValue true ;
+        sh:severity sh:Warning ;
+        sh:message "Article 21(1): Measure should be marked as appropriate (isAppropriate = true)."
+    ] ;
+
+    sh:property [
+        sh:path :isProportionate ;
+        sh:datatype xsd:boolean ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:hasValue true ;
+        sh:severity sh:Warning ;
+        sh:message "Article 21(1): Measure should be marked as proportionate to the risk (isProportionate = true)."
+    ] ;
+
+    sh:property [
+        sh:path :isStateOfTheArt ;
+        sh:datatype xsd:boolean ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:hasValue true ;
+        sh:severity sh:Warning ;
+        sh:message "Article 21(1): Measure should be in line with state-of-the-art practices (isStateOfTheArt = true)."
+    ] ;
+
+    sh:property [
+        sh:path :measureDescription ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:severity sh:Info ;
+        sh:message "Best practice: Each measure should have a textual description (measureDescription)."
+    ] .
+
+#################################################################
+#  Risk Level Shape
+#  Validates that CybersecurityRisk instances have a valid level
+#################################################################
+
+:RiskLevelShape
+    a sh:NodeShape ;
+    sh:targetClass :CybersecurityRisk ;
+    rdfs:label "Risk Level Shape" ;
+    rdfs:comment "Validates that each CybersecurityRisk has a valid risk level value." ;
+
+    sh:property [
+        sh:path :riskLevel ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "low" "medium" "high" "critical" ) ;
+        sh:severity sh:Violation ;
+        sh:message "CybersecurityRisk must have a riskLevel of: low, medium, high, or critical."
+    ] .

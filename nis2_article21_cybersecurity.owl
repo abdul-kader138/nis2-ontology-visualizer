@@ -1,0 +1,786 @@
+<?xml version="1.0"?>
+<rdf:RDF xmlns="https://w3id.org/nis2/article21#"
+     xml:base="https://w3id.org/nis2/article21"
+     xmlns:owl="http://www.w3.org/2002/07/owl#"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:xml="http://www.w3.org/XML/1998/namespace"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+     xmlns:dc="http://purl.org/dc/elements/1.1/"
+     xmlns:skos="http://www.w3.org/2004/02/skos/core#">
+
+    <owl:Ontology rdf:about="https://w3id.org/nis2/article21">
+        <owl:versionIRI rdf:resource="https://w3id.org/nis2/article21/1.0"/>
+        <dc:title>NIS2 Article 21 Cybersecurity Risk-Management Measures Ontology</dc:title>
+        <dc:description>OWL 2 ontology representing Article 21 of Directive (EU) 2022/2555 (NIS2 Directive) concerning cybersecurity risk-management measures for essential and important entities. Supports automated compliance validation and OWL 2 DL reasoning.</dc:description>
+        <dc:creator>Master Thesis — NIS2 Compliance Ontology</dc:creator>
+        <dc:date>2026-06-11</dc:date>
+        <dc:rights>Provided for educational and research purposes. Refer to the original directive for authoritative legal information.</dc:rights>
+        <dc:source>Directive (EU) 2022/2555 — OJ L 333, 27.12.2022, p. 80–152</dc:source>
+        <owl:imports rdf:resource="http://www.w3.org/2004/02/skos/core"/>
+        <rdfs:comment>Ontology representing Article 21 of Directive (EU) 2022/2555 (NIS2 Directive)
+        concerning cybersecurity risk-management measures for essential and important entities.
+        Includes OWL 2 DL restrictions for automated compliance reasoning.</rdfs:comment>
+        <rdfs:label>NIS2 Article 21 Cybersecurity Risk-Management Measures</rdfs:label>
+        <owl:versionInfo>1.0</owl:versionInfo>
+    </owl:Ontology>
+
+    <!--
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Object Properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    <owl:ObjectProperty rdf:about="https://w3id.org/nis2/article21#implementsMeasure">
+        <owl:inverseOf rdf:resource="https://w3id.org/nis2/article21#isImplementedBy"/>
+        <rdfs:domain rdf:resource="https://w3id.org/nis2/article21#Entity"/>
+        <rdfs:range rdf:resource="https://w3id.org/nis2/article21#RiskManagementMeasure"/>
+        <rdfs:label>implements measure</rdfs:label>
+        <rdfs:comment>Relates an entity to the risk-management measures it implements</rdfs:comment>
+    </owl:ObjectProperty>
+
+    <owl:ObjectProperty rdf:about="https://w3id.org/nis2/article21#isImplementedBy">
+        <owl:inverseOf rdf:resource="https://w3id.org/nis2/article21#implementsMeasure"/>
+        <rdfs:domain rdf:resource="https://w3id.org/nis2/article21#RiskManagementMeasure"/>
+        <rdfs:range rdf:resource="https://w3id.org/nis2/article21#Entity"/>
+        <rdfs:label>is implemented by</rdfs:label>
+        <rdfs:comment>Inverse of implementsMeasure — relates a measure to the entities that implement it</rdfs:comment>
+    </owl:ObjectProperty>
+
+    <owl:ObjectProperty rdf:about="https://w3id.org/nis2/article21#addressesRisk">
+        <rdfs:domain rdf:resource="https://w3id.org/nis2/article21#RiskManagementMeasure"/>
+        <rdfs:range rdf:resource="https://w3id.org/nis2/article21#CybersecurityRisk"/>
+        <rdfs:label>addresses risk</rdfs:label>
+        <rdfs:comment>Relates a risk-management measure to the cybersecurity risk it addresses</rdfs:comment>
+    </owl:ObjectProperty>
+
+    <owl:ObjectProperty rdf:about="https://w3id.org/nis2/article21#preventsIncident">
+        <rdfs:domain rdf:resource="https://w3id.org/nis2/article21#RiskManagementMeasure"/>
+        <rdfs:range rdf:resource="https://w3id.org/nis2/article21#SecurityIncident"/>
+        <rdfs:label>prevents incident</rdfs:label>
+        <rdfs:comment>Relates a measure to security incidents it helps prevent</rdfs:comment>
+    </owl:ObjectProperty>
+
+    <owl:ObjectProperty rdf:about="https://w3id.org/nis2/article21#minimizesImpact">
+        <rdfs:domain rdf:resource="https://w3id.org/nis2/article21#RiskManagementMeasure"/>
+        <rdfs:range rdf:resource="https://w3id.org/nis2/article21#SecurityIncident"/>
+        <rdfs:label>minimizes impact</rdfs:label>
+        <rdfs:comment>Relates a measure to security incidents whose impact it minimizes</rdfs:comment>
+    </owl:ObjectProperty>
+
+    <owl:ObjectProperty rdf:about="https://w3id.org/nis2/article21#basedOnStandard">
+        <rdfs:domain rdf:resource="https://w3id.org/nis2/article21#RiskManagementMeasure"/>
+        <rdfs:range rdf:resource="https://w3id.org/nis2/article21#SecurityStandard"/>
+        <rdfs:label>based on standard</rdfs:label>
+        <rdfs:comment>Relates a measure to the security standard it is based on</rdfs:comment>
+    </owl:ObjectProperty>
+
+    <owl:ObjectProperty rdf:about="https://w3id.org/nis2/article21#appliesToSystem">
+        <rdfs:domain rdf:resource="https://w3id.org/nis2/article21#RiskManagementMeasure"/>
+        <rdfs:range rdf:resource="https://w3id.org/nis2/article21#NetworkInformationSystem"/>
+        <rdfs:label>applies to system</rdfs:label>
+        <rdfs:comment>Relates a measure to the network and information system it applies to</rdfs:comment>
+    </owl:ObjectProperty>
+
+    <owl:ObjectProperty rdf:about="https://w3id.org/nis2/article21#hasSubMeasure">
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#TransitiveProperty"/>
+        <rdfs:domain rdf:resource="https://w3id.org/nis2/article21#RiskManagementMeasure"/>
+        <rdfs:range rdf:resource="https://w3id.org/nis2/article21#RiskManagementMeasure"/>
+        <rdfs:label>has sub-measure</rdfs:label>
+        <rdfs:comment>Relates a measure to its sub-measures. Declared transitive so sub-measures of sub-measures are inferred.</rdfs:comment>
+    </owl:ObjectProperty>
+
+    <!-- usesStandard: derived via owl:propertyChainAxiom over implementsMeasure o basedOnStandard -->
+    <owl:ObjectProperty rdf:about="https://w3id.org/nis2/article21#usesStandard">
+        <owl:propertyChainAxiom rdf:parseType="Collection">
+            <rdf:Description rdf:about="https://w3id.org/nis2/article21#implementsMeasure"/>
+            <rdf:Description rdf:about="https://w3id.org/nis2/article21#basedOnStandard"/>
+        </owl:propertyChainAxiom>
+        <rdfs:domain rdf:resource="https://w3id.org/nis2/article21#Entity"/>
+        <rdfs:range rdf:resource="https://w3id.org/nis2/article21#SecurityStandard"/>
+        <rdfs:label>uses standard</rdfs:label>
+        <rdfs:comment>Inferred property: an entity uses a standard if it implements any measure that is based on that standard. Derived via owl:propertyChainAxiom over implementsMeasure o basedOnStandard.</rdfs:comment>
+    </owl:ObjectProperty>
+
+    <!--
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Annotation Properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    <owl:AnnotationProperty rdf:about="https://w3id.org/nis2/article21#articleReference">
+        <rdfs:label>article reference</rdfs:label>
+        <rdfs:comment>The specific article, paragraph and sub-paragraph of Directive (EU) 2022/2555 (NIS2) that this element implements or corresponds to.</rdfs:comment>
+    </owl:AnnotationProperty>
+
+    <!--
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Data Properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    <owl:DatatypeProperty rdf:about="https://w3id.org/nis2/article21#isProportionate">
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+        <rdfs:domain rdf:resource="https://w3id.org/nis2/article21#RiskManagementMeasure"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#boolean"/>
+        <rdfs:label>is proportionate</rdfs:label>
+        <rdfs:comment>Indicates whether a measure is proportionate to the risk (Article 21(1))</rdfs:comment>
+    </owl:DatatypeProperty>
+
+    <owl:DatatypeProperty rdf:about="https://w3id.org/nis2/article21#isAppropriate">
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+        <rdfs:domain rdf:resource="https://w3id.org/nis2/article21#RiskManagementMeasure"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#boolean"/>
+        <rdfs:label>is appropriate</rdfs:label>
+        <rdfs:comment>Indicates whether a measure is appropriate for the risk (Article 21(1))</rdfs:comment>
+    </owl:DatatypeProperty>
+
+    <owl:DatatypeProperty rdf:about="https://w3id.org/nis2/article21#isStateOfTheArt">
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+        <rdfs:domain rdf:resource="https://w3id.org/nis2/article21#RiskManagementMeasure"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#boolean"/>
+        <rdfs:label>is state of the art</rdfs:label>
+        <rdfs:comment>Indicates whether a measure is in line with state-of-the-art practices (Article 21(1))</rdfs:comment>
+    </owl:DatatypeProperty>
+
+    <owl:DatatypeProperty rdf:about="https://w3id.org/nis2/article21#measureDescription">
+        <rdfs:domain rdf:resource="https://w3id.org/nis2/article21#RiskManagementMeasure"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+        <rdfs:label>measure description</rdfs:label>
+        <rdfs:comment>Provides a textual description of the risk-management measure</rdfs:comment>
+    </owl:DatatypeProperty>
+
+    <owl:DatatypeProperty rdf:about="https://w3id.org/nis2/article21#riskLevel">
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+        <rdfs:domain rdf:resource="https://w3id.org/nis2/article21#CybersecurityRisk"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+        <rdfs:label>risk level</rdfs:label>
+        <rdfs:comment>Level of the cybersecurity risk: low, medium, high, or critical</rdfs:comment>
+    </owl:DatatypeProperty>
+
+    <!--
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Classes
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    <!-- ==================== Entity hierarchy ==================== -->
+
+    <owl:Class rdf:about="https://w3id.org/nis2/article21#Entity">
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="https://w3id.org/nis2/article21#implementsMeasure"/>
+                <owl:allValuesFrom rdf:resource="https://w3id.org/nis2/article21#RiskManagementMeasure"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:label>Entity</rdfs:label>
+        <rdfs:comment>Essential or important entity as defined in the NIS2 Directive (Article 3)</rdfs:comment>
+        <articleReference xmlns="https://w3id.org/nis2/article21#">Article 3</articleReference>
+    </owl:Class>
+
+    <owl:Class rdf:about="https://w3id.org/nis2/article21#EssentialEntity">
+        <rdfs:subClassOf rdf:resource="https://w3id.org/nis2/article21#Entity"/>
+        <owl:disjointWith rdf:resource="https://w3id.org/nis2/article21#ImportantEntity"/>
+        <rdfs:label>Essential Entity</rdfs:label>
+        <rdfs:comment>Essential entity as defined in Article 3(1) of the NIS2 Directive</rdfs:comment>
+    </owl:Class>
+
+    <owl:Class rdf:about="https://w3id.org/nis2/article21#ImportantEntity">
+        <rdfs:subClassOf rdf:resource="https://w3id.org/nis2/article21#Entity"/>
+        <owl:disjointWith rdf:resource="https://w3id.org/nis2/article21#EssentialEntity"/>
+        <rdfs:label>Important Entity</rdfs:label>
+        <rdfs:comment>Important entity as defined in Article 3(2) of the NIS2 Directive</rdfs:comment>
+    </owl:Class>
+
+    <!-- NonCompliantEntity: the complement of CompliantEntity within Entity -->
+    <owl:Class rdf:about="https://w3id.org/nis2/article21#NonCompliantEntity">
+        <rdfs:subClassOf rdf:resource="https://w3id.org/nis2/article21#Entity"/>
+        <owl:equivalentClass>
+            <owl:Class>
+                <owl:intersectionOf rdf:parseType="Collection">
+                    <rdf:Description rdf:about="https://w3id.org/nis2/article21#Entity"/>
+                    <owl:Class>
+                        <owl:complementOf rdf:resource="https://w3id.org/nis2/article21#CompliantEntity"/>
+                    </owl:Class>
+                </owl:intersectionOf>
+            </owl:Class>
+        </owl:equivalentClass>
+        <rdfs:label>Non-Compliant Entity</rdfs:label>
+        <rdfs:comment>An entity that does not implement all 12 mandatory Article 21(2) measures. Automatically inferred by an OWL 2 reasoner as the complement of CompliantEntity within Entity.</rdfs:comment>
+    </owl:Class>
+
+    <!--
+        CompliantEntity — OWL 2 DL equivalent class definition.
+        An entity is inferred as CompliantEntity by an OWL 2 reasoner (e.g. HermiT, Pellet)
+        if and only if it implements at least one instance of each of the 12 mandatory
+        Article 21 measures. This enables automated compliance classification.
+    -->
+    <owl:Class rdf:about="https://w3id.org/nis2/article21#CompliantEntity">
+        <rdfs:subClassOf rdf:resource="https://w3id.org/nis2/article21#Entity"/>
+        <owl:equivalentClass>
+            <owl:Class>
+                <owl:intersectionOf rdf:parseType="Collection">
+                    <rdf:Description rdf:about="https://w3id.org/nis2/article21#Entity"/>
+                    <!-- (a) Policies on risk analysis and information system security -->
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="https://w3id.org/nis2/article21#implementsMeasure"/>
+                        <owl:someValuesFrom rdf:resource="https://w3id.org/nis2/article21#RiskAnalysisPolicy"/>
+                    </owl:Restriction>
+                    <!-- (b) Incident handling -->
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="https://w3id.org/nis2/article21#implementsMeasure"/>
+                        <owl:someValuesFrom rdf:resource="https://w3id.org/nis2/article21#IncidentHandling"/>
+                    </owl:Restriction>
+                    <!-- (c) Business continuity management -->
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="https://w3id.org/nis2/article21#implementsMeasure"/>
+                        <owl:someValuesFrom rdf:resource="https://w3id.org/nis2/article21#BusinessContinuityManagement"/>
+                    </owl:Restriction>
+                    <!-- (d) Supply chain security -->
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="https://w3id.org/nis2/article21#implementsMeasure"/>
+                        <owl:someValuesFrom rdf:resource="https://w3id.org/nis2/article21#SupplyChainSecurity"/>
+                    </owl:Restriction>
+                    <!-- (e) Security in acquisition, development and maintenance -->
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="https://w3id.org/nis2/article21#implementsMeasure"/>
+                        <owl:someValuesFrom rdf:resource="https://w3id.org/nis2/article21#SecureDevelopment"/>
+                    </owl:Restriction>
+                    <!-- (f) Effectiveness assessment policies and procedures -->
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="https://w3id.org/nis2/article21#implementsMeasure"/>
+                        <owl:someValuesFrom rdf:resource="https://w3id.org/nis2/article21#EffectivenessAssessment"/>
+                    </owl:Restriction>
+                    <!-- (g) Basic cyber hygiene practices and cybersecurity training -->
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="https://w3id.org/nis2/article21#implementsMeasure"/>
+                        <owl:someValuesFrom rdf:resource="https://w3id.org/nis2/article21#BasicCyberHygiene"/>
+                    </owl:Restriction>
+                    <!-- (h) Cybersecurity training and awareness -->
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="https://w3id.org/nis2/article21#implementsMeasure"/>
+                        <owl:someValuesFrom rdf:resource="https://w3id.org/nis2/article21#TrainingAwareness"/>
+                    </owl:Restriction>
+                    <!-- (i) Human resources security, access control and asset management -->
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="https://w3id.org/nis2/article21#implementsMeasure"/>
+                        <owl:someValuesFrom rdf:resource="https://w3id.org/nis2/article21#HumanResourcesSecurity"/>
+                    </owl:Restriction>
+                    <!-- (j) Use of cryptography and, where appropriate, encryption -->
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="https://w3id.org/nis2/article21#implementsMeasure"/>
+                        <owl:someValuesFrom rdf:resource="https://w3id.org/nis2/article21#Encryption"/>
+                    </owl:Restriction>
+                    <!-- (k) Multi-factor authentication -->
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="https://w3id.org/nis2/article21#implementsMeasure"/>
+                        <owl:someValuesFrom rdf:resource="https://w3id.org/nis2/article21#MultiFactorAuthentication"/>
+                    </owl:Restriction>
+                    <!-- (l) Secured emergency communications -->
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="https://w3id.org/nis2/article21#implementsMeasure"/>
+                        <owl:someValuesFrom rdf:resource="https://w3id.org/nis2/article21#SecureCommunications"/>
+                    </owl:Restriction>
+                </owl:intersectionOf>
+            </owl:Class>
+        </owl:equivalentClass>
+        <rdfs:label>Compliant Entity</rdfs:label>
+        <rdfs:comment>An entity that implements all 12 mandatory cybersecurity risk-management measures
+        required by Article 21(2) of the NIS2 Directive. An OWL 2 reasoner will automatically classify
+        any Entity individual that satisfies all 12 someValuesFrom restrictions as a CompliantEntity.</rdfs:comment>
+    </owl:Class>
+
+    <!-- ==================== Measure hierarchy ==================== -->
+
+    <owl:Class rdf:about="https://w3id.org/nis2/article21#RiskManagementMeasure">
+        <rdfs:label>Risk Management Measure</rdfs:label>
+        <rdfs:comment>Technical, operational, or organizational measure to manage cybersecurity risks
+        as required by Article 21 of the NIS2 Directive</rdfs:comment>
+    </owl:Class>
+
+    <owl:Class rdf:about="https://w3id.org/nis2/article21#TechnicalMeasure">
+        <rdfs:subClassOf rdf:resource="https://w3id.org/nis2/article21#RiskManagementMeasure"/>
+        <rdfs:label>Technical Measure</rdfs:label>
+        <rdfs:comment>Technical measure for managing cybersecurity risks</rdfs:comment>
+    </owl:Class>
+
+    <owl:Class rdf:about="https://w3id.org/nis2/article21#OperationalMeasure">
+        <rdfs:subClassOf rdf:resource="https://w3id.org/nis2/article21#RiskManagementMeasure"/>
+        <rdfs:label>Operational Measure</rdfs:label>
+        <rdfs:comment>Operational measure for managing cybersecurity risks</rdfs:comment>
+    </owl:Class>
+
+    <owl:Class rdf:about="https://w3id.org/nis2/article21#OrganizationalMeasure">
+        <rdfs:subClassOf rdf:resource="https://w3id.org/nis2/article21#RiskManagementMeasure"/>
+        <rdfs:label>Organizational Measure</rdfs:label>
+        <rdfs:comment>Organizational measure for managing cybersecurity risks</rdfs:comment>
+    </owl:Class>
+
+    <!-- Disjointness among measure categories -->
+    <owl:AllDisjointClasses>
+        <owl:members rdf:parseType="Collection">
+            <rdf:Description rdf:about="https://w3id.org/nis2/article21#TechnicalMeasure"/>
+            <rdf:Description rdf:about="https://w3id.org/nis2/article21#OperationalMeasure"/>
+            <rdf:Description rdf:about="https://w3id.org/nis2/article21#OrganizationalMeasure"/>
+        </owl:members>
+    </owl:AllDisjointClasses>
+
+    <!-- Article 21(2)(a) — Risk analysis and information system security policies -->
+    <owl:Class rdf:about="https://w3id.org/nis2/article21#RiskAnalysisPolicy">
+        <rdfs:subClassOf rdf:resource="https://w3id.org/nis2/article21#OrganizationalMeasure"/>
+        <rdfs:label>Risk Analysis Policy</rdfs:label>
+        <rdfs:comment>Policies on risk analysis and information system security (Article 21(2)(a))</rdfs:comment>
+        <articleReference xmlns="https://w3id.org/nis2/article21#">Article 21(2)(a)</articleReference>
+        <skos:exactMatch rdf:resource="https://www.enisa.europa.eu/topics/cybersecurity-policy/nis-directive-new/nis2-policies#risk-analysis"/>
+    </owl:Class>
+
+    <!-- Article 21(2)(b) — Incident handling -->
+    <owl:Class rdf:about="https://w3id.org/nis2/article21#IncidentHandling">
+        <rdfs:subClassOf rdf:resource="https://w3id.org/nis2/article21#OperationalMeasure"/>
+        <rdfs:label>Incident Handling</rdfs:label>
+        <rdfs:comment>Incident handling procedures and capabilities (Article 21(2)(b))</rdfs:comment>
+        <articleReference xmlns="https://w3id.org/nis2/article21#">Article 21(2)(b)</articleReference>
+        <skos:closeMatch rdf:resource="https://www.enisa.europa.eu/topics/incident-response"/>
+    </owl:Class>
+
+    <!-- Article 21(2)(c) — Business continuity and crisis management -->
+    <owl:Class rdf:about="https://w3id.org/nis2/article21#BusinessContinuityManagement">
+        <rdfs:subClassOf rdf:resource="https://w3id.org/nis2/article21#OperationalMeasure"/>
+        <rdfs:label>Business Continuity Management</rdfs:label>
+        <rdfs:comment>Business continuity and crisis management measures (Article 21(2)(c))</rdfs:comment>
+        <articleReference xmlns="https://w3id.org/nis2/article21#">Article 21(2)(c)</articleReference>
+        <skos:closeMatch rdf:resource="https://www.iso.org/standard/75106.html"/>
+    </owl:Class>
+
+    <!-- Article 21(2)(d) — Supply chain security -->
+    <owl:Class rdf:about="https://w3id.org/nis2/article21#SupplyChainSecurity">
+        <rdfs:subClassOf rdf:resource="https://w3id.org/nis2/article21#OrganizationalMeasure"/>
+        <rdfs:label>Supply Chain Security</rdfs:label>
+        <rdfs:comment>Supply chain security including security-related aspects of relationships with
+        suppliers or service providers (Article 21(2)(d))</rdfs:comment>
+        <articleReference xmlns="https://w3id.org/nis2/article21#">Article 21(2)(d)</articleReference>
+        <skos:closeMatch rdf:resource="https://www.enisa.europa.eu/topics/supply-chain-attacks"/>
+    </owl:Class>
+
+    <!-- Article 21(2)(e) — Security in acquisition, development and maintenance -->
+    <owl:Class rdf:about="https://w3id.org/nis2/article21#SecureDevelopment">
+        <rdfs:subClassOf rdf:resource="https://w3id.org/nis2/article21#TechnicalMeasure"/>
+        <rdfs:label>Secure Development</rdfs:label>
+        <rdfs:comment>Security in network and information systems acquisition, development and
+        maintenance, including vulnerability handling and disclosure (Article 21(2)(e))</rdfs:comment>
+        <articleReference xmlns="https://w3id.org/nis2/article21#">Article 21(2)(e)</articleReference>
+        <skos:closeMatch rdf:resource="https://owasp.org/www-project-top-ten/"/>
+    </owl:Class>
+
+    <!-- Article 21(2)(f) — Effectiveness assessment -->
+    <owl:Class rdf:about="https://w3id.org/nis2/article21#EffectivenessAssessment">
+        <rdfs:subClassOf rdf:resource="https://w3id.org/nis2/article21#OrganizationalMeasure"/>
+        <rdfs:label>Effectiveness Assessment</rdfs:label>
+        <rdfs:comment>Policies and procedures to assess the effectiveness of cybersecurity
+        risk-management measures (Article 21(2)(f))</rdfs:comment>
+        <articleReference xmlns="https://w3id.org/nis2/article21#">Article 21(2)(f)</articleReference>
+    </owl:Class>
+
+    <!-- Article 21(2)(g) — Basic cyber hygiene and training -->
+    <owl:Class rdf:about="https://w3id.org/nis2/article21#BasicCyberHygiene">
+        <rdfs:subClassOf rdf:resource="https://w3id.org/nis2/article21#OperationalMeasure"/>
+        <rdfs:label>Basic Cyber Hygiene</rdfs:label>
+        <rdfs:comment>Basic cyber hygiene practices and cybersecurity training (Article 21(2)(g))</rdfs:comment>
+        <articleReference xmlns="https://w3id.org/nis2/article21#">Article 21(2)(g)</articleReference>
+        <skos:closeMatch rdf:resource="https://www.cisa.gov/topics/cyber-threats-and-advisories/cyber-hygiene-services"/>
+    </owl:Class>
+
+    <!-- Article 21(2)(h) — Cybersecurity training and awareness -->
+    <owl:Class rdf:about="https://w3id.org/nis2/article21#TrainingAwareness">
+        <rdfs:subClassOf rdf:resource="https://w3id.org/nis2/article21#OrganizationalMeasure"/>
+        <rdfs:label>Training and Awareness</rdfs:label>
+        <rdfs:comment>Cybersecurity training and awareness raising for personnel (Article 21(2)(h))</rdfs:comment>
+        <articleReference xmlns="https://w3id.org/nis2/article21#">Article 21(2)(h)</articleReference>
+    </owl:Class>
+
+    <!-- Article 21(2)(i) — Human resources security, access control and asset management -->
+    <owl:Class rdf:about="https://w3id.org/nis2/article21#HumanResourcesSecurity">
+        <rdfs:subClassOf rdf:resource="https://w3id.org/nis2/article21#OrganizationalMeasure"/>
+        <rdfs:label>Human Resources Security</rdfs:label>
+        <rdfs:comment>Human resources security, access control policies and asset management (Article 21(2)(i))</rdfs:comment>
+        <articleReference xmlns="https://w3id.org/nis2/article21#">Article 21(2)(i)</articleReference>
+    </owl:Class>
+
+    <!-- Article 21(2)(j) — Cryptography and encryption -->
+    <owl:Class rdf:about="https://w3id.org/nis2/article21#Encryption">
+        <rdfs:subClassOf rdf:resource="https://w3id.org/nis2/article21#TechnicalMeasure"/>
+        <rdfs:label>Encryption</rdfs:label>
+        <rdfs:comment>Use of cryptography and, where appropriate, encryption to protect the
+        confidentiality and integrity of data (Article 21(2)(j))</rdfs:comment>
+        <articleReference xmlns="https://w3id.org/nis2/article21#">Article 21(2)(j)</articleReference>
+        <skos:closeMatch rdf:resource="https://www.enisa.europa.eu/topics/cryptography"/>
+    </owl:Class>
+
+    <!-- Article 21(2)(k) — Multi-factor authentication -->
+    <owl:Class rdf:about="https://w3id.org/nis2/article21#MultiFactorAuthentication">
+        <rdfs:subClassOf rdf:resource="https://w3id.org/nis2/article21#TechnicalMeasure"/>
+        <rdfs:label>Multi-Factor Authentication</rdfs:label>
+        <rdfs:comment>Use of multi-factor authentication or continuous authentication solutions to protect access to network and information systems (Article 21(2)(k))</rdfs:comment>
+        <articleReference xmlns="https://w3id.org/nis2/article21#">Article 21(2)(k)</articleReference>
+        <skos:closeMatch rdf:resource="https://www.enisa.europa.eu/topics/incident-response/glossary/multi-factor-authentication"/>
+    </owl:Class>
+
+    <!-- Article 21(2)(l) — Secured communications -->
+    <owl:Class rdf:about="https://w3id.org/nis2/article21#SecureCommunications">
+        <rdfs:subClassOf rdf:resource="https://w3id.org/nis2/article21#TechnicalMeasure"/>
+        <rdfs:label>Secure Communications</rdfs:label>
+        <rdfs:comment>Secured voice, video and text communications, and secured emergency
+        communication systems within the entity where appropriate (Article 21(2)(l))</rdfs:comment>
+        <articleReference xmlns="https://w3id.org/nis2/article21#">Article 21(2)(l)</articleReference>
+    </owl:Class>
+
+    <!-- ==================== Supporting classes ==================== -->
+
+    <owl:Class rdf:about="https://w3id.org/nis2/article21#CybersecurityRisk">
+        <rdfs:label>Cybersecurity Risk</rdfs:label>
+        <rdfs:comment>Risk to the security of network and information systems as defined in the NIS2 Directive</rdfs:comment>
+    </owl:Class>
+
+    <owl:Class rdf:about="https://w3id.org/nis2/article21#SecurityIncident">
+        <rdfs:label>Security Incident</rdfs:label>
+        <rdfs:comment>Any event having an actual adverse effect on the availability, authenticity,
+        integrity or confidentiality of stored, transmitted or processed data or of the services
+        offered by, or accessible via, network and information systems (Article 6(6) NIS2)</rdfs:comment>
+    </owl:Class>
+
+    <owl:Class rdf:about="https://w3id.org/nis2/article21#NetworkInformationSystem">
+        <rdfs:label>Network and Information System</rdfs:label>
+        <rdfs:comment>Network and information system as defined in Article 6(1) of the NIS2 Directive</rdfs:comment>
+    </owl:Class>
+
+    <owl:Class rdf:about="https://w3id.org/nis2/article21#SecurityStandard">
+        <rdfs:label>Security Standard</rdfs:label>
+        <rdfs:comment>European or international standard relevant to cybersecurity risk management</rdfs:comment>
+    </owl:Class>
+
+    <!--
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Individuals / Named Instances
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    <!-- Cybersecurity Risk Individuals -->
+
+    <owl:NamedIndividual rdf:about="https://w3id.org/nis2/article21#DataBreachRisk">
+        <rdf:type rdf:resource="https://w3id.org/nis2/article21#CybersecurityRisk"/>
+        <rdfs:label>Data Breach Risk</rdfs:label>
+        <rdfs:comment>Risk of unauthorised access to, disclosure of, or loss of personal or confidential data</rdfs:comment>
+        <riskLevel xmlns="https://w3id.org/nis2/article21#">high</riskLevel>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="https://w3id.org/nis2/article21#RansomwareRisk">
+        <rdf:type rdf:resource="https://w3id.org/nis2/article21#CybersecurityRisk"/>
+        <rdfs:label>Ransomware Risk</rdfs:label>
+        <rdfs:comment>Risk of malicious software encrypting systems or data and demanding payment for restoration</rdfs:comment>
+        <riskLevel xmlns="https://w3id.org/nis2/article21#">critical</riskLevel>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="https://w3id.org/nis2/article21#DDoSRisk">
+        <rdf:type rdf:resource="https://w3id.org/nis2/article21#CybersecurityRisk"/>
+        <rdfs:label>Distributed Denial-of-Service Risk</rdfs:label>
+        <rdfs:comment>Risk of service disruption through volumetric network attacks overwhelming infrastructure</rdfs:comment>
+        <riskLevel xmlns="https://w3id.org/nis2/article21#">high</riskLevel>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="https://w3id.org/nis2/article21#InsiderThreatRisk">
+        <rdf:type rdf:resource="https://w3id.org/nis2/article21#CybersecurityRisk"/>
+        <rdfs:label>Insider Threat Risk</rdfs:label>
+        <rdfs:comment>Risk of malicious or negligent actions by authorised users causing security breaches</rdfs:comment>
+        <riskLevel xmlns="https://w3id.org/nis2/article21#">medium</riskLevel>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="https://w3id.org/nis2/article21#SupplyChainCompromiseRisk">
+        <rdf:type rdf:resource="https://w3id.org/nis2/article21#CybersecurityRisk"/>
+        <rdfs:label>Supply Chain Compromise Risk</rdfs:label>
+        <rdfs:comment>Risk of attackers compromising software or hardware through supplier or third-party access</rdfs:comment>
+        <riskLevel xmlns="https://w3id.org/nis2/article21#">critical</riskLevel>
+    </owl:NamedIndividual>
+
+    <!-- Security Incident Individuals -->
+
+    <owl:NamedIndividual rdf:about="https://w3id.org/nis2/article21#UnauthorizedAccessIncident">
+        <rdf:type rdf:resource="https://w3id.org/nis2/article21#SecurityIncident"/>
+        <rdfs:label>Unauthorised Access Incident</rdfs:label>
+        <rdfs:comment>An incident where an attacker gains unauthorised access to systems or data</rdfs:comment>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="https://w3id.org/nis2/article21#DataBreachIncident">
+        <rdf:type rdf:resource="https://w3id.org/nis2/article21#SecurityIncident"/>
+        <rdfs:label>Data Breach Incident</rdfs:label>
+        <rdfs:comment>An incident resulting in the confirmed disclosure of confidential data to unauthorised parties</rdfs:comment>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="https://w3id.org/nis2/article21#ServiceDisruptionIncident">
+        <rdf:type rdf:resource="https://w3id.org/nis2/article21#SecurityIncident"/>
+        <rdfs:label>Service Disruption Incident</rdfs:label>
+        <rdfs:comment>An incident causing significant disruption or unavailability of an essential service</rdfs:comment>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="https://w3id.org/nis2/article21#RansomwareIncident">
+        <rdf:type rdf:resource="https://w3id.org/nis2/article21#SecurityIncident"/>
+        <rdfs:label>Ransomware Incident</rdfs:label>
+        <rdfs:comment>An incident where ransomware has encrypted systems or data within the entity</rdfs:comment>
+    </owl:NamedIndividual>
+
+    <!-- Security Standards -->
+    <owl:NamedIndividual rdf:about="https://w3id.org/nis2/article21#ISO27001">
+        <rdf:type rdf:resource="https://w3id.org/nis2/article21#SecurityStandard"/>
+        <rdfs:label>ISO/IEC 27001</rdfs:label>
+        <rdfs:comment>International standard for information security management systems (ISMS)</rdfs:comment>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="https://w3id.org/nis2/article21#ISO27002">
+        <rdf:type rdf:resource="https://w3id.org/nis2/article21#SecurityStandard"/>
+        <rdfs:label>ISO/IEC 27002</rdfs:label>
+        <rdfs:comment>Information security controls guidance (companion to ISO/IEC 27001)</rdfs:comment>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="https://w3id.org/nis2/article21#NISTFramework">
+        <rdf:type rdf:resource="https://w3id.org/nis2/article21#SecurityStandard"/>
+        <rdfs:label>NIST Cybersecurity Framework</rdfs:label>
+        <rdfs:comment>NIST CSF 2.0 — framework for improving critical infrastructure cybersecurity</rdfs:comment>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="https://w3id.org/nis2/article21#ENISAGuidelines">
+        <rdf:type rdf:resource="https://w3id.org/nis2/article21#SecurityStandard"/>
+        <rdfs:label>ENISA Guidelines</rdfs:label>
+        <rdfs:comment>European Union Agency for Cybersecurity (ENISA) guidelines and good practices</rdfs:comment>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="https://w3id.org/nis2/article21#CISControls">
+        <rdf:type rdf:resource="https://w3id.org/nis2/article21#SecurityStandard"/>
+        <rdfs:label>CIS Controls v8</rdfs:label>
+        <rdfs:comment>Center for Internet Security Controls — prioritised set of actions for cyber defence</rdfs:comment>
+    </owl:NamedIndividual>
+
+    <!-- Example Measure Instances — one per Article 21(2) mandatory measure -->
+
+    <owl:NamedIndividual rdf:about="https://w3id.org/nis2/article21#ExampleRiskAnalysisPolicy">
+        <rdf:type rdf:resource="https://w3id.org/nis2/article21#RiskAnalysisPolicy"/>
+        <rdfs:label>Example Risk Analysis Policy</rdfs:label>
+        <measureDescription xmlns="https://w3id.org/nis2/article21#">Policies on risk analysis and information system security covering asset identification, threat assessment and risk treatment</measureDescription>
+        <isAppropriate xmlns="https://w3id.org/nis2/article21#" rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</isAppropriate>
+        <isProportionate xmlns="https://w3id.org/nis2/article21#" rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</isProportionate>
+        <isStateOfTheArt xmlns="https://w3id.org/nis2/article21#" rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</isStateOfTheArt>
+        <basedOnStandard xmlns="https://w3id.org/nis2/article21#" rdf:resource="https://w3id.org/nis2/article21#ISO27001"/>
+        <addressesRisk xmlns="https://w3id.org/nis2/article21#" rdf:resource="https://w3id.org/nis2/article21#DataBreachRisk"/>
+        <addressesRisk xmlns="https://w3id.org/nis2/article21#" rdf:resource="https://w3id.org/nis2/article21#InsiderThreatRisk"/>
+        <appliesToSystem xmlns="https://w3id.org/nis2/article21#" rdf:resource="https://w3id.org/nis2/article21#CoreBankingSystem"/>
+        <appliesToSystem xmlns="https://w3id.org/nis2/article21#" rdf:resource="https://w3id.org/nis2/article21#InternalITInfrastructure"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="https://w3id.org/nis2/article21#ExampleIncidentHandling">
+        <rdf:type rdf:resource="https://w3id.org/nis2/article21#IncidentHandling"/>
+        <rdfs:label>Example Incident Handling</rdfs:label>
+        <measureDescription xmlns="https://w3id.org/nis2/article21#">Incident detection, classification, response and recovery procedures including reporting obligations</measureDescription>
+        <isAppropriate xmlns="https://w3id.org/nis2/article21#" rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</isAppropriate>
+        <isProportionate xmlns="https://w3id.org/nis2/article21#" rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</isProportionate>
+        <isStateOfTheArt xmlns="https://w3id.org/nis2/article21#" rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</isStateOfTheArt>
+        <basedOnStandard xmlns="https://w3id.org/nis2/article21#" rdf:resource="https://w3id.org/nis2/article21#ENISAGuidelines"/>
+        <addressesRisk xmlns="https://w3id.org/nis2/article21#" rdf:resource="https://w3id.org/nis2/article21#RansomwareRisk"/>
+        <preventsIncident xmlns="https://w3id.org/nis2/article21#" rdf:resource="https://w3id.org/nis2/article21#RansomwareIncident"/>
+        <minimizesImpact xmlns="https://w3id.org/nis2/article21#" rdf:resource="https://w3id.org/nis2/article21#ServiceDisruptionIncident"/>
+        <appliesToSystem xmlns="https://w3id.org/nis2/article21#" rdf:resource="https://w3id.org/nis2/article21#CoreBankingSystem"/>
+        <appliesToSystem xmlns="https://w3id.org/nis2/article21#" rdf:resource="https://w3id.org/nis2/article21#WebApplicationPlatform"/>
+        <appliesToSystem xmlns="https://w3id.org/nis2/article21#" rdf:resource="https://w3id.org/nis2/article21#InternalITInfrastructure"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="https://w3id.org/nis2/article21#ExampleBusinessContinuity">
+        <rdf:type rdf:resource="https://w3id.org/nis2/article21#BusinessContinuityManagement"/>
+        <rdfs:label>Example Business Continuity Management</rdfs:label>
+        <measureDescription xmlns="https://w3id.org/nis2/article21#">Business continuity and crisis management including backup management, disaster recovery and crisis management procedures</measureDescription>
+        <isAppropriate xmlns="https://w3id.org/nis2/article21#" rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</isAppropriate>
+        <isProportionate xmlns="https://w3id.org/nis2/article21#" rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</isProportionate>
+        <isStateOfTheArt xmlns="https://w3id.org/nis2/article21#" rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</isStateOfTheArt>
+        <basedOnStandard xmlns="https://w3id.org/nis2/article21#" rdf:resource="https://w3id.org/nis2/article21#ISO27001"/>
+        <addressesRisk xmlns="https://w3id.org/nis2/article21#" rdf:resource="https://w3id.org/nis2/article21#DDoSRisk"/>
+        <minimizesImpact xmlns="https://w3id.org/nis2/article21#" rdf:resource="https://w3id.org/nis2/article21#ServiceDisruptionIncident"/>
+        <appliesToSystem xmlns="https://w3id.org/nis2/article21#" rdf:resource="https://w3id.org/nis2/article21#CoreBankingSystem"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="https://w3id.org/nis2/article21#ExampleSupplyChainSecurity">
+        <rdf:type rdf:resource="https://w3id.org/nis2/article21#SupplyChainSecurity"/>
+        <rdfs:label>Example Supply Chain Security</rdfs:label>
+        <measureDescription xmlns="https://w3id.org/nis2/article21#">Security measures covering supplier relationships, third-party risk assessments, and contractual security requirements</measureDescription>
+        <isAppropriate xmlns="https://w3id.org/nis2/article21#" rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</isAppropriate>
+        <isProportionate xmlns="https://w3id.org/nis2/article21#" rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</isProportionate>
+        <isStateOfTheArt xmlns="https://w3id.org/nis2/article21#" rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</isStateOfTheArt>
+        <basedOnStandard xmlns="https://w3id.org/nis2/article21#" rdf:resource="https://w3id.org/nis2/article21#ISO27002"/>
+        <addressesRisk xmlns="https://w3id.org/nis2/article21#" rdf:resource="https://w3id.org/nis2/article21#SupplyChainCompromiseRisk"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="https://w3id.org/nis2/article21#ExampleSecureDevelopment">
+        <rdf:type rdf:resource="https://w3id.org/nis2/article21#SecureDevelopment"/>
+        <rdfs:label>Example Secure Development</rdfs:label>
+        <measureDescription xmlns="https://w3id.org/nis2/article21#">Secure software development lifecycle including vulnerability testing, patch management and responsible disclosure practices</measureDescription>
+        <isAppropriate xmlns="https://w3id.org/nis2/article21#" rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</isAppropriate>
+        <isProportionate xmlns="https://w3id.org/nis2/article21#" rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</isProportionate>
+        <isStateOfTheArt xmlns="https://w3id.org/nis2/article21#" rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</isStateOfTheArt>
+        <basedOnStandard xmlns="https://w3id.org/nis2/article21#" rdf:resource="https://w3id.org/nis2/article21#NISTFramework"/>
+        <addressesRisk xmlns="https://w3id.org/nis2/article21#" rdf:resource="https://w3id.org/nis2/article21#SupplyChainCompromiseRisk"/>
+        <preventsIncident xmlns="https://w3id.org/nis2/article21#" rdf:resource="https://w3id.org/nis2/article21#UnauthorizedAccessIncident"/>
+        <appliesToSystem xmlns="https://w3id.org/nis2/article21#" rdf:resource="https://w3id.org/nis2/article21#WebApplicationPlatform"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="https://w3id.org/nis2/article21#ExampleEffectivenessAssessment">
+        <rdf:type rdf:resource="https://w3id.org/nis2/article21#EffectivenessAssessment"/>
+        <rdfs:label>Example Effectiveness Assessment</rdfs:label>
+        <measureDescription xmlns="https://w3id.org/nis2/article21#">Procedures for regular assessment and audit of cybersecurity risk-management measures including KPIs and metrics</measureDescription>
+        <isAppropriate xmlns="https://w3id.org/nis2/article21#" rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</isAppropriate>
+        <isProportionate xmlns="https://w3id.org/nis2/article21#" rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</isProportionate>
+        <isStateOfTheArt xmlns="https://w3id.org/nis2/article21#" rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</isStateOfTheArt>
+        <basedOnStandard xmlns="https://w3id.org/nis2/article21#" rdf:resource="https://w3id.org/nis2/article21#ISO27001"/>
+        <addressesRisk xmlns="https://w3id.org/nis2/article21#" rdf:resource="https://w3id.org/nis2/article21#DataBreachRisk"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="https://w3id.org/nis2/article21#ExampleBasicCyberHygiene">
+        <rdf:type rdf:resource="https://w3id.org/nis2/article21#BasicCyberHygiene"/>
+        <rdfs:label>Example Basic Cyber Hygiene</rdfs:label>
+        <measureDescription xmlns="https://w3id.org/nis2/article21#">Basic cyber hygiene practices including zero-trust principles, software updates, device configuration, network segmentation and phishing awareness</measureDescription>
+        <isAppropriate xmlns="https://w3id.org/nis2/article21#" rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</isAppropriate>
+        <isProportionate xmlns="https://w3id.org/nis2/article21#" rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</isProportionate>
+        <isStateOfTheArt xmlns="https://w3id.org/nis2/article21#" rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</isStateOfTheArt>
+        <basedOnStandard xmlns="https://w3id.org/nis2/article21#" rdf:resource="https://w3id.org/nis2/article21#CISControls"/>
+        <addressesRisk xmlns="https://w3id.org/nis2/article21#" rdf:resource="https://w3id.org/nis2/article21#InsiderThreatRisk"/>
+        <preventsIncident xmlns="https://w3id.org/nis2/article21#" rdf:resource="https://w3id.org/nis2/article21#UnauthorizedAccessIncident"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="https://w3id.org/nis2/article21#ExampleTrainingAwareness">
+        <rdf:type rdf:resource="https://w3id.org/nis2/article21#TrainingAwareness"/>
+        <rdfs:label>Example Training and Awareness</rdfs:label>
+        <measureDescription xmlns="https://w3id.org/nis2/article21#">Cybersecurity awareness training programmes for all personnel, and specialised training for security staff</measureDescription>
+        <isAppropriate xmlns="https://w3id.org/nis2/article21#" rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</isAppropriate>
+        <isProportionate xmlns="https://w3id.org/nis2/article21#" rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</isProportionate>
+        <isStateOfTheArt xmlns="https://w3id.org/nis2/article21#" rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</isStateOfTheArt>
+        <basedOnStandard xmlns="https://w3id.org/nis2/article21#" rdf:resource="https://w3id.org/nis2/article21#ENISAGuidelines"/>
+        <addressesRisk xmlns="https://w3id.org/nis2/article21#" rdf:resource="https://w3id.org/nis2/article21#InsiderThreatRisk"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="https://w3id.org/nis2/article21#ExampleHumanResourcesSecurity">
+        <rdf:type rdf:resource="https://w3id.org/nis2/article21#HumanResourcesSecurity"/>
+        <rdfs:label>Example Human Resources Security</rdfs:label>
+        <measureDescription xmlns="https://w3id.org/nis2/article21#">Human resources security covering background checks, role-based access control, asset management and personnel security on-boarding and off-boarding</measureDescription>
+        <isAppropriate xmlns="https://w3id.org/nis2/article21#" rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</isAppropriate>
+        <isProportionate xmlns="https://w3id.org/nis2/article21#" rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</isProportionate>
+        <isStateOfTheArt xmlns="https://w3id.org/nis2/article21#" rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</isStateOfTheArt>
+        <basedOnStandard xmlns="https://w3id.org/nis2/article21#" rdf:resource="https://w3id.org/nis2/article21#ISO27002"/>
+        <addressesRisk xmlns="https://w3id.org/nis2/article21#" rdf:resource="https://w3id.org/nis2/article21#InsiderThreatRisk"/>
+        <preventsIncident xmlns="https://w3id.org/nis2/article21#" rdf:resource="https://w3id.org/nis2/article21#DataBreachIncident"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="https://w3id.org/nis2/article21#ExampleEncryption">
+        <rdf:type rdf:resource="https://w3id.org/nis2/article21#Encryption"/>
+        <rdfs:label>Example Encryption</rdfs:label>
+        <measureDescription xmlns="https://w3id.org/nis2/article21#">Use of strong cryptographic algorithms and key management for data at rest and in transit</measureDescription>
+        <isAppropriate xmlns="https://w3id.org/nis2/article21#" rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</isAppropriate>
+        <isProportionate xmlns="https://w3id.org/nis2/article21#" rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</isProportionate>
+        <isStateOfTheArt xmlns="https://w3id.org/nis2/article21#" rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</isStateOfTheArt>
+        <basedOnStandard xmlns="https://w3id.org/nis2/article21#" rdf:resource="https://w3id.org/nis2/article21#NISTFramework"/>
+        <addressesRisk xmlns="https://w3id.org/nis2/article21#" rdf:resource="https://w3id.org/nis2/article21#DataBreachRisk"/>
+        <preventsIncident xmlns="https://w3id.org/nis2/article21#" rdf:resource="https://w3id.org/nis2/article21#DataBreachIncident"/>
+        <appliesToSystem xmlns="https://w3id.org/nis2/article21#" rdf:resource="https://w3id.org/nis2/article21#CoreBankingSystem"/>
+        <appliesToSystem xmlns="https://w3id.org/nis2/article21#" rdf:resource="https://w3id.org/nis2/article21#WebApplicationPlatform"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="https://w3id.org/nis2/article21#ExampleMultiFactorAuthentication">
+        <rdf:type rdf:resource="https://w3id.org/nis2/article21#MultiFactorAuthentication"/>
+        <rdfs:label>Example Multi-Factor Authentication</rdfs:label>
+        <measureDescription xmlns="https://w3id.org/nis2/article21#">Deployment of MFA or continuous authentication for privileged and remote access to network and information systems</measureDescription>
+        <isAppropriate xmlns="https://w3id.org/nis2/article21#" rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</isAppropriate>
+        <isProportionate xmlns="https://w3id.org/nis2/article21#" rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</isProportionate>
+        <isStateOfTheArt xmlns="https://w3id.org/nis2/article21#" rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</isStateOfTheArt>
+        <basedOnStandard xmlns="https://w3id.org/nis2/article21#" rdf:resource="https://w3id.org/nis2/article21#CISControls"/>
+        <addressesRisk xmlns="https://w3id.org/nis2/article21#" rdf:resource="https://w3id.org/nis2/article21#DataBreachRisk"/>
+        <preventsIncident xmlns="https://w3id.org/nis2/article21#" rdf:resource="https://w3id.org/nis2/article21#UnauthorizedAccessIncident"/>
+        <appliesToSystem xmlns="https://w3id.org/nis2/article21#" rdf:resource="https://w3id.org/nis2/article21#InternalITInfrastructure"/>
+        <appliesToSystem xmlns="https://w3id.org/nis2/article21#" rdf:resource="https://w3id.org/nis2/article21#CoreBankingSystem"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="https://w3id.org/nis2/article21#ExampleSecureCommunications">
+        <rdf:type rdf:resource="https://w3id.org/nis2/article21#SecureCommunications"/>
+        <rdfs:label>Example Secure Communications</rdfs:label>
+        <measureDescription xmlns="https://w3id.org/nis2/article21#">Secured voice, video and text communications channels including end-to-end encrypted messaging and secured emergency communication systems</measureDescription>
+        <isAppropriate xmlns="https://w3id.org/nis2/article21#" rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</isAppropriate>
+        <isProportionate xmlns="https://w3id.org/nis2/article21#" rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</isProportionate>
+        <isStateOfTheArt xmlns="https://w3id.org/nis2/article21#" rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</isStateOfTheArt>
+        <basedOnStandard xmlns="https://w3id.org/nis2/article21#" rdf:resource="https://w3id.org/nis2/article21#ENISAGuidelines"/>
+        <addressesRisk xmlns="https://w3id.org/nis2/article21#" rdf:resource="https://w3id.org/nis2/article21#DataBreachRisk"/>
+    </owl:NamedIndividual>
+
+    <!--
+        ExampleCompliantEntity — demonstrates automated reasoning.
+        Because this individual implements all 12 Article 21(2) measures it will be
+        automatically classified as a CompliantEntity by any OWL 2 DL reasoner.
+    -->
+    <owl:NamedIndividual rdf:about="https://w3id.org/nis2/article21#ExampleCompliantEntity">
+        <rdf:type rdf:resource="https://w3id.org/nis2/article21#EssentialEntity"/>
+        <rdfs:label>Example Compliant Essential Entity</rdfs:label>
+        <rdfs:comment>An essential entity that implements all 12 mandatory Article 21 measures.
+        An OWL 2 reasoner will automatically infer this individual as a CompliantEntity.</rdfs:comment>
+        <implementsMeasure xmlns="https://w3id.org/nis2/article21#" rdf:resource="https://w3id.org/nis2/article21#ExampleRiskAnalysisPolicy"/>
+        <implementsMeasure xmlns="https://w3id.org/nis2/article21#" rdf:resource="https://w3id.org/nis2/article21#ExampleIncidentHandling"/>
+        <implementsMeasure xmlns="https://w3id.org/nis2/article21#" rdf:resource="https://w3id.org/nis2/article21#ExampleBusinessContinuity"/>
+        <implementsMeasure xmlns="https://w3id.org/nis2/article21#" rdf:resource="https://w3id.org/nis2/article21#ExampleSupplyChainSecurity"/>
+        <implementsMeasure xmlns="https://w3id.org/nis2/article21#" rdf:resource="https://w3id.org/nis2/article21#ExampleSecureDevelopment"/>
+        <implementsMeasure xmlns="https://w3id.org/nis2/article21#" rdf:resource="https://w3id.org/nis2/article21#ExampleEffectivenessAssessment"/>
+        <implementsMeasure xmlns="https://w3id.org/nis2/article21#" rdf:resource="https://w3id.org/nis2/article21#ExampleBasicCyberHygiene"/>
+        <implementsMeasure xmlns="https://w3id.org/nis2/article21#" rdf:resource="https://w3id.org/nis2/article21#ExampleTrainingAwareness"/>
+        <implementsMeasure xmlns="https://w3id.org/nis2/article21#" rdf:resource="https://w3id.org/nis2/article21#ExampleHumanResourcesSecurity"/>
+        <implementsMeasure xmlns="https://w3id.org/nis2/article21#" rdf:resource="https://w3id.org/nis2/article21#ExampleEncryption"/>
+        <implementsMeasure xmlns="https://w3id.org/nis2/article21#" rdf:resource="https://w3id.org/nis2/article21#ExampleMultiFactorAuthentication"/>
+        <implementsMeasure xmlns="https://w3id.org/nis2/article21#" rdf:resource="https://w3id.org/nis2/article21#ExampleSecureCommunications"/>
+    </owl:NamedIndividual>
+
+    <!--
+        ExampleNonCompliantEntity — demonstrates reasoning for non-compliance.
+        This entity only implements 5 of the 12 required measures, so a reasoner will
+        NOT classify it as CompliantEntity.
+    -->
+    <owl:NamedIndividual rdf:about="https://w3id.org/nis2/article21#ExampleNonCompliantEntity">
+        <rdf:type rdf:resource="https://w3id.org/nis2/article21#ImportantEntity"/>
+        <rdfs:label>Example Non-Compliant Important Entity</rdfs:label>
+        <rdfs:comment>An important entity that implements only 5 of the 12 mandatory Article 21 measures.
+        A reasoner will NOT classify this individual as CompliantEntity, demonstrating gap detection.</rdfs:comment>
+        <implementsMeasure xmlns="https://w3id.org/nis2/article21#" rdf:resource="https://w3id.org/nis2/article21#ExampleRiskAnalysisPolicy"/>
+        <implementsMeasure xmlns="https://w3id.org/nis2/article21#" rdf:resource="https://w3id.org/nis2/article21#ExampleIncidentHandling"/>
+        <implementsMeasure xmlns="https://w3id.org/nis2/article21#" rdf:resource="https://w3id.org/nis2/article21#ExampleEncryption"/>
+        <implementsMeasure xmlns="https://w3id.org/nis2/article21#" rdf:resource="https://w3id.org/nis2/article21#ExampleBasicCyberHygiene"/>
+        <implementsMeasure xmlns="https://w3id.org/nis2/article21#" rdf:resource="https://w3id.org/nis2/article21#ExampleTrainingAwareness"/>
+    </owl:NamedIndividual>
+
+    <!-- Network and Information System Instances -->
+
+    <owl:NamedIndividual rdf:about="https://w3id.org/nis2/article21#CoreBankingSystem">
+        <rdf:type rdf:resource="https://w3id.org/nis2/article21#NetworkInformationSystem"/>
+        <rdfs:label>Core Banking System</rdfs:label>
+        <rdfs:comment>The primary network and information system hosting banking transaction processing and customer data</rdfs:comment>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="https://w3id.org/nis2/article21#WebApplicationPlatform">
+        <rdf:type rdf:resource="https://w3id.org/nis2/article21#NetworkInformationSystem"/>
+        <rdfs:label>Web Application Platform</rdfs:label>
+        <rdfs:comment>The customer-facing web application and API platform serving external users</rdfs:comment>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="https://w3id.org/nis2/article21#InternalITInfrastructure">
+        <rdf:type rdf:resource="https://w3id.org/nis2/article21#NetworkInformationSystem"/>
+        <rdfs:label>Internal IT Infrastructure</rdfs:label>
+        <rdfs:comment>The internal corporate IT infrastructure including endpoints, servers, and network equipment</rdfs:comment>
+    </owl:NamedIndividual>
+
+</rdf:RDF>
