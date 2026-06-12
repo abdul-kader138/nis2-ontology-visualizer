@@ -25,11 +25,14 @@ Object.entries(FONT_FILES).forEach(([name, file]) => {
   doc.registerFont(name, file);
 });
 
+const UNIVERSITY_LOGO = path.join(__dirname, 'university_logo_firenze.png');
+
 doc.pipe(fs.createWriteStream('NIS2_Thesis_Abdul_Kader.pdf'));
 
 // ── Page numbering ────────────────────────────────────────────────────
 let currentPage = 1;
 function stampPageNumber(pageNumber) {
+  if (pageNumber === 1) return;
   doc.font('Helvetica').fontSize(9)
      .text(`Page | ${pageNumber}`, 40, 24, { align: 'left', width: 90 });
 }
@@ -61,6 +64,60 @@ function ensureSpace(minHeight) {
   }
 }
 
+function academicizeText(text) {
+  const replacements = [
+    [/\bThis thesis\b/g, 'This study'],
+    [/\bthis thesis\b/g, 'this study'],
+    [/\bThe thesis\b/g, 'The study'],
+    [/\bthe thesis\b/g, 'the study'],
+    [/represents a landmark advancement in the regulatory landscape for cybersecurity governance across EU member states/g, 'represents a significant development in EU cybersecurity regulation'],
+    [/the gap between the formal legal text and the computational tools available for automated compliance checking represents a compelling research challenge/g, 'the gap between the formal legal text and the available computational tools remains a substantive research problem'],
+    [/The framework is complemented by/g, 'The framework includes'],
+    [/real-time entity compliance checking/g, 'on-demand entity checking'],
+    [/interactive web-based/g, 'web-based'],
+    [/A web interface built on Node\.js and Express provides access to the implemented capabilities, including knowledge graph visualization with vis-network, OWL reasoning, SHACL validation, and SPARQL querying\./g, 'A web interface built on Node.js and Express provides access to the implemented capabilities, including knowledge graph visualization with vis-network, OWL reasoning, SHACL validation, and SPARQL querying.'],
+    [/reusable, standards-aligned ontological foundation/g, 'extensible ontological foundation'],
+    [/The thesis establishes a reusable, standards-aligned ontological foundation for NIS2 Article 21 compliance automation that can be extended to cover broader NIS2 obligations and integrated with organizational security information systems\./g, 'The study provides an extensible ontological foundation for NIS2 Article 21 compliance automation and can be adapted to broader NIS2 obligations and organizational security information systems.'],
+    [/This thesis presents the design and implementation of a formal OWL 2 DL ontology for representing NIS2 Article 21\(2\) requirements in machine-processable form\./g, 'This study presents a formal OWL 2 DL ontology for representing NIS2 Article 21(2) requirements in machine-processable form.'],
+    [/The ontology, published under the persistent URI namespace https:\/\/w3id.org\/nis2\/article21#, connects the twelve operational classes through object properties and logical axioms including equivalentClass, complementOf, allValuesFrom, someValuesFrom, and propertyChainAxiom\./g, 'The ontology, published under the persistent URI namespace https://w3id.org/nis2/article21#, connects the twelve operational classes through object properties and logical axioms including equivalentClass, complementOf, allValuesFrom, someValuesFrom, and propertyChainAxiom.'],
+    [/The ontology classifies an entity as CompliantEntity when its asserted implementations cover all twelve operational classes, thereby covering all ten legal categories at the selected modeling granularity\./g, 'The ontology classifies an entity as CompliantEntity when its asserted implementations cover all twelve operational classes, which correspond to the ten legal categories at the selected modeling granularity.'],
+    [/The ontology decomposes two compound provisions into twelve operational classes\./g, 'The ontology decomposes two compound provisions into twelve operational classes.'],
+    [/The field of ontology engineering, anchored in the W3C's Web Ontology Language \(OWL\) and the broader Semantic Web technology stack, offers a well-established approach to formalizing complex domain knowledge for computational processing\./g, 'Ontology engineering, grounded in the W3C Web Ontology Language (OWL) and the broader Semantic Web stack, provides a well-established approach to formalizing complex domain knowledge for computational processing.'],
+    [/The research addresses an interdisciplinary translation problem: Article 21 is expressed as a legal and organizational obligation, while automated assessment requires explicit concepts, stable relations, and testable conditions\./g, 'The research addresses an interdisciplinary translation problem: Article 21 is expressed as a legal and organizational obligation, while automated assessment requires explicit concepts, stable relations, and testable conditions.'],
+    [/The thesis contribution is strongest as a transparent proof of concept\./g, 'The contribution is best understood as a transparent proof of concept.'],
+    [/This thesis makes five distinct contributions to the fields of semantic web technology, legal\/regulatory compliance, and cybersecurity governance\./g, 'The study makes five contributions to semantic web technology, legal/regulatory compliance, and cybersecurity governance.'],
+    [/The OWL-SHACL-SPARQL architecture may be reused for regulations containing identifiable subjects, obligations, controls, and evidence\. The reusable contribution is the method rather than the specific Article 21 taxonomy\./g, 'The OWL-SHACL-SPARQL architecture may be adapted to regulations containing identifiable subjects, obligations, controls, and evidence. The transferable contribution is the method rather than the specific Article 21 taxonomy.'],
+    [/The work presented in this thesis establishes a foundation for several promising research directions\./g, 'The work presented here establishes a foundation for several further research directions.'],
+    [/The thesis began with a gap between legal cybersecurity obligations and the machine-processable structures needed for repeatable assessment\./g, 'The study began with a gap between legal cybersecurity obligations and the machine-processable structures needed for repeatable assessment.'],
+    [/This research demonstrates that formal ontology engineering, grounded in OWL 2 and complementary semantic web standards, provides a technically sound and practically effective approach to automating regulatory compliance verification\./g, 'The results indicate that formal ontology engineering, grounded in OWL 2 and complementary Semantic Web standards, can support the automation of regulatory compliance verification.'],
+    [/significantly reduce the manual burden of compliance management, improve consistency of compliance assessments, and support the development of machine-readable regulatory knowledge that can evolve with the legal framework it represents\./g, 'reduce the manual burden of compliance management, improve the consistency of compliance assessments, and support the development of machine-readable regulatory knowledge that can evolve with the legal framework it represents.'],
+    [/transparent proof of concept/g, 'bounded prototype'],
+    [/promising research directions/g, 'further research directions'],
+    [/general-purpose compliance tool/g, 'compliance support tool'],
+    [/general-purpose compliance engine/g, 'compliance checking engine'],
+    [/immediate intuitive insight/g, 'direct insight'],
+    [/easy to run locally/g, 'straightforward to execute locally'],
+    [/useful after the thesis submission stage/g, 'available after thesis submission'],
+    [/quickly revisit the thesis structure/g, 'review the thesis structure'],
+    [/one-off graph model/g, 'single-purpose graph model'],
+    [/easier to test/g, 'more straightforward to test'],
+    [/often useful/g, 'useful'],
+    [/useful for discussing/g, 'valuable for discussing'],
+    [/The thesis implementation is designed to be easy to run locally\./g, 'The implementation is intended for local execution during development and evaluation.'],
+    [/This section is intentionally operational so that the report remains useful after the thesis submission stage\./g, 'This section is operational in orientation and supports post-submission maintenance and review.'],
+    [/This summary sheet condenses the purpose of each chapter into a single page so that a reader can quickly revisit the thesis structure during review or defence preparation\./g, 'This summary sheet provides a concise chapter overview for review and defence preparation.'],
+    [/This short section is useful when discussing the thesis with readers who are not specialists in Semantic Web technologies\./g, 'This section provides terminology support for readers who are not specialists in Semantic Web technologies.'],
+    [/The following questions are useful for preparing a thesis defence or an internal review meeting\./g, 'The following questions support thesis defence preparation or an internal review meeting.'],
+    [/These prompts are not requirements, but they are often useful for verifying that the thesis can be defended clearly and consistently\./g, 'These prompts are optional and can be used to check that the thesis can be defended clearly and consistently.'],
+    [/This final snapshot summarizes the thesis outcome in a single place\. It is the most compact description of the project deliverable and should be easy to cite in a short oral presentation\./g, 'This final snapshot summarizes the thesis outcome in a single place and provides a compact description of the project deliverable for brief oral reference.'],
+    [/This chapter consolidates technical reference material that supports, but does not carry, the principal academic argument\. The legal analysis, methodological justification, ontology design rationale, implementation analysis, and evaluation interpretation are developed in Chapters 1–10\. The present chapter is intentionally limited to concise material useful for reproduction, review, and thesis defence\./g, 'This chapter consolidates technical reference material that supports the principal academic argument. The legal analysis, methodological justification, ontology design rationale, implementation analysis, and evaluation interpretation are developed in Chapters 1–10. The present chapter is limited to concise material for reproduction, review, and thesis defence.'],
+    [/A reviewer can then execute ontology validation, reasoning, SHACL checking, competency queries, and real-time entity assessment\. The report itself is regenerated through the PDFKit script\./g, 'A reviewer can then execute ontology validation, reasoning, SHACL checking, competency queries, and entity assessment. The report is regenerated through the PDFKit script.'],
+    [/Five endpoints expose structural validation, reasoning, SHACL checking, SPARQL execution, and real-time entity assessment\. Responses use JSON so that the browser and other clients can consume the results consistently\./g, 'Five endpoints expose structural validation, reasoning, SHACL checking, SPARQL execution, and entity assessment. Responses use JSON so that the browser and other clients can consume the results consistently.'],
+    [/Stable identifiers should be retained where concept meaning is unchanged, while changed interpretations should be documented through release notes and provenance metadata\. Regression tests should be rerun for every release\./g, 'Stable identifiers should be retained where concept meaning is unchanged, while changed interpretations should be documented through release notes and provenance metadata. Regression tests should be rerun for each release.'],
+  ];
+  return replacements.reduce((acc, [from, to]) => acc.replace(from, to), String(text));
+}
+
 function chapterHeading(num, title) {
   resetCursor();
   doc.moveDown(1);
@@ -87,25 +144,25 @@ function subHeading(text) {
 
 function body(text) {
   resetCursor();
-  doc.font('Helvetica').fontSize(11).text(text, { align: 'justify', lineGap: 3 });
+  doc.font('Helvetica').fontSize(11).text(academicizeText(text), { align: 'justify', lineGap: 3 });
   doc.moveDown(0.5);
 }
 
 function bullet(text) {
   resetCursor();
   doc.font('Helvetica').fontSize(11)
-     .text(`•  ${text}`, { indent: 20, align: 'justify', lineGap: 2 });
+     .text(`•  ${academicizeText(text)}`, { indent: 20, align: 'justify', lineGap: 2 });
 }
 
 function numbered(n, text) {
   resetCursor();
   doc.font('Helvetica').fontSize(11)
-     .text(`${n}.  ${text}`, { indent: 20, align: 'justify', lineGap: 2 });
+     .text(`${n}.  ${academicizeText(text)}`, { indent: 20, align: 'justify', lineGap: 2 });
 }
 
 function italicBody(text) {
   resetCursor();
-  doc.font('Helvetica-Oblique').fontSize(11).text(text, { align: 'justify', lineGap: 3 });
+  doc.font('Helvetica-Oblique').fontSize(11).text(academicizeText(text), { align: 'justify', lineGap: 3 });
   doc.moveDown(0.5);
 }
 
@@ -702,7 +759,7 @@ function tableSimple(headers, rows, options = {}) {
   const padY = options.padY || 4;
 
   function displayCell(value) {
-    return String(value)
+    return academicizeText(String(value))
       .replace(/([a-z0-9])([A-Z])/g, '$1\u200b$2')
       .replace(/([,;/])([^\s])/g, '$1\u200b$2');
   }
@@ -1413,6 +1470,7 @@ function owlSupplementaryFigurePage() {
 // ═══════════════════════════════════════════════════════════════════════
 // COVER PAGE
 // ═══════════════════════════════════════════════════════════════════════
+doc.image(UNIVERSITY_LOGO, 20, 18, { width: 180 });
 doc.moveDown(2);
 doc.font('Helvetica-Bold').fontSize(12)
    .text('School of Mathematical, Physical and Natural Sciences', { align: 'center' });
@@ -1563,16 +1621,16 @@ newPage();
 doc.font('Helvetica-Bold').fontSize(14).text('List of Figures', { align: 'center' });
 doc.moveDown(1);
 tableSimple(['Figure', 'Description'], [
-  ['Figure 6.1', 'Turtle/RDF serialization excerpt for an example encryption measure'],
-  ['Figure 6.2', 'OWL equivalent-class structure defining CompliantEntity'],
-  ['Figure 6.3', 'OWL subclass hierarchy for the three measure families'],
-  ['Figure 6.4', 'OWL role chain used to derive standard associations'],
-  ['Figure 8.1', 'Ontology explorer showing representative entity, measure, risk, system, and standard relations'],
-  ['Figure 8.2', 'Structural ontology validation report generated from /api/validate'],
-  ['Figure 8.3', 'Entity classification and standard derivation generated from /api/reason'],
-  ['Figure 8.4', 'SHACL-oriented coverage and quality validation generated from /api/shacl'],
-  ['Figure 8.5', 'Real-time entity assessment generated from /api/check-entity'],
-  ['Figure 8.6', 'SPARQL competency query and result table for standard associations'],
+  ['Figure 6.1', 'Turtle/RDF serialization excerpt'],
+  ['Figure 6.2', 'OWL equivalent-class definition of CompliantEntity'],
+  ['Figure 6.3', 'OWL subclass hierarchy for measure families'],
+  ['Figure 6.4', 'OWL role chain for standard derivation'],
+  ['Figure 8.1', 'Ontology explorer of representative relations'],
+  ['Figure 8.2', 'Structural ontology validation results'],
+  ['Figure 8.3', 'Entity classification and standard derivation'],
+  ['Figure 8.4', 'SHACL validation results'],
+  ['Figure 8.5', 'Real-time entity assessment'],
+  ['Figure 8.6', 'SPARQL competency query and results'],
 ]);
 
 newPage();
@@ -1620,7 +1678,7 @@ tableSimple(['Term', 'Definition'], [
   ['Compliance', 'Coverage of all ten legal categories through the ontology’s twelve operational measure classes'],
   ['Property Chain', 'OWL axiom composing two properties: P is derived by composing Q and R'],
   ['SHACL Shape', 'A constraint definition targeting a class and specifying expected properties'],
-  ['Namespace', 'URI prefix identifying an ontology, e.g., https://w3id.org/nis2/article21#'],
+  ['Namespace', 'URI prefix identifying an ontology, e.g., https://\nw3id.org/\nnis2/\narticle21#'],
 ]);
 
 // ═══════════════════════════════════════════════════════════════════════
