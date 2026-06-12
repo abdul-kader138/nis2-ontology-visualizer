@@ -345,14 +345,6 @@
     rdfs:comment "Cybersecurity training and awareness component of basic cyber hygiene practices and cybersecurity training (Article 21(2)(g))" ;
     :articleReference "Article 21(2)(g)" .
 
-# Article 21(2)(i)
-:HumanResourcesSecurity
-    a owl:Class ;
-    rdfs:subClassOf :OrganizationalMeasure ;
-    rdfs:label "Human Resources Security" ;
-    rdfs:comment "Human resources security, access control policies and asset management (Article 21(2)(i))" ;
-    :articleReference "Article 21(2)(i)" .
-
 # Article 21(2)(h)
 :Encryption
     a owl:Class ;
@@ -361,6 +353,14 @@
     rdfs:comment "Policies and procedures regarding the use of cryptography and, where appropriate, encryption (Article 21(2)(h))" ;
     :articleReference "Article 21(2)(h)" ;
     skos:closeMatch <https://www.enisa.europa.eu/topics/cryptography> .
+
+# Article 21(2)(i)
+:HumanResourcesSecurity
+    a owl:Class ;
+    rdfs:subClassOf :OrganizationalMeasure ;
+    rdfs:label "Human Resources Security" ;
+    rdfs:comment "Human resources security, access control policies and asset management (Article 21(2)(i))" ;
+    :articleReference "Article 21(2)(i)" .
 
 # Article 21(2)(j) — separately modeled authentication component
 :MultiFactorAuthentication

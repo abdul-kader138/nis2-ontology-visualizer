@@ -406,14 +406,6 @@
         <articleReference xmlns="https://w3id.org/nis2/article21#">Article 21(2)(g)</articleReference>
     </owl:Class>
 
-    <!-- Article 21(2)(i) — Human resources security, access control and asset management -->
-    <owl:Class rdf:about="https://w3id.org/nis2/article21#HumanResourcesSecurity">
-        <rdfs:subClassOf rdf:resource="https://w3id.org/nis2/article21#OrganizationalMeasure"/>
-        <rdfs:label>Human Resources Security</rdfs:label>
-        <rdfs:comment>Human resources security, access control policies and asset management (Article 21(2)(i))</rdfs:comment>
-        <articleReference xmlns="https://w3id.org/nis2/article21#">Article 21(2)(i)</articleReference>
-    </owl:Class>
-
     <!-- Article 21(2)(h) — Cryptography and encryption -->
     <owl:Class rdf:about="https://w3id.org/nis2/article21#Encryption">
         <rdfs:subClassOf rdf:resource="https://w3id.org/nis2/article21#TechnicalMeasure"/>
@@ -422,6 +414,14 @@
         encryption (Article 21(2)(h))</rdfs:comment>
         <articleReference xmlns="https://w3id.org/nis2/article21#">Article 21(2)(h)</articleReference>
         <skos:closeMatch rdf:resource="https://www.enisa.europa.eu/topics/cryptography"/>
+    </owl:Class>
+
+    <!-- Article 21(2)(i) — Human resources security, access control and asset management -->
+    <owl:Class rdf:about="https://w3id.org/nis2/article21#HumanResourcesSecurity">
+        <rdfs:subClassOf rdf:resource="https://w3id.org/nis2/article21#OrganizationalMeasure"/>
+        <rdfs:label>Human Resources Security</rdfs:label>
+        <rdfs:comment>Human resources security, access control policies and asset management (Article 21(2)(i))</rdfs:comment>
+        <articleReference xmlns="https://w3id.org/nis2/article21#">Article 21(2)(i)</articleReference>
     </owl:Class>
 
     <!-- Article 21(2)(j) — Separately modeled multi-factor authentication component -->
