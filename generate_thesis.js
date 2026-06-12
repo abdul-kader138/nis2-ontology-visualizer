@@ -73,10 +73,10 @@ function academicizeText(text) {
     [/represents a landmark advancement in the regulatory landscape for cybersecurity governance across EU member states/g, 'represents a significant development in EU cybersecurity regulation'],
     [/the gap between the formal legal text and the computational tools available for automated compliance checking represents a compelling research challenge/g, 'the gap between the formal legal text and the available computational tools remains a substantive research problem'],
     [/The framework is complemented by/g, 'The framework includes'],
-    [/real-time entity compliance checking/g, 'on-demand entity checking'],
-    [/interactive web-based/g, 'web-based'],
+    [/a real-time entity compliance checking/g, 'an on-demand entity checking'],
+    [/An interactive web-based/g, 'A web-based'],
     [/A web interface built on Node\.js and Express provides access to the implemented capabilities, including knowledge graph visualization with vis-network, OWL reasoning, SHACL validation, and SPARQL querying\./g, 'A web interface built on Node.js and Express provides access to the implemented capabilities, including knowledge graph visualization with vis-network, OWL reasoning, SHACL validation, and SPARQL querying.'],
-    [/reusable, standards-aligned ontological foundation/g, 'extensible ontological foundation'],
+    [/a reusable, standards-aligned ontological foundation/g, 'an extensible ontological foundation'],
     [/The thesis establishes a reusable, standards-aligned ontological foundation for NIS2 Article 21 compliance automation that can be extended to cover broader NIS2 obligations and integrated with organizational security information systems\./g, 'The study provides an extensible ontological foundation for NIS2 Article 21 compliance automation and can be adapted to broader NIS2 obligations and organizational security information systems.'],
     [/This thesis presents the design and implementation of a formal OWL 2 DL ontology for representing NIS2 Article 21\(2\) requirements in machine-processable form\./g, 'This study presents a formal OWL 2 DL ontology for representing NIS2 Article 21(2) requirements in machine-processable form.'],
     [/The ontology, published under the persistent URI namespace https:\/\/w3id.org\/nis2\/article21#, connects the twelve operational classes through object properties and logical axioms including equivalentClass, complementOf, allValuesFrom, someValuesFrom, and propertyChainAxiom\./g, 'The ontology, published under the persistent URI namespace https://w3id.org/nis2/article21#, connects the twelve operational classes through object properties and logical axioms including equivalentClass, complementOf, allValuesFrom, someValuesFrom, and propertyChainAxiom.'],
@@ -190,7 +190,6 @@ function academicAnalysisPage(heading, context, finding, limitation) {
       finding,
       limitation,
     ],
-    implication: 'The result strengthens the traceability between the research problem, the formal artifact, and the limits of the claims made in this thesis.'
   }]);
 }
 
@@ -453,7 +452,7 @@ function renderLiteratureSynthesis() {
 
   sectionHeading('2.13  Ontology Evaluation Criteria');
   body('Ontology evaluation should distinguish correctness, completeness, clarity, coherence, conciseness, extensibility, and practical usefulness. Correctness asks whether represented statements are defensible in the domain. Completeness asks whether the declared scope is covered. Coherence asks whether axioms permit unintended contradictions. Clarity concerns labels, comments, and understandable modeling choices. Conciseness discourages redundant concepts. Extensibility concerns whether new sectors, evidence, and legal provisions can be added without redesigning the core.');
-  tableSimple(['Criterion', 'Application to This Thesis', 'Current Evidence', 'Remaining Work'], [
+  tableSimple(['Criterion', 'Application to This Study', 'Current Evidence', 'Remaining Work'], [
     ['Correctness', 'Legal categories and semantic relations reflect Article 21', 'Article references, source review, corrected (a)-(j) mapping', 'Independent legal review'],
     ['Completeness', 'All ten legal categories covered through twelve classes', 'Class and restriction inventory', 'Sub-requirements and implementing acts'],
     ['Coherence', 'Class and property axioms do not create unintended conflict', 'Parsing, disjointness checks, controlled examples', 'Complete OWL reasoner'],
@@ -472,7 +471,7 @@ function renderLiteratureSynthesis() {
   body('However, explanations can still overstate certainty. A statement such as "NonCompliantEntity" may be interpreted as a legal conclusion even when it is derived from incomplete self-reported data. The interface and report therefore distinguish a modeled coverage result from authoritative compliance determination. A mature system should present confidence, evidence status, assessment date, reviewer, and unresolved conflicts alongside the classification.');
 
   sectionHeading('2.16  Synthesis of Design Requirements from the Literature');
-  tableSimple(['Requirement', 'Rationale', 'Implementation in This Thesis'], [
+  tableSimple(['Requirement', 'Rationale', 'Implementation in This Study'], [
     ['Stable vocabulary', 'Supports shared interpretation and reuse', 'Persistent namespace and labeled OWL resources'],
     ['Traceable legal source', 'Makes modeling choices reviewable', 'articleReference and comments'],
     ['Formal category definition', 'Supports repeatable classification', 'CompliantEntity equivalent class'],
@@ -694,7 +693,7 @@ function renderResearchQuestionAnswers() {
 
   sectionHeading('11.6  Claim Boundary and Validation Matrix');
   body('Academic conclusions should be proportional to the evidence produced. The matrix below separates directly demonstrated properties from claims that require independent tools, organizational data, or practitioner research. This prevents the existence of an executable prototype from being interpreted as regulatory certification or production readiness.');
-  tableSimple(['Claim', 'Status in This Thesis', 'Evidence Available', 'Further Validation Required'], [
+  tableSimple(['Claim', 'Status in This Study', 'Evidence Available', 'Further Validation Required'], [
     ['The ontology files are syntactically parseable', 'Demonstrated', 'Turtle and RDF/XML each parse to 526 triples', 'Continuous parsing in automated tests'],
     ['The legal points are represented', 'Demonstrated at selected granularity', 'Ten points mapped to twelve operational classes', 'Independent legal and sector review'],
     ['The complete example covers every operational class', 'Demonstrated', 'Twelve implementsMeasure links and class types', 'Independent reasoner regression test'],
@@ -760,8 +759,10 @@ function tableSimple(headers, rows, options = {}) {
 
   function displayCell(value) {
     return academicizeText(String(value))
-      .replace(/([a-z0-9])([A-Z])/g, '$1\u200b$2')
-      .replace(/([,;/])([^\s])/g, '$1\u200b$2');
+      .replace(/JavaScript/g, 'JS_PLACEHOLDER')
+      .replace(/([a-z])([A-Z])/g, '$1\u200b$2')
+      .replace(/([,;/])([^\s])/g, '$1\u200b$2')
+      .replace(/JS_PLACEHOLDER/g, 'JavaScript');
   }
 
   function drawHeader() {
@@ -1532,7 +1533,9 @@ const tocItems = [
   { t: '1.4  Research Questions', l: 2 },
   { t: '1.5  Scope and Limitations', l: 2 },
   { t: '1.6  Thesis Structure and Contributions', l: 2 },
-  { t: '2.  Literature Review', l: 1, p: 14 },
+  { t: '1.7  Research Significance', l: 2 },
+  { t: '1.8  Research Design and Thesis Argument', l: 2 },
+  { t: '2.  Literature Review', l: 1, p: 13 },
   { t: '2.1  Semantic Web Technologies and Ontologies', l: 2 },
   { t: '2.2  OWL and RDF Standards', l: 2 },
   { t: '2.3  Regulatory Compliance in Cybersecurity', l: 2 },
@@ -1540,7 +1543,7 @@ const tocItems = [
   { t: '2.5  Existing Compliance Tools and Approaches', l: 2 },
   { t: '2.6  Ontology-Based Compliance Systems', l: 2 },
   { t: '2.7  Research Gap', l: 2 },
-  { t: '3.  Theoretical Foundation', l: 1, p: 20 },
+  { t: '3.  Theoretical Foundation', l: 1, p: 19 },
   { t: '3.1  Web Ontology Language (OWL 2)', l: 2 },
   { t: '3.2  RDF and RDFS Fundamentals', l: 2 },
   { t: '3.3  Ontology Engineering Principles', l: 2 },
@@ -1548,14 +1551,14 @@ const tocItems = [
   { t: '3.5  SPARQL Query Language', l: 2 },
   { t: '3.6  SHACL — Shapes Constraint Language', l: 2 },
   { t: '3.7  SKOS Vocabulary and Semantic Alignment', l: 2 },
-  { t: '4.  NIS2 Directive Article 21: Requirements Analysis', l: 1, p: 26 },
+  { t: '4.  NIS2 Directive Article 21: Requirements Analysis', l: 1, p: 24 },
   { t: '4.1  Article 21 Legal Text and Scope', l: 2 },
   { t: '4.2  Article 21(2) Requirements', l: 2 },
   { t: '4.3  Essential vs. Important Entities', l: 2 },
   { t: '4.4  Required Cybersecurity Measures (a)–(l)', l: 2 },
   { t: '4.5  Compliance Criteria', l: 2 },
   { t: '4.6  Challenges in Manual Compliance Verification', l: 2 },
-  { t: '5.  Methodology', l: 1, p: 37 },
+  { t: '5.  Methodology', l: 1, p: 35 },
   { t: '5.1  Ontology Development Process (METHONTOLOGY)', l: 2 },
   { t: '5.2  Requirements Gathering', l: 2 },
   { t: '5.3  Competency Questions Definition', l: 2 },
@@ -1564,7 +1567,7 @@ const tocItems = [
   { t: '5.6  Validation Rules Design', l: 2 },
   { t: '5.7  System Architecture', l: 2 },
   { t: '5.8  Technology Stack Selection', l: 2 },
-  { t: '6.  Ontology Design and Implementation', l: 1, p: 43 },
+  { t: '6.  Ontology Design and Implementation', l: 1, p: 40 },
   { t: '6.1  Ontology Structure and Namespace', l: 2 },
   { t: '6.2  Core Classes', l: 2 },
   { t: '6.3  Object Properties', l: 2 },
@@ -1573,32 +1576,32 @@ const tocItems = [
   { t: '6.6  SKOS Annotations and External Alignments', l: 2 },
   { t: '6.7  Competency Questions Validation', l: 2 },
   { t: '6.8  Ontology Validation', l: 2 },
-  { t: '7.  System Implementation', l: 1, p: 52 },
+  { t: '7.  System Implementation', l: 1, p: 48 },
   { t: '7.1  System Architecture Overview', l: 2 },
   { t: '7.2  Backend Implementation', l: 2 },
   { t: '7.3  Frontend Implementation', l: 2 },
   { t: '7.4  Integration and Testing', l: 2 },
-  { t: '8.  System Demonstration and Use Cases', l: 1, p: 58 },
+  { t: '8.  System Demonstration and Use Cases', l: 1, p: 53 },
   { t: '8.1  Interactive Graph Visualization', l: 2 },
   { t: '8.2  OWL Validation and Reasoning', l: 2 },
   { t: '8.3  SHACL Shapes Validation', l: 2 },
   { t: '8.4  SPARQL Query Interface', l: 2 },
   { t: '8.5  Real-Time Entity Compliance Checking', l: 2 },
-  { t: '9.  Evaluation and Results', l: 1, p: 71 },
+  { t: '9.  Evaluation and Results', l: 1, p: 65 },
   { t: '9.1  Ontology Completeness', l: 2 },
   { t: '9.2  Validation Accuracy', l: 2 },
   { t: '9.3  Reasoning Performance', l: 2 },
   { t: '9.4  Case Studies', l: 2 },
   { t: '9.5  Comparison with Existing Approaches', l: 2 },
-  { t: '10. Discussion', l: 1, p: 76 },
+  { t: '10. Discussion', l: 1, p: 70 },
   { t: '10.1  Contributions to the Field', l: 2 },
   { t: '10.2  Limitations', l: 2 },
   { t: '10.3  Future Work', l: 2 },
-  { t: '11. Conclusion', l: 1, p: 81 },
+  { t: '11. Conclusion', l: 1, p: 74 },
   { t: '11.1  Summary of Contributions', l: 2 },
   { t: '11.2  Achievement of Research Objectives', l: 2 },
   { t: '11.3  Future Research Directions', l: 2 },
-  { t: 'References', l: 1, p: 86 },
+  { t: 'References', l: 1, p: 78 },
 ];
 
 tocItems.forEach(item => {
@@ -1638,7 +1641,7 @@ doc.font('Helvetica-Bold').fontSize(14).text('List of Tables', { align: 'center'
 doc.moveDown(1);
 tableSimple(['Table', 'Description'], [
   ['Table 1', 'Glossary of core ontology and compliance terms'],
-  ['Table 2', 'Abbreviations used throughout the thesis'],
+  ['Table 2', 'Abbreviations used throughout the study'],
   ['Table 3', 'Article 21 measure categories and standard alignment'],
   ['Table 4', 'Ontology technology stack selection'],
   ['Table 5', 'SKOS annotation and external alignment summary'],
@@ -1786,7 +1789,7 @@ body('Article 21 represents the operational core of NIS2, requiring covered enti
 
 sectionHeading('2.5  Existing Compliance Tools and Approaches');
 body('Existing tools for NIS2 and general cybersecurity compliance span several categories. Commercial GRC (Governance, Risk, and Compliance) platforms such as ServiceNow GRC, RSA Archer, and IBM OpenPages provide workflow-based compliance management but rely on manually maintained control frameworks without formal semantics. The ENISA NIS2 Implementation Guidance provides structured checklists but remains a document-based resource without computational processing capabilities. The NIST National Cybersecurity Center of Excellence has published NIS2 mapping guides relating Article 21 measures to NIST CSF subcategories, but again as static reference documents.');
-body('Academic approaches to automated compliance checking have explored model-driven engineering, formal methods, and semantic technologies. Governatori et al. (2005) demonstrated the use of deontic logic for business process compliance. Palmirani et al. (2018) applied OWL to GDPR compliance modeling. Lieber et al. (2019) used ontologies for ISO 27001 control mapping. However, no existing work specifically addresses NIS2 Article 21 compliance as a formal OWL ontology.');
+body('Academic approaches to automated compliance checking have explored model-driven engineering, formal methods, and semantic technologies. Governatori et al. (2006) demonstrated the use of deontic logic for business process compliance. Palmirani et al. (2018) applied OWL to GDPR compliance modeling. Prior academic work has also applied ontologies to ISO 27001 control mapping. However, no existing work specifically addresses NIS2 Article 21 compliance as a formal OWL ontology.');
 
 sectionHeading('2.6  Ontology-Based Compliance Systems');
 body('The application of ontologies to regulatory compliance has been explored in legal informatics, healthcare, and financial regulation. Hassan (2025) demonstrated a legal ontology for Section 29 of the Australian National Consumer Credit Protection Act, achieving automated compliance checking through OWL reasoning and SPARQL queries — a structurally similar approach to this thesis applied to credit law rather than cybersecurity. Palmirani and Governatori (2012) proposed a compliance checking pattern using normative ontologies. Francesconi (2020) demonstrated the application of semantic technologies to legal knowledge representation, providing theoretical foundations directly applicable to regulatory compliance ontologies.');
@@ -2231,7 +2234,7 @@ body('A real-time check was performed for "MyBank" as an EssentialEntity impleme
 sectionHeading('9.5  Comparison with Existing Approaches');
 body('The implemented framework is compared against three categories of existing approaches:');
 tableSimple(['Approach', 'Formal Semantics', 'Auto Reasoning', 'SPARQL', 'SHACL', 'Open Source'], [
-  ['This thesis (OWL+SHACL)',       'Yes (OWL 2 DL)', 'Yes',  'Yes', 'Yes', 'Yes'],
+  ['This study (OWL+SHACL)',        'Yes (OWL 2 DL)', 'Yes',  'Yes', 'Yes', 'Yes'],
   ['Commercial GRC tools',           'No',             'No',   'No',  'No',  'No'],
   ['ENISA checklist',                'No',             'No',   'No',  'No',  'Yes'],
   ['Hassan 2025 (Legal Ontology)',   'Yes (OWL 2 DL)', 'Yes',  'Yes', 'No',  'Yes'],
