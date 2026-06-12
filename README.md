@@ -58,8 +58,8 @@ The ten legal categories are modeled through twelve OWL classes and referenced i
 | f | `EffectivenessAssessment` | Art. 21(2)(f) | Organizational |
 | g | `BasicCyberHygiene` | Art. 21(2)(g) | Operational |
 | g-2 | `TrainingAwareness` | Art. 21(2)(g), training component | Organizational |
-| i | `HumanResourcesSecurity` | Art. 21(2)(i) | Organizational |
 | h | `Encryption` | Art. 21(2)(h) | Technical |
+| i | `HumanResourcesSecurity` | Art. 21(2)(i) | Organizational |
 | j-1 | `MultiFactorAuthentication` | Art. 21(2)(j), authentication component | Technical |
 | j-2 | `SecureCommunications` | Art. 21(2)(j), communications component | Technical |
 
@@ -144,8 +144,8 @@ node server.js
 |----------|-------------|
 | `GET /api/ontology` | Graph data for interactive vis-network visualisation |
 | `GET /api/validate` | Article 21 compliance structural validation report |
-| `GET /api/sparql?query=…` | Real SPARQL 1.1 SELECT engine (sparqljs + N3 Store) |
-| `GET /api/reason` | OWL 2 DL compliance inference — classifies entities as compliant or not |
+| `GET /api/sparql?query=…` | Limited SPARQL SELECT (BGP + basic FILTER; sparqljs + N3 Store) |
+| `GET /api/reason` | Structural OWL-style compliance inference — classifies entities as compliant or not |
 
 ### SPARQL Examples
 
@@ -155,7 +155,7 @@ PREFIX owl: <http://www.w3.org/2002/07/owl#>
 SELECT * WHERE { ?s rdf:type owl:Class }
 
 # Entities and their implemented measures
-PREFIX : <http://www.semanticweb.org/nis2/article21#>
+PREFIX : <https://w3id.org/nis2/article21#>
 SELECT ?entity ?measure WHERE {
     ?entity rdf:type :EssentialEntity .
     ?entity :implementsMeasure ?measure

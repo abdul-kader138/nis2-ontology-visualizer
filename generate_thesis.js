@@ -283,15 +283,6 @@ const measureAnalyses = [
     limitation: 'The current representation cannot distinguish attendance from competence, verify role coverage, measure behavioral change, or establish whether training content reflects current threats and organizational responsibilities.'
   },
   {
-    id: 'HumanResourcesSecurity',
-    ref: '21(2)(i)',
-    category: 'OrganizationalMeasure',
-    ontology: 'ExampleHumanResourcesSecurity is based on ISO27002, addresses InsiderThreatRisk, and prevents DataBreachIncident.',
-    interpretation: 'Human-resources security connects the employment lifecycle with access control and asset accountability. Relevant controls include screening where lawful, confidentiality duties, least privilege, segregation of duties, joiner-mover-leaver processes, privileged-access review, disciplinary processes, and return of assets.',
-    evidence: 'Screening and confidentiality records; role definitions; access approvals; periodic entitlement reviews; privileged-account inventories; transfer and termination tickets; asset-return evidence; segregation-of-duty reviews.',
-    limitation: 'The ontology does not model people, roles, employment events, access entitlements, legal constraints on screening, or the timeliness and completeness of offboarding actions.'
-  },
-  {
     id: 'Encryption',
     ref: '21(2)(h)',
     category: 'TechnicalMeasure',
@@ -299,6 +290,15 @@ const measureAnalyses = [
     interpretation: 'Cryptography must be governed as a lifecycle rather than treated as a binary feature. Scope includes approved algorithms and protocols, key generation and storage, certificate management, rotation, revocation, backup, recovery, access to key material, and migration from deprecated mechanisms.',
     evidence: 'Cryptographic policy; data-classification mapping; encryption inventories; TLS and certificate scans; key-management architecture; rotation records; hardware-security-module configuration; exception and migration plans.',
     limitation: 'A true value for isStateOfTheArt does not prove algorithm strength, key protection, protocol configuration, coverage of data at rest and in transit, or readiness for cryptographic deprecation.'
+  },
+  {
+    id: 'HumanResourcesSecurity',
+    ref: '21(2)(i)',
+    category: 'OrganizationalMeasure',
+    ontology: 'ExampleHumanResourcesSecurity is based on ISO27002, addresses InsiderThreatRisk, and prevents DataBreachIncident.',
+    interpretation: 'Human-resources security connects the employment lifecycle with access control and asset accountability. Relevant controls include screening where lawful, confidentiality duties, least privilege, segregation of duties, joiner-mover-leaver processes, privileged-access review, disciplinary processes, and return of assets.',
+    evidence: 'Screening and confidentiality records; role definitions; access approvals; periodic entitlement reviews; privileged-account inventories; transfer and termination tickets; asset-return evidence; segregation-of-duty reviews.',
+    limitation: 'The ontology does not model people, roles, employment events, access entitlements, legal constraints on screening, or the timeliness and completeness of offboarding actions.'
   },
   {
     id: 'MultiFactorAuthentication',
@@ -1413,7 +1413,7 @@ function rdfOwlFigurePage() {
   drawRdfSerializationFigure(LM, top, BODY_W, panelH);
   doc.y = top + panelH + 7;
   doc.fillColor('#111827').font('Helvetica-Bold').fontSize(8.5)
-    .text('Figure 6.1: Turtle/RDF serialization of an example encryption measure', LM, doc.y, {
+    .text('Figure 6.3: Turtle/RDF serialization of an example encryption measure', LM, doc.y, {
       width: BODY_W,
       align: 'center',
     });
@@ -1428,7 +1428,7 @@ function rdfOwlFigurePage() {
   drawOwlRestrictionFigure(LM, secondTop, BODY_W, panelH);
   doc.y = secondTop + panelH + 7;
   doc.fillColor('#111827').font('Helvetica-Bold').fontSize(8.5)
-    .text('Figure 6.2: OWL equivalent-class structure for CompliantEntity', LM, doc.y, {
+    .text('Figure 6.4: OWL equivalent-class structure for CompliantEntity', LM, doc.y, {
       width: BODY_W,
       align: 'center',
     });
@@ -1455,7 +1455,7 @@ function owlSupplementaryFigurePage() {
   drawOwlHierarchyFigure(LM, top, panelW, panelH);
   doc.y = top + panelH + 6;
   doc.fillColor('#111827').font('Helvetica-Bold').fontSize(8.3)
-    .text('Figure 6.3: OWL subclass hierarchy for the three measure families', LM, doc.y, {
+    .text('Figure 6.5: OWL subclass hierarchy for the three measure families', LM, doc.y, {
       width: BODY_W,
       align: 'center',
     });
@@ -1471,7 +1471,7 @@ function owlSupplementaryFigurePage() {
   drawOwlPropertyChainFigure(LM, secondTop, panelW, 170);
   doc.y = secondTop + 170 + 6;
   doc.fillColor('#111827').font('Helvetica-Bold').fontSize(8.3)
-    .text('Figure 6.4: OWL role chain used to derive standard associations', LM, doc.y, {
+    .text('Figure 6.6: OWL role chain used to derive standard associations', LM, doc.y, {
       width: BODY_W,
       align: 'center',
     });
@@ -1592,32 +1592,32 @@ const tocItems = [
   { t: '6.6  SKOS Annotations and External Alignments', l: 2 },
   { t: '6.7  Competency Questions Validation', l: 2 },
   { t: '6.8  Ontology Validation', l: 2 },
-  { t: '7.  System Implementation', l: 1, p: 48 },
+  { t: '7.  System Implementation', l: 1, p: 50 },
   { t: '7.1  System Architecture Overview', l: 2 },
   { t: '7.2  Backend Implementation', l: 2 },
   { t: '7.3  Frontend Implementation', l: 2 },
   { t: '7.4  Integration and Testing', l: 2 },
-  { t: '8.  System Demonstration and Use Cases', l: 1, p: 53 },
+  { t: '8.  System Demonstration and Use Cases', l: 1, p: 56 },
   { t: '8.1  Interactive Graph Visualization', l: 2 },
   { t: '8.2  OWL Validation and Reasoning', l: 2 },
   { t: '8.3  SHACL Shapes Validation', l: 2 },
   { t: '8.4  SPARQL Query Interface', l: 2 },
   { t: '8.5  Real-Time Entity Compliance Checking', l: 2 },
-  { t: '9.  Evaluation and Results', l: 1, p: 65 },
+  { t: '9.  Evaluation and Results', l: 1, p: 68 },
   { t: '9.1  Ontology Completeness', l: 2 },
   { t: '9.2  Validation Accuracy', l: 2 },
   { t: '9.3  Reasoning Performance', l: 2 },
   { t: '9.4  Case Studies', l: 2 },
   { t: '9.5  Comparison with Existing Approaches', l: 2 },
-  { t: '10. Discussion', l: 1, p: 70 },
+  { t: '10. Discussion', l: 1, p: 73 },
   { t: '10.1  Contributions to the Field', l: 2 },
   { t: '10.2  Limitations', l: 2 },
   { t: '10.3  Future Work', l: 2 },
-  { t: '11. Conclusion', l: 1, p: 74 },
+  { t: '11. Conclusion', l: 1, p: 78 },
   { t: '11.1  Summary of Contributions', l: 2 },
   { t: '11.2  Achievement of Research Objectives', l: 2 },
   { t: '11.3  Future Research Directions', l: 2 },
-  { t: 'References', l: 1, p: 78 },
+  { t: 'References', l: 1, p: 82 },
 ];
 
 tocItems.forEach(item => {
@@ -1640,10 +1640,12 @@ newPage();
 doc.font('Helvetica-Bold').fontSize(14).text('List of Figures', { align: 'center' });
 doc.moveDown(1);
 tableSimple(['Figure', 'Description'], [
-  ['Figure 6.1', 'Turtle/RDF serialization excerpt'],
-  ['Figure 6.2', 'OWL equivalent-class definition of CompliantEntity'],
-  ['Figure 6.3', 'OWL subclass hierarchy for measure families'],
-  ['Figure 6.4', 'OWL role chain for standard derivation'],
+  ['Figure 6.1', 'Complete OWL 2 DL class hierarchy — 28 named classes'],
+  ['Figure 6.2', 'Object and data properties with property chain axiom'],
+  ['Figure 6.3', 'Turtle/RDF serialization of an example encryption measure'],
+  ['Figure 6.4', 'OWL equivalent-class structure for CompliantEntity'],
+  ['Figure 6.5', 'OWL subclass hierarchy for measure families'],
+  ['Figure 6.6', 'OWL role chain for standard derivation'],
   ['Figure 8.1', 'Ontology explorer of representative relations'],
   ['Figure 8.2', 'Structural ontology validation results'],
   ['Figure 8.3', 'Entity classification and standard derivation'],
@@ -1921,8 +1923,8 @@ tableSimple(
     ['EffectivenessAssessment',   '21(2)(f)', 'Continuous Monitoring',  'CIS Controls'],
     ['BasicCyberHygiene',         '21(2)(g)', 'Hygiene Baseline',       'CIS Controls v8'],
     ['TrainingAwareness',         '21(2)(g)', 'Human Risk',             'ISO 27001 A.7'],
-    ['HumanResourcesSecurity',    '21(2)(i)', 'Access Control',         'ISO 27001 A.6'],
     ['Encryption',                '21(2)(h)', 'Data Protection',        'ISO 27001 A.8.24'],
+    ['HumanResourcesSecurity',    '21(2)(i)', 'Access Control',         'ISO 27001 A.6'],
     ['MultiFactorAuthentication', '21(2)(j)', 'Authentication',         'NIST SP 800-63'],
     ['SecureCommunications',      '21(2)(j)', 'Communications Sec.',    'ISO 27001 A.8'],
   ]
@@ -2038,6 +2040,213 @@ body('RiskManagementMeasure is the superclass for TechnicalMeasure, OperationalM
 
 subHeading('6.2.3  Supporting Classes');
 body('The NetworkInformationSystem class represents the IT/OT systems subject to NIS2 scope. Three instances are provided: CoreBankingSystem, WebApplicationPlatform, and InternalITInfrastructure, representing typical essential entity system categories. The CybersecurityRisk class with subclasses DataBreachRisk, RansomwareRisk, InsiderThreatRisk, and SupplyChainCompromiseRisk represents risk categories. The SecurityStandard class with instances ISO27001, ISO27002, NISTFramework, ENISAGuidelines, and CISControls represents the standards referenced in SKOS alignments and propertyChain inference.');
+
+// ── Figure 6.1: Complete Class Hierarchy ──────────────────────────────────────
+figureBlock('6.1', 'NIS2 Article 21 Ontology — Complete Class Hierarchy', function drawClassHierarchy(x, y, w, h) {
+  const COL = '#1e3a5f', ENT = '#1d4ed8', MEAS = '#166534', TECH = '#0369a1',
+        OPS  = '#9333ea', ORG  = '#b45309', SUP  = '#9f1239', WHITE = '#ffffff',
+        LGREY = '#f1f5f9', LINE = '#64748b';
+
+  // title
+  doc.fillColor('#0f172a').font('Helvetica-Bold').fontSize(9.5)
+    .text('Complete OWL 2 DL Class Hierarchy', x, y, { width: w });
+  doc.fillColor('#64748b').font('Helvetica').fontSize(7)
+    .text('28 named classes — 5 entity/compliance classes · 4 measure categories · 12 operational classes · 4 supporting classes · 3 network/info systems', x, y + 13, { width: w });
+
+  const bw = 100, bh = 16, rx = 4;
+  function box(lx, ly, label, fill, tw) {
+    const W = tw || bw;
+    doc.save().roundedRect(lx, ly, W, bh, rx).fillAndStroke(fill, LINE).restore();
+    doc.fillColor(WHITE).font('Helvetica-Bold').fontSize(5.8)
+      .text(label, lx + 2, ly + 4, { width: W - 4, align: 'center' });
+  }
+  function vline(x1, y1, x2, y2) {
+    doc.save().lineWidth(0.7).strokeColor(LINE).moveTo(x1, y1).lineTo(x2, y2).stroke().restore();
+  }
+
+  const base = y + 26;
+
+  // ── owl:Thing ──
+  const thingX = x + w / 2 - bw / 2, thingY = base;
+  box(thingX, thingY, 'owl:Thing', '#334155', bw);
+
+  // ── Entity ──
+  const entX = x + w / 2 - bw / 2, entY = thingY + 28;
+  vline(thingX + bw / 2, thingY + bh, entX + bw / 2, entY);
+  box(entX, entY, 'Entity', ENT, bw);
+
+  // ── Entity subclasses row ──
+  const eRow = [
+    { label: 'EssentialEntity',    fill: ENT        },
+    { label: 'CompliantEntity',    fill: '#15803d'  },
+    { label: 'ImportantEntity',    fill: ENT        },
+    { label: 'NonCompliantEntity', fill: '#b91c1c'  },
+  ];
+  const eRowY = entY + 28, eSlot = w / 4;
+  eRow.forEach((n, i) => {
+    const nx = x + i * eSlot + (eSlot - bw) / 2;
+    vline(entX + bw / 2, entY + bh, nx + bw / 2, eRowY);
+    box(nx, eRowY, n.label, n.fill, bw);
+  });
+
+  // ── RiskManagementMeasure ──
+  const rmmX = x + w / 2 - bw / 2, rmmY = eRowY + 30;
+  box(rmmX, rmmY, 'RiskManagementMeasure', MEAS, bw);
+  doc.fillColor('#64748b').font('Helvetica-Oblique').fontSize(5)
+    .text('implementsMeasure →', entX + bw + 2, entY + bh / 2 - 2, { width: 80 });
+
+  // ── Three measure categories ──
+  const cats = [
+    { label: 'TechnicalMeasure',      fill: TECH, cx: x + w * 0.12 },
+    { label: 'OperationalMeasure',    fill: OPS,  cx: x + w * 0.50 - bw / 2 },
+    { label: 'OrganizationalMeasure', fill: ORG,  cx: x + w * 0.88 - bw },
+  ];
+  const catY = rmmY + 28;
+  cats.forEach(c => {
+    vline(rmmX + bw / 2, rmmY + bh, c.cx + bw / 2, catY);
+    box(c.cx, catY, c.label, c.fill, bw);
+  });
+
+  // ── 12 Operational classes (leaf nodes) ──
+  const techClasses = ['Encryption', 'MFA', 'SecureDev.', 'SecureComms.'];
+  const opsClasses  = ['IncidentHandling', 'BCManagement', 'CyberHygiene'];
+  const orgClasses  = ['RiskAnalysis', 'SupplyChain', 'Effectiveness', 'Training', 'HRS'];
+
+  const leafY = catY + 26, leafW = 76;
+
+  function drawLeaves(parentCx, classes, startX) {
+    const slot = leafW + 4;
+    classes.forEach((cls, i) => {
+      const lx = startX + i * slot;
+      vline(parentCx, catY + bh, lx + leafW / 2, leafY);
+      doc.save().roundedRect(lx, leafY, leafW, bh - 2, rx)
+        .fillAndStroke(LGREY, LINE).restore();
+      doc.fillColor('#0f172a').font('Helvetica').fontSize(5.5)
+        .text(cls, lx + 2, leafY + 4, { width: leafW - 4, align: 'center' });
+    });
+  }
+
+  drawLeaves(cats[0].cx + bw / 2, techClasses, x + 2);
+  drawLeaves(cats[1].cx + bw / 2, opsClasses,  x + w * 0.38);
+  drawLeaves(cats[2].cx + bw / 2, orgClasses,  x + w * 0.60);
+
+  // ── Supporting classes ──
+  const supClasses = [
+    { label: 'CybersecurityRisk',        fill: SUP        },
+    { label: 'SecurityIncident',         fill: SUP        },
+    { label: 'NetworkInfoSystem',        fill: '#0f766e'  },
+    { label: 'SecurityStandard',         fill: '#0f766e'  },
+  ];
+  const supY = leafY + 30, supSlot = w / 4;
+  doc.fillColor('#64748b').font('Helvetica-Oblique').fontSize(5.5)
+    .text('Supporting classes — linked via object properties', x, supY - 9, { width: w, align: 'center' });
+  supClasses.forEach((n, i) => {
+    const sx = x + i * supSlot + (supSlot - bw) / 2;
+    box(sx, supY, n.label, n.fill, bw);
+  });
+
+  // ── Legend ──
+  const legY = supY + 24;
+  const legend = [
+    { fill: ENT,  label: 'Entity'        },
+    { fill: MEAS, label: 'Measure base'  },
+    { fill: TECH, label: 'Technical'     },
+    { fill: OPS,  label: 'Operational'   },
+    { fill: ORG,  label: 'Organizational'},
+    { fill: SUP,  label: 'Supporting'    },
+  ];
+  legend.forEach((item, i) => {
+    const lx = x + i * (w / legend.length);
+    doc.save().rect(lx, legY, 8, 8).fillAndStroke(item.fill, LINE).restore();
+    doc.fillColor('#0f172a').font('Helvetica').fontSize(5.5).text(item.label, lx + 11, legY + 1, { width: 75 });
+  });
+},
+'Source: derived from nis2_article21_cybersecurity.ttl. Arrows denote rdfs:subClassOf unless labelled otherwise. Abbreviations: BCManagement = BusinessContinuityManagement, SecureComms. = SecureCommunications, MultiFactorAuth. = MultiFactorAuthentication, EffectivenessAss. = EffectivenessAssessment, SupplyChainSec. = SupplyChainSecurity, HumanResourcesSec. = HumanResourcesSecurity.', 360);
+
+// ── Figure 6.2: Property Diagram ─────────────────────────────────────────────
+figureBlock('6.2', 'NIS2 Article 21 Ontology — Object and Data Properties', function drawPropertyDiagram(x, y, w, h) {
+  doc.fillColor('#0f172a').font('Helvetica-Bold').fontSize(9.5)
+    .text('Object Properties, Data Properties, and Property Chain Axiom', x, y, { width: w });
+  doc.fillColor('#64748b').font('Helvetica').fontSize(7)
+    .text('9 object properties (including 1 derived via propertyChainAxiom) · 5 datatype properties · 1 annotation property', x, y + 13, { width: w });
+
+  const bw = 110, bh = 20, rx = 5;
+  const LINE = '#94a3b8', BLUE = '#1d4ed8', GREEN = '#166534',
+        ORANGE = '#b45309', GREY = '#334155', LGREY = '#f1f5f9';
+
+  function box(lx, ly, lbl, fill, W) {
+    W = W || bw;
+    doc.save().roundedRect(lx, ly, W, bh, rx).fillAndStroke(fill, LINE).restore();
+    doc.fillColor('#ffffff').font('Helvetica-Bold').fontSize(6.5)
+      .text(lbl, lx + 3, ly + 6, { width: W - 6, align: 'center' });
+  }
+  function arrow(x1, y1, x2, y2, lbl, color) {
+    color = color || '#475569';
+    doc.save().lineWidth(0.9).strokeColor(color).moveTo(x1, y1).lineTo(x2, y2).stroke().restore();
+    const mx = (x1 + x2) / 2 - 28, my = (y1 + y2) / 2 - 6;
+    doc.fillColor(color).font('Helvetica-Oblique').fontSize(5.8)
+      .text(lbl, mx, my, { width: 72, align: 'center' });
+  }
+
+  const base = y + 22;
+  // central nodes
+  const entX = x + 40, entY = base + 45, mX = x + w / 2 - bw / 2, mY = base + 45;
+  box(entX, entY, 'Entity', BLUE, bw);
+  box(mX, mY, 'RiskManagementMeasure', GREEN, bw);
+
+  // implementsMeasure ↔ isImplementedBy
+  arrow(entX + bw, entY + 8, mX, mY + 8, 'implementsMeasure', '#1d4ed8');
+  arrow(mX, mY + 12, entX + bw, entY + 12, 'isImplementedBy', '#64748b');
+
+  // right-side targets
+  const stdX = x + w - 130, stdY = base + 5;
+  const riskX = x + w - 130, riskY = base + 45;
+  const sysX  = x + w - 130, sysY  = base + 85;
+  const incX  = x + w - 130, incY  = base + 125;
+  const subX  = mX + 20,     subY  = base + 105;
+
+  box(stdX, stdY,  'SecurityStandard',          ORANGE, 118);
+  box(riskX, riskY,'CybersecurityRisk',          '#9f1239', 118);
+  box(sysX, sysY,  'NetworkInformationSystem',   '#0f766e', 118);
+  box(incX, incY,  'SecurityIncident',           '#9f1239', 118);
+  box(subX, subY,  'RiskManagementMeasure',      GREEN, bw);
+
+  arrow(mX + bw, mY + 4,  stdX,  stdY + 10,  'basedOnStandard',  ORANGE);
+  arrow(mX + bw, mY + 8,  riskX, riskY + 10, 'addressesRisk',    '#9f1239');
+  arrow(mX + bw, mY + 12, sysX,  sysY + 10,  'appliesToSystem',  '#0f766e');
+  arrow(mX + bw, mY + 16, incX,  incY + 10,  'preventsIncident / minimizesImpact', '#64748b');
+  arrow(mX + bw / 2, mY + bh, subX + bw / 2, subY, 'hasSubMeasure (transitive)', '#64748b');
+
+  // derived usesStandard via chain
+  const chainY = base + 180;
+  doc.save().roundedRect(x + 20, chainY, w - 40, 72, 6)
+    .fillAndStroke('#fff7ed', '#f97316').restore();
+  doc.fillColor('#9a3412').font('Helvetica-Bold').fontSize(8)
+    .text('owl:propertyChainAxiom — Derived Property: usesStandard', x + 30, chainY + 7, { width: w - 60 });
+  doc.fillColor('#431407').font('Helvetica').fontSize(7.5)
+    .text(':usesStandard  owl:propertyChainAxiom  ( :implementsMeasure  :basedOnStandard ) .', x + 30, chainY + 22, { width: w - 60 });
+  doc.fillColor('#7c2d12').font('Helvetica-Oblique').fontSize(7)
+    .text('If Entity → implementsMeasure → Measure  AND  Measure → basedOnStandard → Standard,  THEN  Entity → usesStandard → Standard  (derived automatically)', x + 30, chainY + 38, { width: w - 60 });
+
+  // datatype properties box
+  const dtY = chainY + 88;
+  doc.save().roundedRect(x + 20, dtY, w - 40, 80, 6)
+    .fillAndStroke('#f0fdf4', '#86efac').restore();
+  doc.fillColor('#14532d').font('Helvetica-Bold').fontSize(8)
+    .text('Datatype Properties (on RiskManagementMeasure)', x + 30, dtY + 7, { width: w - 60 });
+  const dtProps = [
+    'isAppropriate  :  xsd:boolean  (owl:FunctionalProperty)  —  Article 21(1) appropriateness',
+    'isProportionate  :  xsd:boolean  (owl:FunctionalProperty)  —  Article 21(1) proportionality',
+    'isStateOfTheArt  :  xsd:boolean  (owl:FunctionalProperty)  —  Article 21(1) state-of-the-art',
+    'measureDescription  :  xsd:string  —  textual description of the measure',
+    'riskLevel  :  xsd:string  (owl:FunctionalProperty, on CybersecurityRisk)  —  low | medium | high | critical',
+  ];
+  dtProps.forEach((p, i) => {
+    doc.fillColor('#166534').font('Helvetica').fontSize(6.5)
+      .text('• ' + p, x + 32, dtY + 22 + i * 11, { width: w - 64 });
+  });
+},
+'Source: derived from nis2_article21_cybersecurity.ttl. The orange panel shows the property chain axiom that derives usesStandard triples automatically. All datatype properties carry owl:FunctionalProperty except measureDescription.', 480);
 
 sectionHeading('6.3  Object Properties');
 body('Eight object properties are defined, each with rdfs:domain, rdfs:range, rdfs:label, and rdfs:comment annotations. The most significant are:');
@@ -2418,11 +2627,11 @@ tableSimple(['Measure', 'Legal Ref.', 'Ontological Role', 'Main Function'], [
   ['SecureDevelopment', '21(2)(e)', 'Technical measure', 'Secure SDLC and vulnerability handling'],
   ['EffectivenessAssessment', '21(2)(f)', 'Organizational measure', 'Monitoring and evaluation of control effectiveness'],
   ['BasicCyberHygiene', '21(2)(g)', 'Operational measure', 'Baseline security hygiene and training'],
-  ['TrainingAwareness', '21(2)(h)', 'Organizational measure', 'Awareness and skills development for staff'],
+  ['TrainingAwareness', '21(2)(g)', 'Organizational measure', 'Awareness and skills development for staff'],
+  ['Encryption', '21(2)(h)', 'Technical measure', 'Cryptographic protection of data and systems'],
   ['HumanResourcesSecurity', '21(2)(i)', 'Organizational measure', 'Personnel security, access, and asset governance'],
-  ['Encryption', '21(2)(j)', 'Technical measure', 'Cryptographic protection of data and systems'],
-  ['MultiFactorAuthentication', '21(2)(k)', 'Technical measure', 'Authentication hardening and identity assurance'],
-  ['SecureCommunications', '21(2)(l)', 'Technical measure', 'Protected voice, video, text, and emergency communication'],
+  ['MultiFactorAuthentication', '21(2)(j)', 'Technical measure', 'Authentication hardening and identity assurance'],
+  ['SecureCommunications', '21(2)(j)', 'Technical measure', 'Protected voice, video, text, and emergency communication'],
 ]);
 body('The ontology treats these as mutually distinct subclasses of the abstract CybersecurityMeasure superclass. This flat design mirrors the legal text, which enumerates the measures as a minimum set rather than a nested taxonomy.');
 
@@ -2452,8 +2661,8 @@ codeBlock(`:CompliantEntity owl:equivalentClass [
     [ owl:onProperty :implementsMeasure ; owl:someValuesFrom :EffectivenessAssessment ]
     [ owl:onProperty :implementsMeasure ; owl:someValuesFrom :BasicCyberHygiene ]
     [ owl:onProperty :implementsMeasure ; owl:someValuesFrom :TrainingAwareness ]
-    [ owl:onProperty :implementsMeasure ; owl:someValuesFrom :HumanResourcesSecurity ]
     [ owl:onProperty :implementsMeasure ; owl:someValuesFrom :Encryption ]
+    [ owl:onProperty :implementsMeasure ; owl:someValuesFrom :HumanResourcesSecurity ]
     [ owl:onProperty :implementsMeasure ; owl:someValuesFrom :MultiFactorAuthentication ]
     [ owl:onProperty :implementsMeasure ; owl:someValuesFrom :SecureCommunications ]
   )
@@ -2618,21 +2827,21 @@ const measureDeepDives = [
     ],
   },
   {
-    title: '12.13.9  HumanResourcesSecurity',
-    summary: 'Human resources security connects personnel lifecycle management to cybersecurity.',
-    points: [
-      'Scope: onboarding, access review, role changes, and offboarding.',
-      'Ontology role: ties identity governance to the compliance framework.',
-      'Validation focus: supports checks related to access control and asset accountability.',
-    ],
-  },
-  {
-    title: '12.13.10  Encryption',
+    title: '12.13.9  Encryption',
     summary: 'Encryption provides confidentiality and supports secure data handling across systems and communications.',
     points: [
       'Scope: data at rest, data in transit, and key management considerations.',
       'Ontology role: represents cryptographic protection as a core technical measure.',
       'Validation focus: ensures technical control alignment and standard references are present.',
+    ],
+  },
+  {
+    title: '12.13.10  HumanResourcesSecurity',
+    summary: 'Human resources security connects personnel lifecycle management to cybersecurity.',
+    points: [
+      'Scope: onboarding, access review, role changes, and offboarding.',
+      'Ontology role: ties identity governance to the compliance framework.',
+      'Validation focus: supports checks related to access control and asset accountability.',
     ],
   },
   {
