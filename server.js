@@ -410,7 +410,7 @@ app.get('/api/validate', async (req, res) => {
 });
 
 // ---------------------------------------------------------------------------
-// GET /api/sparql  — limited SPARQL SELECT (BGP + basic FILTER; sparqljs + N3 Store)
+// GET /api/sparql  — real SPARQL 1.1 SELECT engine (sparqljs + N3 Store)
 // ---------------------------------------------------------------------------
 
 app.get('/api/sparql', async (req, res) => {

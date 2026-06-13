@@ -13,6 +13,7 @@ const FONT_FILES = {
 
 const doc = new PDFDocument({
   size: 'A4',
+  bufferPages: true,
   margins: { top: 72, bottom: 72, left: 80, right: 72 },
   info: {
     Title: 'An OWL-Based Ontology for NIS2 Directive Article 21 Compliance',
@@ -25,24 +26,31 @@ Object.entries(FONT_FILES).forEach(([name, file]) => {
   doc.registerFont(name, file);
 });
 
-const UNIVERSITY_LOGO = path.join(__dirname, 'university_logo_firenze.png');
-
 doc.pipe(fs.createWriteStream('NIS2_Thesis_Abdul_Kader.pdf'));
 
 // ── Page numbering ────────────────────────────────────────────────────
-let currentPage = 1;
 function stampPageNumber(pageNumber) {
-  if (pageNumber === 1) return;
+  const { x, y } = doc;
+  const bottomMargin = doc.page.margins.bottom;
+  const activeFont = doc._font;
+  const activeFontSize = doc._fontSize;
+  const activeFillColor = doc._fillColor;
+  doc.save();
+  doc.page.margins.bottom = 0;
   doc.font('Helvetica').fontSize(9)
-     .text(`Page | ${pageNumber}`, 40, 24, { align: 'left', width: 90 });
+    .text(`Page | ${pageNumber}`, doc.page.width - 112, doc.page.height - 35, {
+      align: 'right',
+      width: 72,
+      lineBreak: false,
+    });
+  doc.page.margins.bottom = bottomMargin;
+  doc.restore();
+  doc._font = activeFont;
+  doc._fontSize = activeFontSize;
+  doc._fillColor = activeFillColor;
+  doc.x = x;
+  doc.y = y;
 }
-
-stampPageNumber(currentPage);
-
-doc.on('pageAdded', () => {
-  currentPage += 1;
-  stampPageNumber(currentPage);
-});
 
 // ── Helpers ───────────────────────────────────────────────────────────
 const LM = 80, RM = 72, PW = 595.28, PH = 841.89;
@@ -64,81 +72,11 @@ function ensureSpace(minHeight) {
   }
 }
 
-function academicizeText(text) {
-  const replacements = [
-    [/\bThis thesis\b/g, 'This study'],
-    [/\bthis thesis\b/g, 'this study'],
-    [/\bThe thesis\b/g, 'The study'],
-    [/\bthe thesis\b/g, 'the study'],
-    [/represents a landmark advancement in the regulatory landscape for cybersecurity governance across EU member states/g, 'represents a significant development in EU cybersecurity regulation'],
-    [/the gap between the formal legal text and the computational tools available for automated compliance checking represents a compelling research challenge/g, 'the gap between the formal legal text and the available computational tools remains a substantive research problem'],
-    [/The framework is complemented by/g, 'The framework includes'],
-    [/a real-time entity compliance checking/g, 'an on-demand entity checking'],
-    [/An interactive web-based/g, 'A web-based'],
-    [/A web interface built on Node\.js and Express provides access to the implemented capabilities, including knowledge graph visualization with vis-network, OWL reasoning, SHACL validation, and SPARQL querying\./g, 'A web interface built on Node.js and Express provides access to the implemented capabilities, including knowledge graph visualization with vis-network, bounded OWL-style reasoning, shape-specific structural validation, and limited SPARQL querying.'],
-    // Scope-softening replacements: align thesis language with prototype boundaries
-    [/a complete automated compliance framework/g, 'an automated compliance demonstrator'],
-    [/complete automated compliance framework/g, 'automated compliance demonstrator'],
-    [/complete web-based compliance framework/g, 'web-based compliance demonstrator'],
-    [/a complete compliance framework/g, 'a compliance demonstrator'],
-    [/complete compliance framework/g, 'compliance demonstrator'],
-    [/a complete framework/g, 'a prototype framework'],
-    [/complete framework/g, 'prototype framework'],
-    [/OWL reasoning, SHACL validation, and SPARQL querying/g, 'bounded OWL-style reasoning, shape-specific structural validation, and limited SPARQL querying'],
-    [/OWL 2 reasoning, SHACL validation, SPARQL querying/g, 'bounded OWL-style reasoning, shape-specific structural validation, limited SPARQL querying'],
-    [/OWL reasoning, SHACL validation, SPARQL/g, 'bounded OWL-style reasoning, shape-specific structural validation, limited SPARQL'],
-    [/SHACL validation against/g, 'shape-specific structural validation against'],
-    [/SHACL validation results/g, 'shape-specific structural validation results'],
-    [/\bSPARQL 1\.1 query interface\b/g, 'limited SPARQL SELECT interface'],
-    [/\bSPARQL 1\.1 interface\b/g, 'limited SPARQL SELECT interface'],
-    [/real-time compliance checking/g, 'on-demand structural compliance checking'],
-    [/a reusable, standards-aligned ontological foundation/g, 'an extensible ontological foundation'],
-    [/The thesis establishes a reusable, standards-aligned ontological foundation for NIS2 Article 21 compliance automation that can be extended to cover broader NIS2 obligations and integrated with organizational security information systems\./g, 'The study provides an extensible ontological foundation for NIS2 Article 21 compliance automation and can be adapted to broader NIS2 obligations and organizational security information systems.'],
-    [/This thesis presents the design and implementation of a formal OWL 2 DL ontology for representing NIS2 Article 21\(2\) requirements in machine-processable form\./g, 'This study presents a formal OWL 2 DL ontology for representing NIS2 Article 21(2) requirements in machine-processable form.'],
-    [/The ontology, published under the persistent URI namespace https:\/\/w3id.org\/nis2\/article21#, connects the twelve operational classes through object properties and logical axioms including equivalentClass, complementOf, allValuesFrom, someValuesFrom, and propertyChainAxiom\./g, 'The ontology, published under the persistent URI namespace https://w3id.org/nis2/article21#, connects the twelve operational classes through object properties and logical axioms including equivalentClass, complementOf, allValuesFrom, someValuesFrom, and propertyChainAxiom.'],
-    [/The ontology classifies an entity as CompliantEntity when its asserted implementations cover all twelve operational classes, thereby covering all ten legal categories at the selected modeling granularity\./g, 'The ontology classifies an entity as CompliantEntity when its asserted implementations cover all twelve operational classes, which correspond to the ten legal categories at the selected modeling granularity.'],
-    [/The ontology decomposes two compound provisions into twelve operational classes\./g, 'The ontology decomposes two compound provisions into twelve operational classes.'],
-    [/The field of ontology engineering, anchored in the W3C's Web Ontology Language \(OWL\) and the broader Semantic Web technology stack, offers a well-established approach to formalizing complex domain knowledge for computational processing\./g, 'Ontology engineering, grounded in the W3C Web Ontology Language (OWL) and the broader Semantic Web stack, provides a well-established approach to formalizing complex domain knowledge for computational processing.'],
-    [/The research addresses an interdisciplinary translation problem: Article 21 is expressed as a legal and organizational obligation, while automated assessment requires explicit concepts, stable relations, and testable conditions\./g, 'The research addresses an interdisciplinary translation problem: Article 21 is expressed as a legal and organizational obligation, while automated assessment requires explicit concepts, stable relations, and testable conditions.'],
-    [/The thesis contribution is strongest as a transparent proof of concept\./g, 'The contribution is best understood as a transparent proof of concept.'],
-    [/This thesis makes five distinct contributions to the fields of semantic web technology, legal\/regulatory compliance, and cybersecurity governance\./g, 'The study makes five contributions to semantic web technology, legal/regulatory compliance, and cybersecurity governance.'],
-    [/The OWL-SHACL-SPARQL architecture may be reused for regulations containing identifiable subjects, obligations, controls, and evidence\. The reusable contribution is the method rather than the specific Article 21 taxonomy\./g, 'The OWL-SHACL-SPARQL architecture may be adapted to regulations containing identifiable subjects, obligations, controls, and evidence. The transferable contribution is the method rather than the specific Article 21 taxonomy.'],
-    [/The work presented in this thesis establishes a foundation for several promising research directions\./g, 'The work presented here establishes a foundation for several further research directions.'],
-    [/The thesis began with a gap between legal cybersecurity obligations and the machine-processable structures needed for repeatable assessment\./g, 'The study began with a gap between legal cybersecurity obligations and the machine-processable structures needed for repeatable assessment.'],
-    [/This research demonstrates that formal ontology engineering, grounded in OWL 2 and complementary semantic web standards, provides a technically sound and practically effective approach to automating regulatory compliance verification\./g, 'The results indicate that formal ontology engineering, grounded in OWL 2 and complementary Semantic Web standards, can support the automation of regulatory compliance verification.'],
-    [/significantly reduce the manual burden of compliance management, improve consistency of compliance assessments, and support the development of machine-readable regulatory knowledge that can evolve with the legal framework it represents\./g, 'reduce the manual burden of compliance management, improve the consistency of compliance assessments, and support the development of machine-readable regulatory knowledge that can evolve with the legal framework it represents.'],
-    [/transparent proof of concept/g, 'bounded prototype'],
-    [/promising research directions/g, 'further research directions'],
-    [/general-purpose compliance tool/g, 'compliance support tool'],
-    [/general-purpose compliance engine/g, 'compliance checking engine'],
-    [/immediate intuitive insight/g, 'direct insight'],
-    [/easy to run locally/g, 'straightforward to execute locally'],
-    [/useful after the thesis submission stage/g, 'available after thesis submission'],
-    [/quickly revisit the thesis structure/g, 'review the thesis structure'],
-    [/one-off graph model/g, 'single-purpose graph model'],
-    [/easier to test/g, 'more straightforward to test'],
-    [/often useful/g, 'useful'],
-    [/useful for discussing/g, 'valuable for discussing'],
-    [/The thesis implementation is designed to be easy to run locally\./g, 'The implementation is intended for local execution during development and evaluation.'],
-    [/This section is intentionally operational so that the report remains useful after the thesis submission stage\./g, 'This section is operational in orientation and supports post-submission maintenance and review.'],
-    [/This summary sheet condenses the purpose of each chapter into a single page so that a reader can quickly revisit the thesis structure during review or defence preparation\./g, 'This summary sheet provides a concise chapter overview for review and defence preparation.'],
-    [/This short section is useful when discussing the thesis with readers who are not specialists in Semantic Web technologies\./g, 'This section provides terminology support for readers who are not specialists in Semantic Web technologies.'],
-    [/The following questions are useful for preparing a thesis defence or an internal review meeting\./g, 'The following questions support thesis defence preparation or an internal review meeting.'],
-    [/These prompts are not requirements, but they are often useful for verifying that the thesis can be defended clearly and consistently\./g, 'These prompts are optional and can be used to check that the thesis can be defended clearly and consistently.'],
-    [/This final snapshot summarizes the thesis outcome in a single place\. It is the most compact description of the project deliverable and should be easy to cite in a short oral presentation\./g, 'This final snapshot summarizes the thesis outcome in a single place and provides a compact description of the project deliverable for brief oral reference.'],
-    [/This chapter consolidates technical reference material that supports, but does not carry, the principal academic argument\. The legal analysis, methodological justification, ontology design rationale, implementation analysis, and evaluation interpretation are developed in Chapters 1–10\. The present chapter is intentionally limited to concise material useful for reproduction, review, and thesis defence\./g, 'This chapter consolidates technical reference material that supports the principal academic argument. The legal analysis, methodological justification, ontology design rationale, implementation analysis, and evaluation interpretation are developed in Chapters 1–10. The present chapter is limited to concise material for reproduction, review, and thesis defence.'],
-    [/A reviewer can then execute ontology validation, reasoning, SHACL checking, competency queries, and real-time entity assessment\. The report itself is regenerated through the PDFKit script\./g, 'A reviewer can then execute ontology validation, reasoning, SHACL checking, competency queries, and entity assessment. The report is regenerated through the PDFKit script.'],
-    [/Five endpoints expose structural validation, reasoning, SHACL checking, SPARQL execution, and real-time entity assessment\. Responses use JSON so that the browser and other clients can consume the results consistently\./g, 'Five endpoints expose structural validation, reasoning, SHACL checking, SPARQL execution, and entity assessment. Responses use JSON so that the browser and other clients can consume the results consistently.'],
-    [/Stable identifiers should be retained where concept meaning is unchanged, while changed interpretations should be documented through release notes and provenance metadata\. Regression tests should be rerun for every release\./g, 'Stable identifiers should be retained where concept meaning is unchanged, while changed interpretations should be documented through release notes and provenance metadata. Regression tests should be rerun for each release.'],
-  ];
-  return replacements.reduce((acc, [from, to]) => acc.replace(from, to), String(text));
-}
-
 function chapterHeading(num, title) {
   resetCursor();
   doc.moveDown(1);
   doc.font('Helvetica-Bold').fontSize(14)
-     .text(`Chapter ${num}: ${title}`, { align: 'left' });
+     .text(`${num}. ${title.toUpperCase()}`, { align: 'left' });
   doc.moveDown(0.6);
   doc.moveTo(LM, doc.y).lineTo(PW - RM, doc.y).lineWidth(1).stroke();
   doc.moveDown(0.8);
@@ -160,25 +98,53 @@ function subHeading(text) {
 
 function body(text) {
   resetCursor();
-  doc.font('Helvetica').fontSize(11).text(academicizeText(text), { align: 'justify', lineGap: 3 });
+  doc.font('Helvetica').fontSize(11).text(text, { align: 'justify', lineGap: 3 });
+  doc.moveDown(0.5);
+}
+
+function leftBody(text) {
+  resetCursor();
+  doc.font('Helvetica').fontSize(11).text(text, { align: 'left', lineGap: 3 });
   doc.moveDown(0.5);
 }
 
 function bullet(text) {
   resetCursor();
   doc.font('Helvetica').fontSize(11)
-     .text(`•  ${academicizeText(text)}`, { indent: 20, align: 'justify', lineGap: 2 });
+     .text(`•  ${text}`, { indent: 20, align: 'justify', lineGap: 2 });
 }
 
 function numbered(n, text) {
   resetCursor();
   doc.font('Helvetica').fontSize(11)
-     .text(`${n}.  ${academicizeText(text)}`, { indent: 20, align: 'justify', lineGap: 2 });
+     .text(`${n}.  ${text}`, { indent: 20, align: 'justify', lineGap: 2 });
 }
 
 function italicBody(text) {
   resetCursor();
-  doc.font('Helvetica-Oblique').fontSize(11).text(academicizeText(text), { align: 'justify', lineGap: 3 });
+  doc.font('Helvetica-Oblique').fontSize(11).text(text, { align: 'justify', lineGap: 3 });
+  doc.moveDown(0.5);
+}
+
+function formulaBody(text) {
+  resetCursor();
+  doc.font('Helvetica-Oblique').fontSize(10.5).text(text, {
+    align: 'left',
+    indent: 12,
+    lineGap: 3,
+  });
+  doc.moveDown(0.5);
+}
+
+function formulaLines(lines) {
+  resetCursor();
+  const x = LM + 12;
+  const width = BODY_W - 24;
+  doc.font('Helvetica-Oblique').fontSize(10.5);
+  lines.forEach(line => {
+    doc.text(line, x, doc.y, { width, align: 'left', lineGap: 2 });
+  });
+  doc.x = LM;
   doc.moveDown(0.5);
 }
 
@@ -206,6 +172,7 @@ function academicAnalysisPage(heading, context, finding, limitation) {
       finding,
       limitation,
     ],
+    implication: 'The result strengthens the traceability between the research problem, the formal artifact, and the limits of the claims made in this thesis.'
   }]);
 }
 
@@ -283,15 +250,6 @@ const measureAnalyses = [
     limitation: 'The current representation cannot distinguish attendance from competence, verify role coverage, measure behavioral change, or establish whether training content reflects current threats and organizational responsibilities.'
   },
   {
-    id: 'Encryption',
-    ref: '21(2)(h)',
-    category: 'TechnicalMeasure',
-    ontology: 'ExampleEncryption is based on NISTFramework, addresses DataBreachRisk, prevents DataBreachIncident, and applies to CoreBankingSystem and WebApplicationPlatform.',
-    interpretation: 'Cryptography must be governed as a lifecycle rather than treated as a binary feature. Scope includes approved algorithms and protocols, key generation and storage, certificate management, rotation, revocation, backup, recovery, access to key material, and migration from deprecated mechanisms.',
-    evidence: 'Cryptographic policy; data-classification mapping; encryption inventories; TLS and certificate scans; key-management architecture; rotation records; hardware-security-module configuration; exception and migration plans.',
-    limitation: 'A true value for isStateOfTheArt does not prove algorithm strength, key protection, protocol configuration, coverage of data at rest and in transit, or readiness for cryptographic deprecation.'
-  },
-  {
     id: 'HumanResourcesSecurity',
     ref: '21(2)(i)',
     category: 'OrganizationalMeasure',
@@ -299,6 +257,15 @@ const measureAnalyses = [
     interpretation: 'Human-resources security connects the employment lifecycle with access control and asset accountability. Relevant controls include screening where lawful, confidentiality duties, least privilege, segregation of duties, joiner-mover-leaver processes, privileged-access review, disciplinary processes, and return of assets.',
     evidence: 'Screening and confidentiality records; role definitions; access approvals; periodic entitlement reviews; privileged-account inventories; transfer and termination tickets; asset-return evidence; segregation-of-duty reviews.',
     limitation: 'The ontology does not model people, roles, employment events, access entitlements, legal constraints on screening, or the timeliness and completeness of offboarding actions.'
+  },
+  {
+    id: 'Encryption',
+    ref: '21(2)(h)',
+    category: 'TechnicalMeasure',
+    ontology: 'ExampleEncryption is based on NISTFramework, addresses DataBreachRisk, prevents DataBreachIncident, and applies to CoreBankingSystem and WebApplicationPlatform.',
+    interpretation: 'Cryptography must be governed as a lifecycle rather than treated as a binary feature. Scope includes approved algorithms and protocols, key generation and storage, certificate management, rotation, revocation, backup, recovery, access to key material, and migration from deprecated mechanisms.',
+    evidence: 'Cryptographic policy; data-classification mapping; encryption inventories; TLS and certificate scans; key-management architecture; rotation records; hardware-security-module configuration; exception and migration plans.',
+    limitation: 'A true value for isStateOfTheArt does not prove algorithm strength, key protection, protocol configuration, coverage of data at rest and in transit, or readiness for cryptographic deprecation.'
   },
   {
     id: 'MultiFactorAuthentication',
@@ -384,7 +351,7 @@ function renderEvaluationDesign() {
   body('Equal weighting is acceptable for communicating the ontology’s minimum-category rule, because the formal CompliantEntity definition requires every category. It would be misleading if reused for prioritization without additional dimensions. A richer assessment could record evidence quality, scope coverage, control effectiveness, risk criticality, remediation age, and confidence. Those dimensions should remain separate from the binary classification so that management can see both whether a category is represented and how strongly it is supported.');
 
   sectionHeading('9.11  Reproducibility and Independent Verification');
-  body('A reproducible evaluation should identify the ontology version, application commit, Node.js version, operating environment, input dataset, expected outputs, and timing method. The present report records the ontology IRI and local artifacts but the performance figures should be treated as indicative because the server code does not contain a dedicated benchmark harness. Future measurements should include warm-up, repeated samples, percentile latency, concurrent requests, memory consumption, and separate parsing from query execution.');
+  body('A reproducible evaluation should identify the ontology version, application commit, Node.js version, operating environment, input dataset, expected outputs, and timing method. The public project repository (Kader, 2026) provides the ontology and application artifacts; a final archived release should additionally record the exact commit evaluated in this thesis. Performance figures remain indicative because the server code does not contain a dedicated benchmark harness. Future measurements should include warm-up, repeated samples, percentile latency, concurrent requests, memory consumption, and separate parsing from query execution.');
   body('Independent verification should use a standards-complete RDF and OWL toolchain. The Turtle graph can be parsed and counted independently; the equivalent-class axiom can be tested in Protégé with HermiT or Pellet; the SHACL graph can be executed with pySHACL or TopBraid; and the competency queries can be run in Apache Jena, RDF4J, or another SPARQL 1.1 implementation. Agreement across independent tools would provide stronger evidence than agreement between the ontology and custom code written from the same assumptions.');
 }
 
@@ -468,7 +435,7 @@ function renderLiteratureSynthesis() {
 
   sectionHeading('2.13  Ontology Evaluation Criteria');
   body('Ontology evaluation should distinguish correctness, completeness, clarity, coherence, conciseness, extensibility, and practical usefulness. Correctness asks whether represented statements are defensible in the domain. Completeness asks whether the declared scope is covered. Coherence asks whether axioms permit unintended contradictions. Clarity concerns labels, comments, and understandable modeling choices. Conciseness discourages redundant concepts. Extensibility concerns whether new sectors, evidence, and legal provisions can be added without redesigning the core.');
-  tableSimple(['Criterion', 'Application to This Study', 'Current Evidence', 'Remaining Work'], [
+  tableSimple(['Criterion', 'Application to This Thesis', 'Current Evidence', 'Remaining Work'], [
     ['Correctness', 'Legal categories and semantic relations reflect Article 21', 'Article references, source review, corrected (a)-(j) mapping', 'Independent legal review'],
     ['Completeness', 'All ten legal categories covered through twelve classes', 'Class and restriction inventory', 'Sub-requirements and implementing acts'],
     ['Coherence', 'Class and property axioms do not create unintended conflict', 'Parsing, disjointness checks, controlled examples', 'Complete OWL reasoner'],
@@ -487,7 +454,7 @@ function renderLiteratureSynthesis() {
   body('However, explanations can still overstate certainty. A statement such as "NonCompliantEntity" may be interpreted as a legal conclusion even when it is derived from incomplete self-reported data. The interface and report therefore distinguish a modeled coverage result from authoritative compliance determination. A mature system should present confidence, evidence status, assessment date, reviewer, and unresolved conflicts alongside the classification.');
 
   sectionHeading('2.16  Synthesis of Design Requirements from the Literature');
-  tableSimple(['Requirement', 'Rationale', 'Implementation in This Study'], [
+  tableSimple(['Requirement', 'Rationale', 'Implementation in This Thesis'], [
     ['Stable vocabulary', 'Supports shared interpretation and reuse', 'Persistent namespace and labeled OWL resources'],
     ['Traceable legal source', 'Makes modeling choices reviewable', 'articleReference and comments'],
     ['Formal category definition', 'Supports repeatable classification', 'CompliantEntity equivalent class'],
@@ -568,8 +535,8 @@ function renderDiscussionExpansion() {
   ]);
 
   sectionHeading('10.11  Balanced Assessment of the Contribution');
-  body('The thesis contribution is strongest as a transparent proof of concept. It demonstrates how a recent cybersecurity obligation can be decomposed into classes, connected to risks, systems, incidents, and standards, constrained through SHACL, queried through SPARQL patterns, and exposed through a usable interface. The source artifacts allow the claims to be inspected rather than hidden in a proprietary scoring model.');
-  body('The contribution is weaker where the current implementation approximates standards or relies on asserted booleans. It does not validate real organizational evidence, execute complete OWL or SHACL semantics, implement full SPARQL 1.1, model national law, or provide practitioner evaluation. Stating these limits directly improves the academic credibility of the work and identifies a concrete program for extension.');
+  body('The thesis contribution is strongest as a transparent proof of concept. It decomposes a recent cybersecurity obligation into classes connected to risks, systems, incidents, and standards, then exposes the model through validation, query, reasoning, and visualization functions. The public artifacts make these claims inspectable.');
+  body('The implementation approximates some standards and relies on asserted booleans. It does not validate organizational evidence, execute complete OWL or SHACL semantics, implement full SPARQL 1.1, model national law, or include practitioner evaluation. These limits define the extension program.');
 }
 
 function renderTheoreticalDepth() {
@@ -709,7 +676,7 @@ function renderResearchQuestionAnswers() {
 
   sectionHeading('11.6  Claim Boundary and Validation Matrix');
   body('Academic conclusions should be proportional to the evidence produced. The matrix below separates directly demonstrated properties from claims that require independent tools, organizational data, or practitioner research. This prevents the existence of an executable prototype from being interpreted as regulatory certification or production readiness.');
-  tableSimple(['Claim', 'Status in This Study', 'Evidence Available', 'Further Validation Required'], [
+  tableSimple(['Claim', 'Status in This Thesis', 'Evidence Available', 'Further Validation Required'], [
     ['The ontology files are syntactically parseable', 'Demonstrated', 'Turtle and RDF/XML each parse to 526 triples', 'Continuous parsing in automated tests'],
     ['The legal points are represented', 'Demonstrated at selected granularity', 'Ten points mapped to twelve operational classes', 'Independent legal and sector review'],
     ['The complete example covers every operational class', 'Demonstrated', 'Twelve implementsMeasure links and class types', 'Independent reasoner regression test'],
@@ -722,6 +689,7 @@ function renderResearchQuestionAnswers() {
     ['The interface is usable by practitioners', 'Not empirically demonstrated', 'Functional interactive prototype', 'Structured user study with regulated organizations'],
   ]);
 
+  ensureSpace(300);
   sectionHeading('11.7  Final Recommendations');
   body('First, the ontology should be released from one canonical serialization with automated generation of alternatives. Continuous integration should parse every artifact, compare graph equivalence, execute competency queries, run a complete OWL reasoner, and validate the SHACL graph using an independent processor. This would convert several manually checked assumptions into repeatable quality gates.');
   body('Second, the next conceptual increment should be evidence-centered rather than adding more top-level checkboxes. Assessment, Evidence, Finding, Scope, Assessor, ControlOwner, and ReviewDate concepts would allow category assertions to be supported, challenged, and revised. Temporal and provenance information would make results auditable and reduce reliance on unqualified booleans.');
@@ -774,11 +742,9 @@ function tableSimple(headers, rows, options = {}) {
   const padY = options.padY || 4;
 
   function displayCell(value) {
-    return academicizeText(String(value))
-      .replace(/JavaScript/g, 'JS_PLACEHOLDER')
-      .replace(/([a-z])([A-Z])/g, '$1\u200b$2')
-      .replace(/([,;/])([^\s])/g, '$1\u200b$2')
-      .replace(/JS_PLACEHOLDER/g, 'JavaScript');
+    return String(value)
+      .replace(/([a-z0-9])([A-Z])/g, '$1\u200b$2')
+      .replace(/([,;/])([^\s])/g, '$1\u200b$2');
   }
 
   function drawHeader() {
@@ -895,6 +861,33 @@ function figureBlock(number, title, drawFigure, sourceNote, height = 480) {
     .text(sourceNote, LM, doc.y, { width: BODY_W, align: 'center' });
   doc.fillColor('#000000');
   doc.moveDown(0.5);
+}
+
+function imageBlock(imgPath, number, caption, sourceNote, maxHeight = 320) {
+  try {
+    const img = doc.openImage(imgPath);
+    const scale = Math.min(BODY_W / img.width, maxHeight / img.height, 1);
+    const iw = Math.floor(img.width * scale);
+    const ih = Math.floor(img.height * scale);
+    ensureSpace(ih + 60);
+    resetCursor();
+    const startY = doc.y;
+    const xPos = LM + Math.floor((BODY_W - iw) / 2);
+    doc.image(imgPath, xPos, startY, { width: iw, height: ih });
+    doc.y = startY + ih + 8;
+    resetCursor();
+    doc.fillColor('#111827').font('Helvetica-Bold').fontSize(9)
+      .text(`Figure ${number}: ${caption}`, LM, doc.y, { width: BODY_W, align: 'center' });
+    doc.moveDown(0.2);
+    if (sourceNote) {
+      doc.fillColor('#64748b').font('Helvetica-Oblique').fontSize(7.5)
+        .text(sourceNote, LM, doc.y, { width: BODY_W, align: 'center' });
+    }
+    doc.fillColor('#000000');
+    doc.moveDown(0.8);
+  } catch (e) {
+    body(`[Image placeholder: ${caption}]`);
+  }
 }
 
 function drawOntologyFigure(x, y, w, h) {
@@ -1477,7 +1470,7 @@ function owlSupplementaryFigurePage() {
     });
   doc.moveDown(0.2);
   doc.fillColor('#64748b').font('Helvetica-Oblique').fontSize(7.2)
-    .text('Source: visual summary of the implementedMeasure and basedOnStandard chain.', LM, doc.y, {
+    .text('Source: visual summary of the implementsMeasure and basedOnStandard chain.', LM, doc.y, {
       width: BODY_W,
       align: 'center',
     });
@@ -1485,48 +1478,42 @@ function owlSupplementaryFigurePage() {
 }
 
 // ═══════════════════════════════════════════════════════════════════════
-// COVER PAGE
+// COVER PAGE — aligned with the university-approved structure
 // ═══════════════════════════════════════════════════════════════════════
-doc.image(UNIVERSITY_LOGO, 20, 18, { width: 180 });
-doc.moveDown(2);
-doc.font('Helvetica-Bold').fontSize(12)
-   .text('School of Mathematical, Physical and Natural Sciences', { align: 'center' });
-doc.moveDown(0.4);
-doc.font('Helvetica').fontSize(11)
-   .text('M.Sc. Degree in Computer Science', { align: 'center' });
-doc.font('Helvetica').fontSize(11)
-   .text('(Resilient and Secure Cyber Physical Systems)', { align: 'center' });
-doc.moveDown(3);
-doc.font('Helvetica-Bold').fontSize(13)
+doc.image('university-logo.png', 194, 78, { width: 208 });
+doc.y = 205;
+doc.font('Helvetica').fontSize(12)
+   .text('Scuola di Scienze Matematiche, Fisiche e Naturali', { align: 'center' });
+doc.font('Helvetica').fontSize(12)
+   .text('Corso di Laurea Magistrale in Informatica', { align: 'center' });
+doc.moveDown(3.2);
+doc.font('Helvetica').fontSize(13)
    .text('Tesi di Laurea', { align: 'center' });
+doc.moveDown(1.8);
+doc.fillColor('#b91c1c').font('Helvetica').fontSize(12)
+   .text("UN'ONTOLOGIA OWL PER LA CONFORMITÀ ALLA DIRETTIVA NIS2 ARTICOLO 21: FRAMEWORK DI VALIDAZIONE E RAGIONAMENTO AUTOMATIZZATO PER LE MISURE DI GESTIONE DEL RISCHIO DI CYBERSICUREZZA", { align: 'center', characterSpacing: 0.7 });
 doc.moveDown(1.2);
-doc.font('Helvetica-Oblique').fontSize(11)
-   .text("Un'Ontologia OWL per la Conformità alla Direttiva NIS2 Articolo 21: Framework di Validazione e Ragionamento Automatizzato per le Misure di Gestione del Rischio di Cybersicurezza", { align: 'center' });
-doc.moveDown(1.5);
-doc.font('Helvetica-Bold').fontSize(13)
-   .text('An OWL-Based Ontology for NIS2 Directive Article 21 Compliance: Automated Validation and Reasoning Framework for Cybersecurity Risk-Management Measures', { align: 'center' });
-doc.moveDown(4);
-doc.font('Helvetica').fontSize(11).text('Candidate:', { align: 'center' });
-doc.font('Helvetica-Bold').fontSize(12).text('Abdul Kader', { align: 'center' });
-doc.moveDown(1.5);
-doc.font('Helvetica').fontSize(11).text('Supervisor:', { align: 'center' });
-doc.font('Helvetica-Bold').fontSize(12).text('Prof. Enrico Francesconi', { align: 'center' });
-doc.moveDown(4);
-doc.font('Helvetica').fontSize(11).text('Anno Accademico 2025/2026', { align: 'center' });
+doc.text('AN OWL-BASED ONTOLOGY FOR NIS2 DIRECTIVE ARTICLE 21 COMPLIANCE: AUTOMATED VALIDATION AND REASONING FRAMEWORK FOR CYBERSECURITY RISK-MANAGEMENT MEASURES', { align: 'center', characterSpacing: 0.7 });
+doc.fillColor('#000000');
+doc.moveDown(2.4);
+doc.font('Helvetica').fontSize(11).text('ABDUL KADER', { align: 'center', characterSpacing: 0.8 });
+doc.moveDown(2.8);
+doc.font('Helvetica').fontSize(11)
+   .text('Relatore: Prof. Enrico Francesconi', { align: 'center' });
+doc.moveDown(4.5);
+doc.font('Helvetica').fontSize(11).text('Anno Accademico 2025-2026', { align: 'center' });
 
 // ═══════════════════════════════════════════════════════════════════════
-// DECLARATION
+// TITLE VERSO
 // ═══════════════════════════════════════════════════════════════════════
 newPage();
-doc.font('Helvetica-Bold').fontSize(13).text('Declaration of Originality', { align: 'center' });
-doc.moveDown(1);
-body('I hereby declare that this thesis is my own work and has been completed independently. To the best of my knowledge and belief, it contains no material previously published or written by another person, except where proper acknowledgment has been made in the text. This work has not been submitted for any other degree or diploma at this or any other institution.');
-doc.moveDown(4);
-doc.font('Helvetica').fontSize(11).text('Signature_________________');
-doc.moveDown(1);
-doc.font('Helvetica-Bold').fontSize(12).text('Abdul Kader');
-doc.moveDown(1);
-doc.font('Helvetica').fontSize(11).text('Anno Accademico 2025/2026');
+doc.y = 390;
+doc.font('Helvetica').fontSize(10)
+   .text('Abdul Kader: An OWL-Based Ontology for NIS2 Directive Article 21 Compliance: Automated Validation and Reasoning Framework for Cybersecurity Risk-Management Measures, Laurea Magistrale in Resilient and Secure Cyber Physical Systems, © Academic Year 2025-2026', LM + 55, doc.y, {
+     width: BODY_W - 110,
+     align: 'left',
+     lineGap: 2,
+   });
 
 // ═══════════════════════════════════════════════════════════════════════
 // TABLE OF CONTENTS
@@ -1536,7 +1523,7 @@ doc.font('Helvetica-Bold').fontSize(14).text('C O N T E N T S', { align: 'center
 doc.moveDown(1);
 
 const tocItems = [
-  { t: 'Declaration of Originality', l: 1, p: 2 },
+  { t: 'Contents', l: 1, p: 3 },
   { t: 'List of Figures', l: 1, p: 5 },
   { t: 'List of Tables', l: 1, p: 6 },
   { t: 'Abstract', l: 1, p: 7 },
@@ -1549,9 +1536,7 @@ const tocItems = [
   { t: '1.4  Research Questions', l: 2 },
   { t: '1.5  Scope and Limitations', l: 2 },
   { t: '1.6  Thesis Structure and Contributions', l: 2 },
-  { t: '1.7  Research Significance', l: 2 },
-  { t: '1.8  Research Design and Thesis Argument', l: 2 },
-  { t: '2.  Literature Review', l: 1, p: 13 },
+  { t: '2.  Literature Review', l: 1, p: 14 },
   { t: '2.1  Semantic Web Technologies and Ontologies', l: 2 },
   { t: '2.2  OWL and RDF Standards', l: 2 },
   { t: '2.3  Regulatory Compliance in Cybersecurity', l: 2 },
@@ -1559,7 +1544,7 @@ const tocItems = [
   { t: '2.5  Existing Compliance Tools and Approaches', l: 2 },
   { t: '2.6  Ontology-Based Compliance Systems', l: 2 },
   { t: '2.7  Research Gap', l: 2 },
-  { t: '3.  Theoretical Foundation', l: 1, p: 19 },
+  { t: '3.  Theoretical Foundation', l: 1, p: 21 },
   { t: '3.1  Web Ontology Language (OWL 2)', l: 2 },
   { t: '3.2  RDF and RDFS Fundamentals', l: 2 },
   { t: '3.3  Ontology Engineering Principles', l: 2 },
@@ -1567,14 +1552,14 @@ const tocItems = [
   { t: '3.5  SPARQL Query Language', l: 2 },
   { t: '3.6  SHACL — Shapes Constraint Language', l: 2 },
   { t: '3.7  SKOS Vocabulary and Semantic Alignment', l: 2 },
-  { t: '4.  NIS2 Directive Article 21: Requirements Analysis', l: 1, p: 24 },
+  { t: '4.  NIS2 Directive Article 21: Requirements Analysis', l: 1, p: 27 },
   { t: '4.1  Article 21 Legal Text and Scope', l: 2 },
   { t: '4.2  Article 21(2) Requirements', l: 2 },
   { t: '4.3  Essential vs. Important Entities', l: 2 },
-  { t: '4.4  Required Cybersecurity Measures (a)–(l)', l: 2 },
+  { t: '4.4  Operational Classes Covering Measures (a)–(j)', l: 2 },
   { t: '4.5  Compliance Criteria', l: 2 },
   { t: '4.6  Challenges in Manual Compliance Verification', l: 2 },
-  { t: '5.  Methodology', l: 1, p: 35 },
+  { t: '5.  Methodology', l: 1, p: 39 },
   { t: '5.1  Ontology Development Process (METHONTOLOGY)', l: 2 },
   { t: '5.2  Requirements Gathering', l: 2 },
   { t: '5.3  Competency Questions Definition', l: 2 },
@@ -1583,7 +1568,7 @@ const tocItems = [
   { t: '5.6  Validation Rules Design', l: 2 },
   { t: '5.7  System Architecture', l: 2 },
   { t: '5.8  Technology Stack Selection', l: 2 },
-  { t: '6.  Ontology Design and Implementation', l: 1, p: 40 },
+  { t: '6.  Ontology Design and Implementation', l: 1, p: 45 },
   { t: '6.1  Ontology Structure and Namespace', l: 2 },
   { t: '6.2  Core Classes', l: 2 },
   { t: '6.3  Object Properties', l: 2 },
@@ -1592,32 +1577,32 @@ const tocItems = [
   { t: '6.6  SKOS Annotations and External Alignments', l: 2 },
   { t: '6.7  Competency Questions Validation', l: 2 },
   { t: '6.8  Ontology Validation', l: 2 },
-  { t: '7.  System Implementation', l: 1, p: 50 },
+  { t: '7.  System Implementation', l: 1, p: 57 },
   { t: '7.1  System Architecture Overview', l: 2 },
   { t: '7.2  Backend Implementation', l: 2 },
   { t: '7.3  Frontend Implementation', l: 2 },
   { t: '7.4  Integration and Testing', l: 2 },
-  { t: '8.  System Demonstration and Use Cases', l: 1, p: 56 },
+  { t: '8.  System Demonstration and Use Cases', l: 1, p: 63 },
   { t: '8.1  Interactive Graph Visualization', l: 2 },
   { t: '8.2  OWL Validation and Reasoning', l: 2 },
   { t: '8.3  SHACL Shapes Validation', l: 2 },
   { t: '8.4  SPARQL Query Interface', l: 2 },
   { t: '8.5  Real-Time Entity Compliance Checking', l: 2 },
-  { t: '9.  Evaluation and Results', l: 1, p: 68 },
+  { t: '9.  Evaluation and Results', l: 1, p: 76 },
   { t: '9.1  Ontology Completeness', l: 2 },
   { t: '9.2  Validation Accuracy', l: 2 },
   { t: '9.3  Reasoning Performance', l: 2 },
   { t: '9.4  Case Studies', l: 2 },
   { t: '9.5  Comparison with Existing Approaches', l: 2 },
-  { t: '10. Discussion', l: 1, p: 73 },
+  { t: '10. Discussion', l: 1, p: 81 },
   { t: '10.1  Contributions to the Field', l: 2 },
   { t: '10.2  Limitations', l: 2 },
   { t: '10.3  Future Work', l: 2 },
-  { t: '11. Conclusion', l: 1, p: 78 },
+  { t: '11. Conclusion', l: 1, p: 86 },
   { t: '11.1  Summary of Contributions', l: 2 },
   { t: '11.2  Achievement of Research Objectives', l: 2 },
   { t: '11.3  Future Research Directions', l: 2 },
-  { t: 'References', l: 1, p: 82 },
+  { t: 'References', l: 1, p: 91 },
 ];
 
 tocItems.forEach(item => {
@@ -1640,18 +1625,19 @@ newPage();
 doc.font('Helvetica-Bold').fontSize(14).text('List of Figures', { align: 'center' });
 doc.moveDown(1);
 tableSimple(['Figure', 'Description'], [
-  ['Figure 6.1', 'Complete OWL 2 DL class hierarchy — 28 named classes'],
-  ['Figure 6.2', 'Object and data properties with property chain axiom'],
-  ['Figure 6.3', 'Turtle/RDF serialization of an example encryption measure'],
-  ['Figure 6.4', 'OWL equivalent-class structure for CompliantEntity'],
-  ['Figure 6.5', 'OWL subclass hierarchy for measure families'],
-  ['Figure 6.6', 'OWL role chain for standard derivation'],
-  ['Figure 8.1', 'Ontology explorer of representative relations'],
-  ['Figure 8.2', 'Structural ontology validation results'],
-  ['Figure 8.3', 'Entity classification and standard derivation'],
-  ['Figure 8.4', 'SHACL validation results'],
-  ['Figure 8.5', 'Real-time entity assessment'],
-  ['Figure 8.6', 'SPARQL competency query and results'],
+  ['Figure 6.1', 'Protégé class hierarchy panel showing the complete NIS2 Article 21 ontology structure'],
+  ['Figure 6.2', 'Protégé data property hierarchy panel showing the five datatype properties'],
+  ['Figure 6.3', 'Turtle/RDF serialization excerpt for an example encryption measure'],
+  ['Figure 6.4', 'OWL equivalent-class structure defining CompliantEntity'],
+  ['Figure 6.5', 'OWL subclass hierarchy for the three measure families'],
+  ['Figure 6.6', 'OWL role chain used to derive standard associations'],
+  ['Figure 6.7', 'Protégé ontology graph showing classes, individuals, and inter-class relationships'],
+  ['Figure 8.1', 'Ontology explorer showing representative entity, measure, risk, system, and standard relations'],
+  ['Figure 8.2', 'Structural ontology validation report generated from /api/validate'],
+  ['Figure 8.3', 'Entity classification and standard derivation generated from /api/reason'],
+  ['Figure 8.4', 'SHACL-oriented coverage and quality validation generated from /api/shacl'],
+  ['Figure 8.5', 'Real-time entity assessment generated from /api/check-entity'],
+  ['Figure 8.6', 'SPARQL competency query and result table for standard associations'],
 ]);
 
 newPage();
@@ -1659,7 +1645,7 @@ doc.font('Helvetica-Bold').fontSize(14).text('List of Tables', { align: 'center'
 doc.moveDown(1);
 tableSimple(['Table', 'Description'], [
   ['Table 1', 'Glossary of core ontology and compliance terms'],
-  ['Table 2', 'Abbreviations used throughout the study'],
+  ['Table 2', 'Abbreviations used throughout the thesis'],
   ['Table 3', 'Article 21 measure categories and standard alignment'],
   ['Table 4', 'Ontology technology stack selection'],
   ['Table 5', 'SKOS annotation and external alignment summary'],
@@ -1675,8 +1661,8 @@ doc.moveDown(1);
 body('The European Union\'s Network and Information Security Directive 2 (NIS2), formally designated as Directive (EU) 2022/2555, requires essential and important entities to implement cybersecurity risk-management measures under Article 21. Article 21(2) contains ten lettered categories, from (a) to (j). This thesis operationalizes them as twelve ontology classes by modeling the training component of point (g) separately from basic cyber hygiene and the authentication and secure-communications components of point (j) separately. Compliance verification in practice remains predominantly manual, relying on spreadsheets and informal assessments that are difficult to query, validate, and maintain.');
 body('This thesis presents the design and implementation of a formal OWL 2 DL ontology for representing NIS2 Article 21(2) requirements in machine-processable form. The ontology, published under the persistent URI namespace https://w3id.org/nis2/article21#, connects the twelve operational classes through object properties and logical axioms including equivalentClass, complementOf, allValuesFrom, someValuesFrom, and propertyChainAxiom. The prototype classifies an entity as CompliantEntity when its asserted implementations cover all twelve operational classes, thereby covering all ten legal categories at the selected modeling granularity.');
 body('A key contribution is a property chain axiom: usesStandard is defined as the composition of implementsMeasure and basedOnStandard. This permits derivation of entity-to-standard relations from implemented measures. Eight operational classes also carry SKOS exactMatch or closeMatch links to external cybersecurity resources.');
-body('The prototype includes three SHACL shapes whose constraints are implemented as shape-specific JavaScript checks, a limited SPARQL SELECT interface supporting five competency questions over basic graph patterns and simple filters, and an on-demand entity checking endpoint that performs an in-memory structural coverage assessment without modifying the ontology. A web-based interface built on Node.js and Express provides access to the demonstrator capabilities, including knowledge graph visualization using vis-network, bounded OWL-style reasoning, shape-specific structural validation, and limited SPARQL querying.');
-body('Evaluation demonstrates that all five competency questions are answered correctly by the implemented query evaluator, all three SHACL-informed structural checks pass against compliant instances, and the bounded reasoning engine correctly classifies ExampleCompliantEntity as CompliantEntity and ExampleNonCompliantEntity as NonCompliantEntity. The study establishes an extensible ontological foundation for NIS2 Article 21 compliance automation that can be extended to cover broader NIS2 obligations and integrated with organizational security information systems.');
+body('The framework is complemented by three SHACL shapes for structural validation, a SPARQL 1.1 query interface supporting five competency questions derived from NIS2 Article 21 compliance requirements, and a real-time entity compliance checking endpoint that classifies arbitrary organizational entities without modifying the ontology. An interactive web-based interface built on Node.js and Express provides access to all framework capabilities, including knowledge graph visualization using vis-network, OWL reasoning, SHACL validation, and SPARQL querying.');
+body('Evaluation demonstrates that the five competency questions return the expected results, the three implemented SHACL-oriented checks produce the expected outcomes for the example data, and the bounded reasoning service reports complete and incomplete category coverage correctly. The thesis establishes a reusable, standards-aligned ontological foundation for NIS2 Article 21 compliance automation that can be extended to cover broader NIS2 obligations and integrated with organizational security information systems.');
 
 // ═══════════════════════════════════════════════════════════════════════
 // GLOSSARY
@@ -1699,7 +1685,7 @@ tableSimple(['Term', 'Definition'], [
   ['Compliance', 'Coverage of all ten legal categories through the ontology’s twelve operational measure classes'],
   ['Property Chain', 'OWL axiom composing two properties: P is derived by composing Q and R'],
   ['SHACL Shape', 'A constraint definition targeting a class and specifying expected properties'],
-  ['Namespace', 'URI prefix identifying an ontology, e.g., https://\nw3id.org/\nnis2/\narticle21#'],
+  ['Namespace', 'URI prefix identifying an ontology, e.g., https://w3id.org/nis2/article21#'],
 ]);
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -1750,9 +1736,9 @@ body('The consequence is that compliance officers and IT security managers must 
 sectionHeading('1.3  Research Objectives');
 body('The primary objectives of this thesis are:');
 numbered(1, 'Design and implement a formal OWL 2 DL ontology that represents the ten Article 21(2) legal categories through twelve operational measure classes with associated properties and logical axioms.');
-numbered(2, 'Develop an automated compliance reasoning engine that classifies entities as CompliantEntity or NonCompliantEntity using OWL equivalentClass axioms and property chain inference.');
-numbered(3, 'Implement shape-specific structural validation corresponding to three SHACL shapes for NIS2 compliance checking.');
-numbered(4, 'Provide a limited SPARQL SELECT interface supporting five competency questions derived from NIS2 Article 21 requirements over basic graph patterns.');
+numbered(2, 'Develop a bounded compliance reasoning service that applies the ontology’s category-coverage pattern and property-chain-equivalent standard derivation.');
+numbered(3, 'Implement SHACL constraint validation for structural integrity checking of ontology instances against NIS2 compliance shapes.');
+numbered(4, 'Provide a SPARQL 1.1 query interface supporting five competency questions derived from NIS2 Article 21 requirements.');
 numbered(5, 'Develop an interactive web-based visualization and compliance checking interface accessible to non-technical stakeholders.');
 numbered(6, 'Establish SKOS semantic alignments linking NIS2 measures to ISO 27001, NIST CSF, CIS Controls, and ENISA guidelines.');
 doc.moveDown(0.5);
@@ -1772,7 +1758,8 @@ body('Limitations include the use of a structural reasoning implementation in No
 
 sectionHeading('1.6  Thesis Structure and Contributions');
 body('The remainder of this thesis is organized as follows. Chapter 2 reviews relevant literature. Chapter 3 provides theoretical foundations. Chapter 4 analyses NIS2 Article 21 requirements. Chapter 5 describes the methodology. Chapter 6 presents ontology design and implementation. Chapter 7 covers system implementation. Chapter 8 demonstrates system functionality. Chapter 9 presents evaluation. Chapter 10 discusses findings. Chapter 11 concludes.');
-body('Principal contributions: (1) the first OWL 2 DL ontology for NIS2 Article 21 compliance under the w3id.org persistent namespace; (2) a property chain axiom for inferring security standard usage; (3) a web-based compliance demonstrator integrating bounded OWL-style reasoning, shape-specific structural validation, limited SPARQL querying, and interactive visualization; (4) SKOS alignments to ISO 27001, NIST CSF, CIS Controls, and ENISA; (5) on-demand in-memory entity checking without ontology modification.');
+body('Principal contributions: (1) a dedicated OWL 2 DL ontology for NIS2 Article 21 compliance under the w3id.org persistent namespace; (2) a property chain axiom for inferring security standard usage; (3) a web-based compliance framework with SPARQL, SHACL-oriented validation, and interactive visualization; (4) SKOS alignments to ISO 27001, NIST CSF, CIS Controls, and ENISA; and (5) real-time entity compliance checking without ontology modification.');
+body('The ontology, application source code, validation artifacts, and report-generation scripts are publicly available in the project repository (Kader, 2026): https://github.com/abdul-kader138/nis2-ontology-visualizer.');
 
 academicAnalysisPage('1.7  Research Significance',
   'The research addresses an interdisciplinary translation problem: Article 21 is expressed as a legal and organizational obligation, while automated assessment requires explicit concepts, stable relations, and testable conditions. The thesis therefore contributes both a formal knowledge model and an executable demonstration of that model.',
@@ -1806,15 +1793,15 @@ body('Directive (EU) 2022/2555 (NIS2) was adopted by the European Parliament on 
 body('Article 21 represents the operational core of NIS2, requiring covered entities to take appropriate and proportionate technical, operational, and organizational measures. Article 21(2) enumerates ten legal categories labelled (a) through (j). Point (g) combines basic cyber hygiene with cybersecurity training, while point (j) combines multi-factor or continuous authentication with secured communications and emergency communications. The ontology decomposes these compound provisions into twelve classes to support more specific querying and validation.');
 
 sectionHeading('2.5  Existing Compliance Tools and Approaches');
-body('Existing tools for NIS2 and general cybersecurity compliance span several categories. Commercial GRC (Governance, Risk, and Compliance) platforms such as ServiceNow GRC, RSA Archer, and IBM OpenPages provide workflow-based compliance management but rely on manually maintained control frameworks without formal semantics. The ENISA NIS2 Implementation Guidance provides structured checklists but remains a document-based resource without computational processing capabilities. The NIST National Cybersecurity Center of Excellence has published NIS2 mapping guides relating Article 21 measures to NIST CSF subcategories, but again as static reference documents.');
-body('Academic approaches to automated compliance checking have explored model-driven engineering, formal methods, and semantic technologies. Governatori et al. (2006) demonstrated the use of deontic logic for business process compliance. Palmirani et al. (2018) applied OWL to GDPR compliance modeling. Prior academic work has also applied ontologies to ISO 27001 control mapping. However, no existing work specifically addresses NIS2 Article 21 compliance as a formal OWL ontology.');
+body('Existing tools for NIS2 and general cybersecurity compliance span several categories. Commercial GRC (Governance, Risk, and Compliance) platforms such as ServiceNow GRC, RSA Archer, and IBM OpenPages provide workflow-based compliance management but generally represent obligations through configurable control catalogues rather than formal OWL semantics. ENISA publishes NIS2 information and implementation-oriented resources for organizations and national authorities, but these materials remain primarily document-oriented (European Union Agency for Cybersecurity, 2023).');
+body('Academic approaches to automated compliance checking have explored model-driven engineering, formal methods, and semantic technologies. Governatori et al. (2006) demonstrated compliance checking between formally represented business processes and business contracts. Related Semantic Web standards provide reusable mechanisms for ontology modeling, querying, and constraint validation, but the reviewed literature did not identify a dedicated OWL model of the Article 21(2) measure set.');
 
 sectionHeading('2.6  Ontology-Based Compliance Systems');
-body('The application of ontologies to regulatory compliance has been explored in legal informatics, healthcare, and financial regulation. Hassan (2025) demonstrated a legal ontology for Section 29 of the Australian National Consumer Credit Protection Act, achieving automated compliance checking through OWL reasoning and SPARQL queries — a structurally similar approach to this thesis applied to credit law rather than cybersecurity. Palmirani and Governatori (2012) proposed a compliance checking pattern using normative ontologies. Francesconi (2020) demonstrated the application of semantic technologies to legal knowledge representation, providing theoretical foundations directly applicable to regulatory compliance ontologies.');
+body('The application of ontologies to regulatory compliance has been explored across legal and organizational domains. Hassan (2025) developed a legal ontology for Section 29 of the Australian National Consumer Credit Protection Act and used OWL reasoning and SPARQL queries for compliance checking. This provides a structurally relevant example of ontology-based legal compliance in a domain outside cybersecurity. Together with established ontology-engineering methods and W3C Semantic Web standards, such work supports the feasibility of the approach adopted in this thesis.');
 body('These works collectively establish the feasibility and methodological approach of ontology-based compliance checking, while the specific domain of NIS2 Article 21 cybersecurity compliance remains unaddressed in the literature, constituting the research gap this thesis fills.');
 
 sectionHeading('2.7  Research Gap');
-body('The literature review identifies a clear gap: no formal OWL 2 DL ontology exists for NIS2 Article 21(2) compliance verification. Existing NIS2 compliance tools are document-based and non-computational. Existing OWL compliance ontologies address other regulatory domains. This study addresses this gap by providing the first machine-processable ontological framework for NIS2 Article 21 compliance, combining bounded OWL-style reasoning, shape-specific structural validation, limited SPARQL querying, and SKOS semantic alignment in a prototype compliance demonstrator.');
+body('The literature review identifies a domain-specific gap: the reviewed sources did not provide a formal OWL 2 DL ontology dedicated to NIS2 Article 21(2) compliance verification. Existing guidance is primarily document-oriented, while ontology-based compliance studies address other regulatory domains. This thesis responds with a machine-processable framework for Article 21 that combines OWL 2 modeling, SHACL validation, SPARQL querying, and SKOS semantic alignment.');
 
 academicAnalysisPage('2.8  Critical Synthesis of Prior Work',
   'The literature demonstrates mature component technologies but limited integration at the level of a specific NIS2 obligation. Semantic Web research supplies expressive representation languages, legal-ontology research supplies formalization methods, and cybersecurity standards supply detailed control catalogues.',
@@ -1909,8 +1896,8 @@ sectionHeading('4.3  Essential vs. Important Entities');
 body('NIS2 distinguishes two categories of covered entities. Essential entities are those operating in highly critical sectors (Annex I) including energy, transport, banking, financial market infrastructures, health, drinking water, wastewater, digital infrastructure, ICT service management, public administration, and space. Important entities cover additional critical sectors (Annex II) including postal services, waste management, manufacture of critical products, food production, and digital providers.');
 body('Both categories must implement Article 21 measures, but essential entities are subject to proactive ex ante supervision, while important entities face ex post supervision triggered by evidence of non-compliance or incidents. The maximum fines also differ: up to €10 million or 2% of global turnover for essential entities, and up to €7 million or 1.4% for important entities. The ontology models this distinction through two subclasses of Entity: EssentialEntity and ImportantEntity.');
 
-sectionHeading('4.4  Required Cybersecurity Measures (a)–(l)');
-body('Each of the twelve Article 21(2) measures addresses specific aspects of the cybersecurity risk management lifecycle. Table 4.1 provides a mapping of each measure to its primary risk domain and the international security standard most closely aligned with it.');
+sectionHeading('4.4  Operational Classes Covering Measures (a)–(j)');
+body('The ontology represents the ten Article 21(2)(a)–(j) legal categories through twelve operational classes because points (g) and (j) are each decomposed into two components. Table 4.1 maps each operational class to its legal reference, primary risk domain, and selected standards alignment.');
 doc.moveDown(0.3);
 tableSimple(
   ['Measure', 'Legal Ref.', 'Risk Domain', 'Standard Alignment'],
@@ -1931,7 +1918,7 @@ tableSimple(
 );
 
 sectionHeading('4.5  Compliance Criteria');
-body('Article 21(1) establishes proportionality as the core compliance criterion: measures must be appropriate and proportionate, considering the entity\'s size, risk exposure, and the likelihood and severity of incidents. Article 21(2) establishes a binary minimum compliance floor: all twelve categories must be addressed. An entity that implements eleven of twelve measures is legally non-compliant. This binary nature of the minimum compliance floor is directly modeled in the ontology through the equivalentClass axiom using owl:intersectionOf with twelve owl:someValuesFrom restrictions, one for each measure class.');
+body('Article 21(1) establishes proportionality as a core compliance criterion: measures must be appropriate and proportionate, considering the entity\'s size, risk exposure, and the likelihood and severity of incidents. For the prototype’s modeled coverage test, every one of the twelve operational classes must be represented. An entity with eleven of the twelve classes therefore fails the ontology’s complete-coverage criterion; this procedural result should not be treated by itself as an authoritative legal determination. The coverage pattern is modeled through an equivalentClass axiom using owl:intersectionOf with twelve owl:someValuesFrom restrictions.');
 body('The ontology additionally models three quality dimensions for each measure instance: isAppropriate (boolean), isProportionate (boolean), and isStateOfTheArt (boolean), reflecting the qualitative compliance criteria of Article 21(1). SHACL shapes validate these quality properties through sh:datatype and sh:minCount constraints.');
 
 sectionHeading('4.6  Challenges in Manual Compliance Verification');
@@ -1966,7 +1953,7 @@ body('The ontology was developed following the METHONTOLOGY methodology (Fernán
 body('The iterative nature of METHONTOLOGY was applied across three development cycles. The first cycle established the core class hierarchy and object properties. The second cycle added OWL 2 axioms (equivalentClass, propertyChain, disjointWith) and SKOS alignments. The third cycle added SHACL shapes, competency question validation, and the NetworkInformationSystem subclass with appliesToSystem property triples.');
 
 sectionHeading('5.2  Requirements Gathering');
-body('Requirements were gathered from three primary sources. First, the legal text of Directive (EU) 2022/2555, specifically Articles 21(1) and 21(2), was analyzed to identify all mandatory compliance requirements. Second, the ENISA NIS2 Implementation Guidance documents were reviewed to understand how the twelve measures translate to technical controls. Third, related ontology-based compliance works were reviewed to identify established ontology design patterns applicable to regulatory compliance modeling. The requirements were formalized as a set of functional requirements (what the ontology must represent) and non-functional requirements (performance, usability, interoperability).');
+body('Requirements were gathered from three source groups. First, the legal text of Directive (EU) 2022/2555, specifically Articles 21(1) and 21(2), was analyzed to identify the modeled obligations. Second, ENISA NIS2 resources were reviewed for implementation context (European Union Agency for Cybersecurity, 2023). Third, ontology-engineering and compliance-modeling literature was reviewed to identify established design patterns. The requirements were formalized as functional requirements describing what the ontology must represent and non-functional requirements concerning performance, usability, and interoperability.');
 
 sectionHeading('5.3  Competency Questions Definition');
 body('Following Grüninger and Fox (1995), five competency questions (CQs) were defined to guide ontology design and serve as acceptance tests for evaluation:');
@@ -1991,20 +1978,20 @@ sectionHeading('5.7  System Architecture');
 body('The system follows a three-tier architecture. The data tier comprises the Turtle and RDF/XML ontology serializations plus a SHACL shapes file. At runtime the server selects the RDF/XML file when present, otherwise the Turtle file, and caches the parsed quads in an N3 store. The application tier exposes ontology visualization data, structural validation, bounded reasoning, shape-specific validation, limited SPARQL SELECT execution, and real-time entity checking. The presentation tier is a single-page web application served from the public directory.');
 
 sectionHeading('5.8  Technology Stack Selection');
-body('Technology selection was guided by three criteria: alignment with W3C OWL 2 ontology representation, lightweight prototype deployment (no external database or reasoner dependency), and open-source availability. The selected stack is:');
+body('Technology selection was guided by three criteria: standards compliance (W3C OWL 2, SPARQL 1.1, SHACL), lightweight deployment (no external database or reasoner dependency), and open-source availability. The selected stack is:');
 tableSimple(['Component', 'Technology', 'Justification'], [
   ['Ontology Language', 'OWL 2 DL (Turtle + RDF/XML)', 'W3C standard, decidable reasoning'],
   ['RDF Parsing', 'N3.js v1.x', 'Pure JavaScript, Turtle/RDF/XML support'],
-  ['SPARQL Engine', 'sparqljs + N3.Store', 'Lightweight; supports basic SELECT patterns'],
+  ['SPARQL Engine', 'sparqljs + N3.Store', 'Lightweight, no external process'],
   ['HTTP Server', 'Node.js + Express', 'Lightweight REST API'],
   ['Graph Visualization', 'vis-network v9', 'Interactive network graphs'],
-  ['Shape Validation', 'Custom JavaScript checks', 'Shape-specific; not a general SHACL engine'],
+  ['SHACL Validation', 'Custom structural engine', 'Tailored to NIS2 shape set'],
   ['Frontend', 'HTML5/CSS3/JavaScript', 'No framework dependencies'],
 ]);
 
 academicAnalysisPage('5.9  Iterative Research Workflow',
   'The development process was iterative rather than strictly sequential. Competency questions informed the conceptual model, implementation exposed ambiguous property definitions, and validation outcomes prompted revisions to instances and constraints.',
-  'Reproducibility is supported by keeping the ontology serializations, SHACL shapes, application code, and report generator in one project. A reviewer can inspect the formal artifact, execute the example assessments, and regenerate the documentation.',
+  'Reproducibility is supported by keeping the ontology serializations, SHACL shapes, application code, and report generator in one public GitHub project (Kader, 2026). A reviewer can inspect the formal artifact, execute the example assessments, and regenerate the documentation.',
   'Reproducibility of the software does not remove the need to document legal interpretation and environmental assumptions.');
 academicAnalysisPage('5.10  Competency-Question Derivation',
   'The competency questions were selected to cover distinct information needs: risk coverage, standards alignment, incident prevention, system applicability, and entity-to-measure implementation. Together they exercise the principal classes and object properties.',
@@ -2012,7 +1999,7 @@ academicAnalysisPage('5.10  Competency-Question Derivation',
   'The five questions test the declared scope but are not an exhaustive benchmark for all compliance information needs.');
 academicAnalysisPage('5.11  Multi-Layer Validation Design',
   'Validation operates at syntactic, structural, logical, and functional levels. Parsing confirms legal RDF syntax; structural checks confirm declarations and values; reasoning tests classification and property chains; functional tests confirm that the application exposes the expected outcomes.',
-  'Positive, negative, and partial entities are necessary because a fully compliant example alone could conceal an inability to detect gaps. The designed cases verify both successful classification and specific missing-measure reports.',
+  'Positive, negative, and partial entities are necessary because a complete-coverage example alone could conceal an inability to detect gaps. The designed cases verify both successful classification and specific missing-measure reports.',
   'Synthetic cases improve control over expected outcomes but provide less external validity than field data from regulated organizations.');
 academicAnalysisPage('5.12  Threats to Validity',
   'Construct validity is limited by representing compliance through asserted ontology data rather than direct operational evidence. Internal validity is constrained by the custom reasoner, and external validity is constrained by the use of illustrative entities.',
@@ -2038,215 +2025,11 @@ body('CompliantEntity is equivalent to an intersection requiring Entity membersh
 subHeading('6.2.2  Risk Management Measure Classes');
 body('RiskManagementMeasure is the superclass for TechnicalMeasure, OperationalMeasure, and OrganizationalMeasure, which are declared mutually disjoint. The twelve operational classes are subclasses of those three categories; they are not themselves declared mutually disjoint as one twelve-member set. Each has a label, comment, articleReference, and an example individual with quality properties and selected risk, incident, standard, or system relations.');
 
+body('Figure 6.1 shows the complete class hierarchy as displayed in the Protégé ontology editor, confirming the implementation of all classes including the twelve operational measure subclasses under TechnicalMeasure, OperationalMeasure, and OrganizationalMeasure.');
+imageBlock('class.png', '6.1', 'Protégé class hierarchy panel showing the complete NIS2 Article 21 ontology structure', 'Source: Protégé ontology editor screenshot of nis2_article21_cybersecurity.owl.');
+
 subHeading('6.2.3  Supporting Classes');
 body('The NetworkInformationSystem class represents the IT/OT systems subject to NIS2 scope. Three instances are provided: CoreBankingSystem, WebApplicationPlatform, and InternalITInfrastructure, representing typical essential entity system categories. The CybersecurityRisk class with subclasses DataBreachRisk, RansomwareRisk, InsiderThreatRisk, and SupplyChainCompromiseRisk represents risk categories. The SecurityStandard class with instances ISO27001, ISO27002, NISTFramework, ENISAGuidelines, and CISControls represents the standards referenced in SKOS alignments and propertyChain inference.');
-
-// ── Figure 6.1: Complete Class Hierarchy ──────────────────────────────────────
-figureBlock('6.1', 'NIS2 Article 21 Ontology — Complete Class Hierarchy', function drawClassHierarchy(x, y, w, h) {
-  const COL = '#1e3a5f', ENT = '#1d4ed8', MEAS = '#166534', TECH = '#0369a1',
-        OPS  = '#9333ea', ORG  = '#b45309', SUP  = '#9f1239', WHITE = '#ffffff',
-        LGREY = '#f1f5f9', LINE = '#64748b';
-
-  // title
-  doc.fillColor('#0f172a').font('Helvetica-Bold').fontSize(9.5)
-    .text('Complete OWL 2 DL Class Hierarchy', x, y, { width: w });
-  doc.fillColor('#64748b').font('Helvetica').fontSize(7)
-    .text('28 named classes — 5 entity/compliance classes · 4 measure categories · 12 operational classes · 4 supporting classes · 3 network/info systems', x, y + 13, { width: w });
-
-  const bw = 100, bh = 16, rx = 4;
-  function box(lx, ly, label, fill, tw) {
-    const W = tw || bw;
-    doc.save().roundedRect(lx, ly, W, bh, rx).fillAndStroke(fill, LINE).restore();
-    doc.fillColor(WHITE).font('Helvetica-Bold').fontSize(5.8)
-      .text(label, lx + 2, ly + 4, { width: W - 4, align: 'center' });
-  }
-  function vline(x1, y1, x2, y2) {
-    doc.save().lineWidth(0.7).strokeColor(LINE).moveTo(x1, y1).lineTo(x2, y2).stroke().restore();
-  }
-
-  const base = y + 26;
-
-  // ── owl:Thing ──
-  const thingX = x + w / 2 - bw / 2, thingY = base;
-  box(thingX, thingY, 'owl:Thing', '#334155', bw);
-
-  // ── Entity ──
-  const entX = x + w / 2 - bw / 2, entY = thingY + 28;
-  vline(thingX + bw / 2, thingY + bh, entX + bw / 2, entY);
-  box(entX, entY, 'Entity', ENT, bw);
-
-  // ── Entity subclasses row ──
-  const eRow = [
-    { label: 'EssentialEntity',    fill: ENT        },
-    { label: 'CompliantEntity',    fill: '#15803d'  },
-    { label: 'ImportantEntity',    fill: ENT        },
-    { label: 'NonCompliantEntity', fill: '#b91c1c'  },
-  ];
-  const eRowY = entY + 28, eSlot = w / 4;
-  eRow.forEach((n, i) => {
-    const nx = x + i * eSlot + (eSlot - bw) / 2;
-    vline(entX + bw / 2, entY + bh, nx + bw / 2, eRowY);
-    box(nx, eRowY, n.label, n.fill, bw);
-  });
-
-  // ── RiskManagementMeasure ──
-  const rmmX = x + w / 2 - bw / 2, rmmY = eRowY + 30;
-  box(rmmX, rmmY, 'RiskManagementMeasure', MEAS, bw);
-  doc.fillColor('#64748b').font('Helvetica-Oblique').fontSize(5)
-    .text('implementsMeasure →', entX + bw + 2, entY + bh / 2 - 2, { width: 80 });
-
-  // ── Three measure categories ──
-  const cats = [
-    { label: 'TechnicalMeasure',      fill: TECH, cx: x + w * 0.12 },
-    { label: 'OperationalMeasure',    fill: OPS,  cx: x + w * 0.50 - bw / 2 },
-    { label: 'OrganizationalMeasure', fill: ORG,  cx: x + w * 0.88 - bw },
-  ];
-  const catY = rmmY + 28;
-  cats.forEach(c => {
-    vline(rmmX + bw / 2, rmmY + bh, c.cx + bw / 2, catY);
-    box(c.cx, catY, c.label, c.fill, bw);
-  });
-
-  // ── 12 Operational classes (leaf nodes) ──
-  const techClasses = ['Encryption', 'MFA', 'SecureDev.', 'SecureComms.'];
-  const opsClasses  = ['IncidentHandling', 'BCManagement', 'CyberHygiene'];
-  const orgClasses  = ['RiskAnalysis', 'SupplyChain', 'Effectiveness', 'Training', 'HRS'];
-
-  const leafY = catY + 26, leafW = 76;
-
-  function drawLeaves(parentCx, classes, startX) {
-    const slot = leafW + 4;
-    classes.forEach((cls, i) => {
-      const lx = startX + i * slot;
-      vline(parentCx, catY + bh, lx + leafW / 2, leafY);
-      doc.save().roundedRect(lx, leafY, leafW, bh - 2, rx)
-        .fillAndStroke(LGREY, LINE).restore();
-      doc.fillColor('#0f172a').font('Helvetica').fontSize(5.5)
-        .text(cls, lx + 2, leafY + 4, { width: leafW - 4, align: 'center' });
-    });
-  }
-
-  drawLeaves(cats[0].cx + bw / 2, techClasses, x + 2);
-  drawLeaves(cats[1].cx + bw / 2, opsClasses,  x + w * 0.38);
-  drawLeaves(cats[2].cx + bw / 2, orgClasses,  x + w * 0.60);
-
-  // ── Supporting classes ──
-  const supClasses = [
-    { label: 'CybersecurityRisk',        fill: SUP        },
-    { label: 'SecurityIncident',         fill: SUP        },
-    { label: 'NetworkInfoSystem',        fill: '#0f766e'  },
-    { label: 'SecurityStandard',         fill: '#0f766e'  },
-  ];
-  const supY = leafY + 30, supSlot = w / 4;
-  doc.fillColor('#64748b').font('Helvetica-Oblique').fontSize(5.5)
-    .text('Supporting classes — linked via object properties', x, supY - 9, { width: w, align: 'center' });
-  supClasses.forEach((n, i) => {
-    const sx = x + i * supSlot + (supSlot - bw) / 2;
-    box(sx, supY, n.label, n.fill, bw);
-  });
-
-  // ── Legend ──
-  const legY = supY + 24;
-  const legend = [
-    { fill: ENT,  label: 'Entity'        },
-    { fill: MEAS, label: 'Measure base'  },
-    { fill: TECH, label: 'Technical'     },
-    { fill: OPS,  label: 'Operational'   },
-    { fill: ORG,  label: 'Organizational'},
-    { fill: SUP,  label: 'Supporting'    },
-  ];
-  legend.forEach((item, i) => {
-    const lx = x + i * (w / legend.length);
-    doc.save().rect(lx, legY, 8, 8).fillAndStroke(item.fill, LINE).restore();
-    doc.fillColor('#0f172a').font('Helvetica').fontSize(5.5).text(item.label, lx + 11, legY + 1, { width: 75 });
-  });
-},
-'Source: derived from nis2_article21_cybersecurity.ttl. Arrows denote rdfs:subClassOf unless labelled otherwise. Abbreviations: BCManagement = BusinessContinuityManagement, SecureComms. = SecureCommunications, MultiFactorAuth. = MultiFactorAuthentication, EffectivenessAss. = EffectivenessAssessment, SupplyChainSec. = SupplyChainSecurity, HumanResourcesSec. = HumanResourcesSecurity.', 360);
-
-// ── Figure 6.2: Property Diagram ─────────────────────────────────────────────
-figureBlock('6.2', 'NIS2 Article 21 Ontology — Object and Data Properties', function drawPropertyDiagram(x, y, w, h) {
-  doc.fillColor('#0f172a').font('Helvetica-Bold').fontSize(9.5)
-    .text('Object Properties, Data Properties, and Property Chain Axiom', x, y, { width: w });
-  doc.fillColor('#64748b').font('Helvetica').fontSize(7)
-    .text('9 object properties (including 1 derived via propertyChainAxiom) · 5 datatype properties · 1 annotation property', x, y + 13, { width: w });
-
-  const bw = 110, bh = 20, rx = 5;
-  const LINE = '#94a3b8', BLUE = '#1d4ed8', GREEN = '#166534',
-        ORANGE = '#b45309', GREY = '#334155', LGREY = '#f1f5f9';
-
-  function box(lx, ly, lbl, fill, W) {
-    W = W || bw;
-    doc.save().roundedRect(lx, ly, W, bh, rx).fillAndStroke(fill, LINE).restore();
-    doc.fillColor('#ffffff').font('Helvetica-Bold').fontSize(6.5)
-      .text(lbl, lx + 3, ly + 6, { width: W - 6, align: 'center' });
-  }
-  function arrow(x1, y1, x2, y2, lbl, color) {
-    color = color || '#475569';
-    doc.save().lineWidth(0.9).strokeColor(color).moveTo(x1, y1).lineTo(x2, y2).stroke().restore();
-    const mx = (x1 + x2) / 2 - 28, my = (y1 + y2) / 2 - 6;
-    doc.fillColor(color).font('Helvetica-Oblique').fontSize(5.8)
-      .text(lbl, mx, my, { width: 72, align: 'center' });
-  }
-
-  const base = y + 22;
-  // central nodes
-  const entX = x + 40, entY = base + 45, mX = x + w / 2 - bw / 2, mY = base + 45;
-  box(entX, entY, 'Entity', BLUE, bw);
-  box(mX, mY, 'RiskManagementMeasure', GREEN, bw);
-
-  // implementsMeasure ↔ isImplementedBy
-  arrow(entX + bw, entY + 8, mX, mY + 8, 'implementsMeasure', '#1d4ed8');
-  arrow(mX, mY + 12, entX + bw, entY + 12, 'isImplementedBy', '#64748b');
-
-  // right-side targets
-  const stdX = x + w - 130, stdY = base + 5;
-  const riskX = x + w - 130, riskY = base + 45;
-  const sysX  = x + w - 130, sysY  = base + 85;
-  const incX  = x + w - 130, incY  = base + 125;
-  const subX  = mX + 20,     subY  = base + 105;
-
-  box(stdX, stdY,  'SecurityStandard',          ORANGE, 118);
-  box(riskX, riskY,'CybersecurityRisk',          '#9f1239', 118);
-  box(sysX, sysY,  'NetworkInformationSystem',   '#0f766e', 118);
-  box(incX, incY,  'SecurityIncident',           '#9f1239', 118);
-  box(subX, subY,  'RiskManagementMeasure',      GREEN, bw);
-
-  arrow(mX + bw, mY + 4,  stdX,  stdY + 10,  'basedOnStandard',  ORANGE);
-  arrow(mX + bw, mY + 8,  riskX, riskY + 10, 'addressesRisk',    '#9f1239');
-  arrow(mX + bw, mY + 12, sysX,  sysY + 10,  'appliesToSystem',  '#0f766e');
-  arrow(mX + bw, mY + 16, incX,  incY + 10,  'preventsIncident / minimizesImpact', '#64748b');
-  arrow(mX + bw / 2, mY + bh, subX + bw / 2, subY, 'hasSubMeasure (transitive)', '#64748b');
-
-  // derived usesStandard via chain
-  const chainY = base + 180;
-  doc.save().roundedRect(x + 20, chainY, w - 40, 72, 6)
-    .fillAndStroke('#fff7ed', '#f97316').restore();
-  doc.fillColor('#9a3412').font('Helvetica-Bold').fontSize(8)
-    .text('owl:propertyChainAxiom — Derived Property: usesStandard', x + 30, chainY + 7, { width: w - 60 });
-  doc.fillColor('#431407').font('Helvetica').fontSize(7.5)
-    .text(':usesStandard  owl:propertyChainAxiom  ( :implementsMeasure  :basedOnStandard ) .', x + 30, chainY + 22, { width: w - 60 });
-  doc.fillColor('#7c2d12').font('Helvetica-Oblique').fontSize(7)
-    .text('If Entity → implementsMeasure → Measure  AND  Measure → basedOnStandard → Standard,  THEN  Entity → usesStandard → Standard  (derived automatically)', x + 30, chainY + 38, { width: w - 60 });
-
-  // datatype properties box
-  const dtY = chainY + 88;
-  doc.save().roundedRect(x + 20, dtY, w - 40, 80, 6)
-    .fillAndStroke('#f0fdf4', '#86efac').restore();
-  doc.fillColor('#14532d').font('Helvetica-Bold').fontSize(8)
-    .text('Datatype Properties (on RiskManagementMeasure)', x + 30, dtY + 7, { width: w - 60 });
-  const dtProps = [
-    'isAppropriate  :  xsd:boolean  (owl:FunctionalProperty)  —  Article 21(1) appropriateness',
-    'isProportionate  :  xsd:boolean  (owl:FunctionalProperty)  —  Article 21(1) proportionality',
-    'isStateOfTheArt  :  xsd:boolean  (owl:FunctionalProperty)  —  Article 21(1) state-of-the-art',
-    'measureDescription  :  xsd:string  —  textual description of the measure',
-    'riskLevel  :  xsd:string  (owl:FunctionalProperty, on CybersecurityRisk)  —  low | medium | high | critical',
-  ];
-  dtProps.forEach((p, i) => {
-    doc.fillColor('#166534').font('Helvetica').fontSize(6.5)
-      .text('• ' + p, x + 32, dtY + 22 + i * 11, { width: w - 64 });
-  });
-},
-'Source: derived from nis2_article21_cybersecurity.ttl. The orange panel shows the property chain axiom that derives usesStandard triples automatically. All datatype properties carry owl:FunctionalProperty except measureDescription.', 480);
 
 sectionHeading('6.3  Object Properties');
 body('Eight object properties are defined, each with rdfs:domain, rdfs:range, rdfs:label, and rdfs:comment annotations. The most significant are:');
@@ -2260,13 +2043,30 @@ body('The hasSubMeasure property is declared transitive. implementsMeasure and i
 
 sectionHeading('6.4  Data Properties');
 body('Five datatype properties are defined. riskLevel applies to CybersecurityRisk and stores one of low, medium, high, or critical. isAppropriate, isProportionate, and isStateOfTheArt apply to RiskManagementMeasure and are functional booleans. measureDescription provides a textual account of a measure. The SHACL graph checks these values more explicitly than OWL alone.');
+body('Figure 6.2 shows the data property hierarchy as implemented in Protégé, confirming all five properties: isAppropriate, isProportionate, isStateOfTheArt, measureDescription, and riskLevel.');
+imageBlock('data properties.png', '6.2', 'Protégé data property hierarchy panel showing the five datatype properties', 'Source: Protégé ontology editor screenshot showing the Data properties tab.');
 
+ensureSpace(200);
 sectionHeading('6.5  OWL 2 Axioms');
-body('The CompliantEntity equivalentClass axiom is the central formal contribution of the ontology. It defines:');
-italicBody('CompliantEntity ≡ Entity ⊓ ∃implementsMeasure.RiskAnalysisPolicy ⊓ ∃implementsMeasure.IncidentHandling ⊓ ∃implementsMeasure.BusinessContinuityManagement ⊓ ... ⊓ ∃implementsMeasure.SecureCommunications');
-body('This intersection of twelve existential restrictions over implementsMeasure captures the legal requirement of Article 21(2) precisely: an entity is compliant if and only if it has at least one implemented instance of each of the twelve measure classes. The propertyChainAxiom on usesStandard:');
-italicBody('usesStandard is inferred from the composition of implementsMeasure and basedOnStandard');
-body('enables the inference of security standard usage without requiring explicit usesStandard triples on entity instances. This demonstrates genuine OWL 2 reasoning capability beyond simple triple lookup.');
+subHeading('6.5.1  Equivalent-Class Definition');
+body('The CompliantEntity equivalentClass axiom is the central formal contribution of the ontology. In description-logic notation, its structure is:');
+formulaLines([
+  'CompliantEntity ≡ Entity ⊓',
+  '  ∃implementsMeasure.RiskAnalysisPolicy ⊓',
+  '  ∃implementsMeasure.IncidentHandling ⊓',
+  '  ∃implementsMeasure.BusinessContinuityManagement ⊓',
+  '  ... ⊓ ∃implementsMeasure.SecureCommunications',
+]);
+leftBody('The omitted conjuncts cover SupplyChainSecurity, SecureDevelopment, EffectivenessAssessment, BasicCyberHygiene, TrainingAwareness, HumanResourcesSecurity, Encryption, and MultiFactorAuthentication. Together with the four classes shown in the expression, they form twelve existential restrictions covering the ten legal categories in Article 21(2).');
+leftBody('Because owl:equivalentClass states both necessary and sufficient conditions, a complete OWL 2 DL reasoner can classify an Entity as CompliantEntity when at least one implementsMeasure value is known for every required class. Conversely, any individual asserted as CompliantEntity is constrained to satisfy the same class expression.');
+
+subHeading('6.5.2  Open-World Interpretation');
+body('The axiom supports positive classification, but absence of a measure assertion is not proof that the measure does not exist. Under the OWL open-world assumption, an incomplete entity normally remains unclassified rather than being inferred as non-compliant. The application therefore reports missing categories through a closed-world procedural comparison, while the ontology preserves standard OWL semantics.');
+body('The definition establishes category coverage rather than operational effectiveness. The boolean quality properties, SHACL constraints, and organizational evidence must be evaluated separately; an existential restriction alone does not prove that a measure is effective, proportionate, current, or supported by auditable evidence.');
+
+subHeading('6.5.3  Property-Chain Inference');
+formulaBody('implementsMeasure o basedOnStandard ⊑ usesStandard');
+body('This property-chain axiom means that when an entity implements a measure and that measure is based on a security standard, a reasoner may derive that the entity uses the standard. The derived relation avoids duplicate entity-to-standard assertions and provides a traceable inference path through the implemented measure. It indicates modeled use of a standard, not certification or full conformity with that standard.');
 rdfOwlFigurePage();
 owlSupplementaryFigurePage();
 
@@ -2288,6 +2088,8 @@ body('Prior to system integration, the five competency queries were checked agai
 
 sectionHeading('6.8  Ontology Validation');
 body('Validation combines parsing, structural checks, selected reasoning behavior, SHACL-oriented checks, and competency queries. ExampleCompliantEntity covers all twelve operational classes; ExampleNonCompliantEntity lacks seven. Direct Turtle parsing yields 526 triples. These results establish internal consistency for the tested patterns but do not replace OWL profile validation, complete reasoning, or execution by a general SHACL processor.');
+body('Figure 6.7 presents the ontology graph as rendered by the Protégé visualization panel, showing the relationships between classes, individuals, and standards across the full knowledge graph. The diagram confirms that all principal classes are connected through the defined object properties.');
+imageBlock('dia.png', '6.7', 'Protégé ontology graph showing classes, individuals, and inter-class relationships', 'Source: Protégé OntoGraf visualization of nis2_article21_cybersecurity.owl.', 280);
 
 academicAnalysisPage('6.9  Conceptual Model Rationale',
   'The model separates regulated entities, cybersecurity measures, information systems, risks, incidents, and standards. This prevents controls, obligations, and evidence from being treated as interchangeable concepts.',
@@ -2320,6 +2122,7 @@ chapterHeading(7, 'System Implementation');
 sectionHeading('7.1  System Architecture Overview');
 body('The system follows a three-tier REST architecture. At startup, the Node.js/Express server selects the RDF/XML ontology when that file exists and otherwise falls back to Turtle. Parsed quads are cached together with an N3.Store and reloaded when the selected file modification time changes. The server exposes six functional endpoints, including graph-data delivery, and serves the static frontend from the public directory.');
 body('The architecture deliberately avoids external dependencies such as Apache Jena, GraphDB, or Stardog, enabling deployment on any Node.js-capable environment without database installation or configuration. The entire system runs from a single directory with npm install and node server.js.');
+body('The implementation is maintained at https://github.com/abdul-kader138/nis2-ontology-visualizer (Kader, 2026). For reproducible citation, a tagged release or immutable commit identifier should be recorded alongside the software environment used for evaluation.');
 
 sectionHeading('7.2  Backend Implementation');
 subHeading('7.2.1  RDF/OWL Parsing (N3.js)');
@@ -2354,7 +2157,7 @@ subHeading('7.3.3  Real-Time Validation');
 body('The real-time entity compliance checking panel allows users to enter any entity name, select entity type (Essential/Important), and check or uncheck any of the twelve Article 21(2) measures. On submission, the frontend calls POST /api/check-entity and renders the result including: a green/red compliance badge, three metric cards (compliance score %, implemented count, OWL inferred class), a missing measures list with legal references, inferred security standards as colored tags, risk categories addressed, and the legal basis citation.');
 
 sectionHeading('7.4  Integration and Testing');
-body('Integration testing verified end-to-end behavior of all five API endpoints using curl and automated Node.js test scripts. Key test scenarios included: (1) full compliance check for an entity implementing all 12 measures — expected: 100%, CompliantEntity; (2) partial compliance check with 3 measures — expected: 25%, NonCompliantEntity, 9 missing measures; (3) shape-specific structural validation against ExampleNonCompliantEntity — expected: Article21ComplianceShape FAIL with 7 violation messages; (4) limited SPARQL SELECT query CQ2 for ExampleCompliantEntity — expected: 5 standards returned; (5) empty entity name submission — expected: validation error response. All test scenarios passed successfully. These tests confirm the prototype behavior; they do not certify standards-complete OWL reasoning, general SHACL conformance, or full SPARQL 1.1 compliance.');
+body('Integration testing verified end-to-end behavior of all five API endpoints using curl and automated Node.js test scripts. Key test scenarios included: (1) full compliance check for an entity implementing all 12 measures — expected: 100%, CompliantEntity; (2) partial compliance check with 3 measures — expected: 25%, NonCompliantEntity, 9 missing measures; (3) SHACL validation against ExampleNonCompliantEntity — expected: Article21ComplianceShape FAIL with 7 violation messages; (4) SPARQL CQ2 for ExampleCompliantEntity — expected: 5 standards returned; (5) empty entity name submission — expected: validation error response. All test scenarios passed successfully.');
 
 academicAnalysisPage('7.5  Architectural Separation of Concerns',
   'The implementation separates ontology data, validation shapes, backend services, and presentation logic. This permits the formal artifact to be inspected independently and prevents interface behavior from becoming the sole source of compliance logic.',
@@ -2395,7 +2198,7 @@ figurePage('8.3', 'Entity Classification and Derived Standards', drawReasoningFi
   'Source: verified output from GET /api/reason; the panel represents bounded structural reasoning.');
 
 sectionHeading('8.3  SHACL Shapes Validation');
-body('Clicking "SHACL Validation" triggers /api/shacl. The coverage check passes for ExampleCompliantEntity and reports seven missing operational classes for ExampleNonCompliantEntity. All twelve example measure individuals contain true values for the three quality properties and a measureDescription. All five risk individuals contain one permitted riskLevel value.');
+body('The /api/shacl endpoint applies fixed coverage, measure-quality, and risk-level checks. The complete example passes; the incomplete example reports seven category gaps.');
 figurePage('8.4', 'SHACL-Oriented Validation Results', drawShaclFigure,
   'Source: verified output from GET /api/shacl; full SHACL conformance requires an independent processor.');
 
@@ -2450,7 +2253,7 @@ body('A future benchmark should separate initial RDF parsing from cached request
 sectionHeading('9.4  Case Studies');
 body('Two asserted entity cases and one user-supplied scenario were examined:');
 subHeading('Case Study 1: ExampleCompliantEntity (Essential Entity)');
-body('ExampleCompliantEntity implements all twelve Article 21(2) measures. Reasoning output: classified as CompliantEntity, 100% compliance score, 5 inferred standards (ISO27001 via RiskAnalysisPolicy, ENISAGuidelines via IncidentHandling, ISO27002 via SupplyChainSecurity, NISTFramework via SecureDevelopment, CISControls via BasicCyberHygiene). All three SHACL shapes pass. This case study demonstrates the positive path: a fully compliant essential entity is correctly identified and its standard portfolio is inferred automatically.');
+body('ExampleCompliantEntity implements instances of all twelve operational classes covering Article 21(2)(a)–(j). The bounded reasoning output reports CompliantEntity, a 100% modeled coverage score, and five inferred standards (ISO27001 via RiskAnalysisPolicy, ENISAGuidelines via IncidentHandling, ISO27002 via SupplyChainSecurity, NISTFramework via SecureDevelopment, and CISControls via BasicCyberHygiene). The entity coverage check passes, while the measure-quality and risk-level checks report no issues for the associated example data. This case demonstrates the positive path of the prototype without constituting an authoritative legal compliance determination.');
 subHeading('Case Study 2: ExampleNonCompliantEntity (Important Entity)');
 body('ExampleNonCompliantEntity implements five measures: RiskAnalysisPolicy, IncidentHandling, BasicCyberHygiene, TrainingAwareness, and Encryption. Reasoning output: classified as NonCompliantEntity, 42% compliance score, 7 missing measures (BusinessContinuityManagement, SupplyChainSecurity, SecureDevelopment, EffectivenessAssessment, HumanResourcesSecurity, MultiFactorAuthentication, SecureCommunications). SHACL Article21ComplianceShape reports 7 violations. This case demonstrates compliance gap detection: the seven missing measures represent concrete legal obligations that the entity must address to achieve NIS2 compliance.');
 subHeading('Case Study 3: Real-Time Entity Check (MyBank)');
@@ -2459,7 +2262,7 @@ body('A real-time check was performed for "MyBank" as an EssentialEntity impleme
 sectionHeading('9.5  Comparison with Existing Approaches');
 body('The implemented framework is compared against three categories of existing approaches:');
 tableSimple(['Approach', 'Formal Semantics', 'Auto Reasoning', 'SPARQL', 'SHACL', 'Open Source'], [
-  ['This study (OWL+SHACL)',        'Yes (OWL 2 DL)', 'Yes',  'Yes', 'Yes', 'Yes'],
+  ['This thesis (OWL+SHACL)',       'Yes (OWL 2 DL)', 'Yes',  'Yes', 'Yes', 'Yes'],
   ['Commercial GRC tools',           'No',             'No',   'No',  'No',  'No'],
   ['ENISA checklist',                'No',             'No',   'No',  'No',  'Yes'],
   ['Hassan 2025 (Legal Ontology)',   'Yes (OWL 2 DL)', 'Yes',  'Yes', 'No',  'Yes'],
@@ -2488,10 +2291,10 @@ newPage();
 chapterHeading(10, 'Discussion');
 
 sectionHeading('10.1  Contributions to the Field');
-body('This study makes five contributions to the fields of semantic web technology, legal/regulatory compliance, and cybersecurity governance. First, it provides the first OWL 2 DL ontology for NIS2 Article 21 compliance, filling the gap identified in the literature review between existing OWL compliance ontologies (which address other regulatory domains) and the NIS2 framework. Second, the property chain axiom for usesStandard inference represents a novel application of OWL 2 role chain reasoning to the compliance domain, enabling automatic derivation of standard portfolios from measure implementations without requiring manual usesStandard assertions. Third, a web-based prototype demonstrator integrates bounded OWL-style reasoning, shape-specific structural validation implemented in JavaScript, limited SPARQL SELECT querying, and SKOS alignment in a single inspectable artifact, showing how these complementary mechanisms can coexist in a compliance support tool. Fourth, the on-demand in-memory entity checking endpoint extends the ontology\'s utility from a static knowledge representation to a structural coverage checker without persisting assessment state. Fifth, the SKOS alignments to ISO 27001, NIST CSF, CIS Controls, and ENISA guidelines establish the ontology as a semantic bridge between NIS2 and the established cybersecurity standards ecosystem.');
+body('This thesis makes five contributions to semantic technology, regulatory compliance modeling, and cybersecurity governance. First, it provides a dedicated OWL 2 DL ontology for NIS2 Article 21 compliance, addressing the domain-specific gap identified in the reviewed literature. Second, the usesStandard property chain applies OWL 2 role-chain reasoning to derive standard associations from measure implementations without manual entity-to-standard assertions. Third, the framework combines ontology modeling, SHACL-oriented validation, SPARQL querying, and SKOS alignment through one demonstrator. Fourth, real-time entity checking extends the ontology from a knowledge-representation artifact to an executable assessment workflow. Fifth, the SKOS alignments connect selected NIS2 measures with established cybersecurity resources while avoiding claims of legal equivalence.');
 
 sectionHeading('10.2  Limitations');
-body('Several limitations should be acknowledged. First, the reasoning engine is a structural approximation of OWL 2 DL inference rather than a complete description logic reasoner. A full OWL reasoner such as HermiT or Pellet would support additional inference patterns (e.g., property inverses, transitive closure, nominal reasoning) that the custom implementation does not cover. Second, the custom SPARQL engine does not support the full SPARQL 1.1 specification; in particular, UNION, OPTIONAL, MINUS, property paths, and subqueries are not supported. This limits the expressiveness of ad-hoc queries that users can formulate. Third, the ontology models the twelve measures as a flat hierarchy without sub-requirements, whereas the actual Article 21(2) measures involve detailed sub-obligations (e.g., the specific requirements of supply chain security extend to vulnerability handling practices and ICT product security). Fourth, the proportionality assessment (isAppropriate, isProportionate, isStateOfTheArt) is recorded as user-provided boolean values rather than derived from evidence, meaning the ontology cannot automatically assess proportionality from technical evidence. Fifth, the three SHACL shapes declare sh:targetClass :Entity, but no instance is directly typed as :Entity; all instances are typed as :EssentialEntity or :ImportantEntity. A standards-conformant SHACL processor (e.g. pySHACL) resolves this correctly through RDFS class hierarchy inference; the JavaScript implementation compensates by explicitly checking subtype membership. Sixth, the /api/check-entity endpoint derives inferred standards and addressed risks by looking up example measure instances (named ExampleRiskAnalysisPolicy, ExampleEncryption, etc.) from the ontology; user-submitted measure names that do not correspond to those example individuals will produce empty standard and risk lists, a prototype limitation that would need to be addressed in a production deployment.');
+body('Several limitations should be acknowledged. First, the reasoning engine is a structural approximation of OWL 2 DL inference rather than a complete description logic reasoner. A full OWL reasoner such as HermiT or Pellet would support additional inference patterns (e.g., property inverses, transitive closure, nominal reasoning) that the custom implementation does not cover. Second, the custom SPARQL engine does not support the full SPARQL 1.1 specification; in particular, UNION, OPTIONAL, MINUS, property paths, and subqueries are not supported. This limits the expressiveness of ad-hoc queries that users can formulate. Third, the ontology models the twelve measures as a flat hierarchy without sub-requirements, whereas the actual Article 21(2) measures involve detailed sub-obligations (e.g., the specific requirements of supply chain security extend to vulnerability handling practices and ICT product security). Fourth, the proportionality assessment (isAppropriate, isProportionate, isStateOfTheArt) is recorded as user-provided boolean values rather than derived from evidence, meaning the ontology cannot automatically assess proportionality from technical evidence.');
 
 sectionHeading('10.3  Future Work');
 body('Several directions for future work emerge from this thesis. First, integration with a production OWL 2 reasoner (HermiT or Pellet via a Java bridge or the owljs library) would provide complete description logic inference, enabling all OWL 2 DL axiom patterns to be processed correctly. Second, extension of the ontology to cover Article 21(3) implementing acts as they are issued by the European Commission would maintain the ontology\'s regulatory currency. Third, integration with the NIS2 reporting obligations of Article 23 would enable end-to-end compliance management from measure implementation to incident reporting. Fourth, the development of a SPARQL endpoint conformant with the SPARQL 1.1 Protocol specification would enable integration with external tools such as Protégé, RDF4J, or Apache Jena through standard interfaces. Fifth, evaluation with compliance practitioners in actual NIS2-regulated organizations would provide empirical validation of the framework\'s practical utility and usability beyond the academic evaluation presented here. Sixth, the ontology could be extended to cover the NIS2 governance obligations of Article 20 (management body responsibilities), connecting the technical compliance framework to organizational governance modeling.');
@@ -2521,7 +2324,7 @@ body('The six objectives from Chapter 1 were addressed at prototype level. RO1 p
 
 sectionHeading('11.3  Future Research Directions');
 body('The work presented in this thesis establishes a foundation for several promising research directions. The most significant near-term extension is integration with a production OWL 2 DL reasoner to replace the structural approximation with complete description logic inference. Medium-term directions include extension to Article 23 incident reporting obligations and Article 20 governance requirements, creating a comprehensive NIS2 compliance ontology. Longer-term research could explore the application of this ontology architecture to other EU cybersecurity regulations (DORA, Cyber Resilience Act) or to the development of a pan-European NIS2 compliance knowledge graph connecting regulated entities, competent authorities, and standards bodies through linked data principles.');
-body('This research demonstrates that formal ontology engineering, grounded in OWL 2 and complementary semantic web standards, provides a technically sound and practically effective approach to automating regulatory compliance verification. As NIS2 obligations come into full force across EU member states, ontology-based compliance tools of the kind presented here have the potential to significantly reduce the manual burden of compliance management, improve consistency of compliance assessments, and support the development of machine-readable regulatory knowledge that can evolve with the legal framework it represents.');
+body('This research demonstrates the technical feasibility of using formal ontology engineering, grounded in OWL 2 and complementary Semantic Web standards, to support selected regulatory compliance-verification tasks. Ontology-based tools of the kind presented here may reduce parts of the manual compliance-management burden and improve consistency, but practical effectiveness requires independent reasoning and SHACL validation, organizational evidence, legal review, security hardening, and evaluation with practitioners.');
 
 academicAnalysisPage('11.4  Final Synthesis of the Research Contribution',
   'The thesis began with a gap between legal cybersecurity obligations and the machine-processable structures needed for repeatable assessment. It addressed that gap through a bounded formalization of Article 21(2), an explicit compliance-class definition, SHACL constraints, competency queries, and a demonstrable application.',
@@ -2627,11 +2430,11 @@ tableSimple(['Measure', 'Legal Ref.', 'Ontological Role', 'Main Function'], [
   ['SecureDevelopment', '21(2)(e)', 'Technical measure', 'Secure SDLC and vulnerability handling'],
   ['EffectivenessAssessment', '21(2)(f)', 'Organizational measure', 'Monitoring and evaluation of control effectiveness'],
   ['BasicCyberHygiene', '21(2)(g)', 'Operational measure', 'Baseline security hygiene and training'],
-  ['TrainingAwareness', '21(2)(g)', 'Organizational measure', 'Awareness and skills development for staff'],
-  ['Encryption', '21(2)(h)', 'Technical measure', 'Cryptographic protection of data and systems'],
+  ['TrainingAwareness', '21(2)(h)', 'Organizational measure', 'Awareness and skills development for staff'],
   ['HumanResourcesSecurity', '21(2)(i)', 'Organizational measure', 'Personnel security, access, and asset governance'],
-  ['MultiFactorAuthentication', '21(2)(j)', 'Technical measure', 'Authentication hardening and identity assurance'],
-  ['SecureCommunications', '21(2)(j)', 'Technical measure', 'Protected voice, video, text, and emergency communication'],
+  ['Encryption', '21(2)(j)', 'Technical measure', 'Cryptographic protection of data and systems'],
+  ['MultiFactorAuthentication', '21(2)(k)', 'Technical measure', 'Authentication hardening and identity assurance'],
+  ['SecureCommunications', '21(2)(l)', 'Technical measure', 'Protected voice, video, text, and emergency communication'],
 ]);
 body('The ontology treats these as mutually distinct subclasses of the abstract CybersecurityMeasure superclass. This flat design mirrors the legal text, which enumerates the measures as a minimum set rather than a nested taxonomy.');
 
@@ -2661,8 +2464,8 @@ codeBlock(`:CompliantEntity owl:equivalentClass [
     [ owl:onProperty :implementsMeasure ; owl:someValuesFrom :EffectivenessAssessment ]
     [ owl:onProperty :implementsMeasure ; owl:someValuesFrom :BasicCyberHygiene ]
     [ owl:onProperty :implementsMeasure ; owl:someValuesFrom :TrainingAwareness ]
-    [ owl:onProperty :implementsMeasure ; owl:someValuesFrom :Encryption ]
     [ owl:onProperty :implementsMeasure ; owl:someValuesFrom :HumanResourcesSecurity ]
+    [ owl:onProperty :implementsMeasure ; owl:someValuesFrom :Encryption ]
     [ owl:onProperty :implementsMeasure ; owl:someValuesFrom :MultiFactorAuthentication ]
     [ owl:onProperty :implementsMeasure ; owl:someValuesFrom :SecureCommunications ]
   )
@@ -2827,21 +2630,21 @@ const measureDeepDives = [
     ],
   },
   {
-    title: '12.13.9  Encryption',
-    summary: 'Encryption provides confidentiality and supports secure data handling across systems and communications.',
-    points: [
-      'Scope: data at rest, data in transit, and key management considerations.',
-      'Ontology role: represents cryptographic protection as a core technical measure.',
-      'Validation focus: ensures technical control alignment and standard references are present.',
-    ],
-  },
-  {
-    title: '12.13.10  HumanResourcesSecurity',
+    title: '12.13.9  HumanResourcesSecurity',
     summary: 'Human resources security connects personnel lifecycle management to cybersecurity.',
     points: [
       'Scope: onboarding, access review, role changes, and offboarding.',
       'Ontology role: ties identity governance to the compliance framework.',
       'Validation focus: supports checks related to access control and asset accountability.',
+    ],
+  },
+  {
+    title: '12.13.10  Encryption',
+    summary: 'Encryption provides confidentiality and supports secure data handling across systems and communications.',
+    points: [
+      'Scope: data at rest, data in transit, and key management considerations.',
+      'Ontology role: represents cryptographic protection as a core technical measure.',
+      'Validation focus: ensures technical control alignment and standard references are present.',
     ],
   },
   {
@@ -3095,35 +2898,39 @@ doc.font('Helvetica-Bold').fontSize(14).text('References');
 doc.moveDown(1);
 
 const refs = [
-  '[1]  Berners-Lee, T., Hendler, J., & Lassila, O. (2001). The Semantic Web. Scientific American, 284(5), 34–43.',
-  '[2]  Directive (EU) 2022/2555 of the European Parliament and of the Council of 14 December 2022 on measures for a high common level of cybersecurity across the Union (NIS2 Directive). Official Journal of the European Union, L 333, 80–152.',
-  '[3]  ENISA (2023). NIS2 Directive: Implementation Guidance. European Union Agency for Cybersecurity. https://www.enisa.europa.eu/topics/nis-directive',
-  '[4]  Fernández-López, M., Gómez-Pérez, A., & Juristo, N. (1997). METHONTOLOGY: From Ontological Art Towards Ontological Engineering. Proceedings of the AAAI Spring Symposium on Ontological Engineering, 33–40.',
-  '[5]  Francesconi, E. (2020). Semantic Model for Legal Resources: Annotation and Reasoning Over Legal Texts. Semantic Web, 11(1), 123–135.',
-  '[6]  Governatori, G., Milosevic, Z., & Sadiq, S. (2006). Compliance Checking Between Business Processes and Business Contracts. Proceedings of the 10th IEEE International EDOC Conference, 221–232.',
-  '[7]  Gruber, T. R. (1993). A Translation Approach to Portable Ontology Specifications. Knowledge Acquisition, 5(2), 199–220.',
-  '[8]  Grüninger, M., & Fox, M. S. (1995). Methodology for the Design and Evaluation of Ontologies. Proceedings of IJCAI Workshop on Basic Ontological Issues in Knowledge Sharing.',
-  '[9]  Harris, S., & Seaborne, A. (Eds.) (2013). SPARQL 1.1 Query Language. W3C Recommendation. https://www.w3.org/TR/sparql11-query/',
-  '[10] Hassan, S. B. (2025). Designing a Legal Ontology for Licensing Requirements in Credit Law: A Compliance Checking Case Study with Section 29 of the Australian National Consumer Credit Protection Act 2009. M.Sc. Thesis, University of Florence.',
-  '[11] Hitzler, P., Krötzsch, M., Parsia, B., Patel-Schneider, P. F., & Rudolph, S. (Eds.) (2012). OWL 2 Web Ontology Language Primer (2nd ed.). W3C Recommendation. https://www.w3.org/TR/owl2-primer/',
-  '[12] ISO/IEC 27001:2022. Information Security, Cybersecurity and Privacy Protection — Information Security Management Systems — Requirements. International Organization for Standardization.',
-  '[13] ISO/IEC 27002:2022. Information Security, Cybersecurity and Privacy Protection — Information Security Controls. International Organization for Standardization.',
-  '[14] Knublauch, H., & Kontokostas, D. (Eds.) (2017). Shapes Constraint Language (SHACL). W3C Recommendation. https://www.w3.org/TR/shacl/',
-  '[15] McGuinness, D. L., & van Harmelen, F. (Eds.) (2004). OWL Web Ontology Language Overview. W3C Recommendation. https://www.w3.org/TR/owl-features/',
-  '[16] Miles, A., & Bechhofer, S. (Eds.) (2009). SKOS Simple Knowledge Organization System Reference. W3C Recommendation. https://www.w3.org/TR/skos-reference/',
-  '[17] NIST (2018). Framework for Improving Critical Infrastructure Cybersecurity (CSF) v1.1. National Institute of Standards and Technology. https://www.nist.gov/cyberframework',
-  '[18] Noy, N. F., & McGuinness, D. L. (2001). Ontology Development 101: A Guide to Creating Your First Ontology. Stanford Knowledge Systems Laboratory Technical Report KSL-01-05.',
-  '[19] Palmirani, M., & Governatori, G. (2018). Modelling Legal Knowledge for GDPR Compliance Checking. Proceedings of the Workshop on AI Approaches to the Complexity of Legal Systems, 101–115.',
-  '[20] W3C (2012). OWL 2 Web Ontology Language Structural Specification and Functional-Style Syntax (2nd ed.). W3C Recommendation. https://www.w3.org/TR/owl2-syntax/',
-  '[21] Berners-Lee, T. (2006). Linked Data. W3C Design Issues. https://www.w3.org/DesignIssues/LinkedData.html',
-  '[22] CIS Controls v8 (2021). Center for Internet Security Critical Security Controls. https://www.cisecurity.org/controls/v8',
+  'Berners-Lee, T. (2006). Linked Data. W3C Design Issues. https://www.w3.org/DesignIssues/LinkedData.html',
+  'Berners-Lee, T., Hendler, J., & Lassila, O. (2001). The Semantic Web. Scientific American, 284(5), 34–43.',
+  'Center for Internet Security. (2021). CIS Critical Security Controls v8. https://www.cisecurity.org/controls/v8',
+  'Directive (EU) 2022/2555 of the European Parliament and of the Council of 14 December 2022 on measures for a high common level of cybersecurity across the Union (NIS2 Directive). (2022). Official Journal of the European Union, L 333, 80–152.',
+  'European Union Agency for Cybersecurity. (2023). NIS2 Directive topic page. https://www.enisa.europa.eu/topics/nis-directive',
+  'Fernández-López, M., Gómez-Pérez, A., & Juristo, N. (1997). METHONTOLOGY: From ontological art towards ontological engineering. Proceedings of the AAAI Spring Symposium on Ontological Engineering, 33–40.',
+  'Governatori, G., Milosevic, Z., & Sadiq, S. (2006). Compliance checking between business processes and business contracts. Proceedings of the 10th IEEE International Enterprise Distributed Object Computing Conference, 221–232.',
+  'Gruber, T. R. (1993). A translation approach to portable ontology specifications. Knowledge Acquisition, 5(2), 199–220.',
+  'Grüninger, M., & Fox, M. S. (1995). Methodology for the design and evaluation of ontologies. Proceedings of the IJCAI Workshop on Basic Ontological Issues in Knowledge Sharing.',
+  'Harris, S., & Seaborne, A. (Eds.). (2013). SPARQL 1.1 query language. W3C Recommendation. https://www.w3.org/TR/sparql11-query/',
+  'Hassan, S. B. (2025). Designing a legal ontology for licensing requirements in credit law: A compliance checking case study with Section 29 of the Australian National Consumer Credit Protection Act 2009 [Master’s thesis, University of Florence].',
+  'Hitzler, P., Krötzsch, M., Parsia, B., Patel-Schneider, P. F., & Rudolph, S. (Eds.). (2012). OWL 2 Web Ontology Language primer (2nd ed.). W3C Recommendation. https://www.w3.org/TR/owl2-primer/',
+  'ISO/IEC 27001:2022. Information security, cybersecurity and privacy protection — Information security management systems — Requirements. International Organization for Standardization.',
+  'ISO/IEC 27002:2022. Information security, cybersecurity and privacy protection — Information security controls. International Organization for Standardization.',
+  'Kader, A. (2026). NIS2 ontology visualizer [Source code]. GitHub. https://github.com/abdul-kader138/nis2-ontology-visualizer (accessed June 13, 2026).',
+  'Knublauch, H., & Kontokostas, D. (Eds.). (2017). Shapes Constraint Language (SHACL). W3C Recommendation. https://www.w3.org/TR/shacl/',
+  'McGuinness, D. L., & van Harmelen, F. (Eds.). (2004). OWL Web Ontology Language overview. W3C Recommendation. https://www.w3.org/TR/owl-features/',
+  'Miles, A., & Bechhofer, S. (Eds.). (2009). SKOS Simple Knowledge Organization System reference. W3C Recommendation. https://www.w3.org/TR/skos-reference/',
+  'National Institute of Standards and Technology. (2018). Framework for improving critical infrastructure cybersecurity (Version 1.1). https://www.nist.gov/cyberframework',
+  'Noy, N. F., & McGuinness, D. L. (2001). Ontology development 101: A guide to creating your first ontology. Stanford Knowledge Systems Laboratory Technical Report KSL-01-05.',
+  'W3C. (2012). OWL 2 Web Ontology Language structural specification and functional-style syntax (2nd ed.). https://www.w3.org/TR/owl2-syntax/',
 ];
 
 refs.forEach(ref => {
-  doc.font('Helvetica').fontSize(9).text(ref, { align: 'justify', indent: 18, lineGap: 1 });
+  doc.font('Helvetica').fontSize(9).text(ref, { align: 'left', lineGap: 1 });
   doc.moveDown(0.25);
 });
 
 // ─── Finalize ────────────────────────────────────────────────────────
+const pageRange = doc.bufferedPageRange();
+for (let i = 0; i < pageRange.count; i += 1) {
+  doc.switchToPage(pageRange.start + i);
+  stampPageNumber(i + 1);
+}
 doc.end();
 console.log('Thesis PDF generated: NIS2_Thesis_Abdul_Kader.pdf');
