@@ -178,7 +178,8 @@
 #   CompliantEntity — OWL 2 DL equivalent class definition.
 #   An entity is automatically inferred as CompliantEntity by an OWL 2 reasoner
 #   (e.g. HermiT, Pellet) if and only if it implements at least one instance of
-#   each of the 12 operational classes covering Article 21(2)(a)-(j).
+#   each of the 12 operational classes covering Article 21(2)(a)-(j),
+#   with point (j) refined into three modeled subcomponents.
 
 #   NonCompliantEntity — the logical complement of CompliantEntity within Entity.
 #   Under open-world semantics, missing assertions alone do not establish this complement class.
@@ -242,7 +243,7 @@
         )
     ] ;
     rdfs:label "Compliant Entity" ;
-    rdfs:comment "An entity that implements all 12 operational classes used to cover the ten Article 21(2)(a)-(j) legal categories. An OWL 2 reasoner can classify an Entity satisfying all 12 someValuesFrom restrictions as a CompliantEntity." .
+    rdfs:comment "An entity that implements all 12 operational classes used to cover the ten Article 21(2)(a)-(j) legal categories, with point (j) refined into three modeled subcomponents. An OWL 2 reasoner can classify an Entity satisfying all 12 someValuesFrom restrictions as a CompliantEntity." .
 
 #################################################################
 #    Classes — Measure hierarchy
@@ -643,7 +644,7 @@
 :ExampleCompliantEntity
     a owl:NamedIndividual, :EssentialEntity ;
     rdfs:label "Example Compliant Essential Entity" ;
-    rdfs:comment "An essential entity that implements all 12 operational classes covering the ten Article 21(2)(a)-(j) categories. An OWL 2 reasoner can infer this individual as a CompliantEntity." ;
+    rdfs:comment "An essential entity that implements all 12 operational classes covering the ten Article 21(2)(a)-(j) categories, with point (j) refined into three modeled subcomponents. An OWL 2 reasoner can infer this individual as a CompliantEntity." ;
     :implementsMeasure :ExampleRiskAnalysisPolicy ;
     :implementsMeasure :ExampleIncidentHandling ;
     :implementsMeasure :ExampleBusinessContinuity ;

@@ -279,12 +279,12 @@
                         <owl:onProperty rdf:resource="https://w3id.org/nis2/article21#implementsMeasure"/>
                         <owl:someValuesFrom rdf:resource="https://w3id.org/nis2/article21#Encryption"/>
                     </owl:Restriction>
-                    <!-- (k) Multi-factor authentication -->
+                    <!-- Internal refinement of point (j): multi-factor authentication -->
                     <owl:Restriction>
                         <owl:onProperty rdf:resource="https://w3id.org/nis2/article21#implementsMeasure"/>
                         <owl:someValuesFrom rdf:resource="https://w3id.org/nis2/article21#MultiFactorAuthentication"/>
                     </owl:Restriction>
-                    <!-- (l) Secured emergency communications -->
+                    <!-- Internal refinement of point (j): secured emergency communications -->
                     <owl:Restriction>
                         <owl:onProperty rdf:resource="https://w3id.org/nis2/article21#implementsMeasure"/>
                         <owl:someValuesFrom rdf:resource="https://w3id.org/nis2/article21#SecureCommunications"/>
@@ -294,8 +294,9 @@
         </owl:equivalentClass>
         <rdfs:label>Compliant Entity</rdfs:label>
         <rdfs:comment>An entity that implements all 12 operational classes used to cover the ten
-        Article 21(2)(a)-(j) legal categories. An OWL 2 reasoner can classify any Entity individual
-        satisfying all 12 someValuesFrom restrictions as a CompliantEntity.</rdfs:comment>
+        Article 21(2)(a)-(j) legal categories, with point (j) refined into three modeled subcomponents.
+        An OWL 2 reasoner can classify any Entity individual satisfying all 12 someValuesFrom
+        restrictions as a CompliantEntity.</rdfs:comment>
     </owl:Class>
 
     <!-- ==================== Measure hierarchy ==================== -->
@@ -730,7 +731,8 @@
         <rdf:type rdf:resource="https://w3id.org/nis2/article21#EssentialEntity"/>
         <rdfs:label>Example Compliant Essential Entity</rdfs:label>
         <rdfs:comment>An essential entity that implements all 12 operational classes covering the
-        ten Article 21(2)(a)-(j) categories. An OWL 2 reasoner can infer this individual as a CompliantEntity.</rdfs:comment>
+        ten Article 21(2)(a)-(j) categories, with point (j) refined into three modeled subcomponents.
+        An OWL 2 reasoner can infer this individual as a CompliantEntity.</rdfs:comment>
         <implementsMeasure xmlns="https://w3id.org/nis2/article21#" rdf:resource="https://w3id.org/nis2/article21#ExampleRiskAnalysisPolicy"/>
         <implementsMeasure xmlns="https://w3id.org/nis2/article21#" rdf:resource="https://w3id.org/nis2/article21#ExampleIncidentHandling"/>
         <implementsMeasure xmlns="https://w3id.org/nis2/article21#" rdf:resource="https://w3id.org/nis2/article21#ExampleBusinessContinuity"/>
