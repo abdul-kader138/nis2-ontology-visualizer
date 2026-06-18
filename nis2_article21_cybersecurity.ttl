@@ -688,3 +688,113 @@
     a owl:NamedIndividual, :NetworkInformationSystem ;
     rdfs:label "Internal IT Infrastructure" ;
     rdfs:comment "The internal corporate IT infrastructure including endpoints, servers, and network equipment" .
+
+:HospitalInformationSystem
+    a owl:NamedIndividual, :NetworkInformationSystem ;
+    rdfs:label "Hospital Information System" ;
+    rdfs:comment "The core clinical and administrative information system of MedCenterHospital, managing patient records, scheduling, and diagnostic data" .
+
+#################################################################
+#    Worked Compliance Verification Example — MedCenterHospital
+#
+#    MedCenterHospital is a healthcare Essential Entity (Annex I,
+#    NIS2 Directive) that implements 6 of the 12 required
+#    operational measure classes.  It COMPLIES with Article 21(2)
+#    categories (a),(b),(g),(h),(j)-auth but VIOLATES six norms:
+#
+#      VIOLATION — Article 21(2)(c): no BusinessContinuityManagement
+#      VIOLATION — Article 21(2)(d): no SupplyChainSecurity
+#      VIOLATION — Article 21(2)(e): no SecureDevelopment
+#      VIOLATION — Article 21(2)(f): no EffectivenessAssessment
+#      VIOLATION — Article 21(2)(i): no HumanResourcesSecurity
+#      VIOLATION — Article 21(2)(j): no SecureCommunications
+#
+#    This example demonstrates the compliance verification
+#    workflow: OWL reasoning classifies the entity as
+#    NonCompliantEntity; SHACL Article21ComplianceShape reports
+#    six specific violations referencing the legal norms above.
+#################################################################
+
+:MedCenterRiskAnalysisPolicy
+    a owl:NamedIndividual, :RiskAnalysisPolicy ;
+    rdfs:label "MedCenter Risk Analysis Policy" ;
+    :measureDescription "Documented risk analysis policy covering patient data assets, clinical system threats, and risk treatment for the hospital information systems, aligned with ISO 27001 A.5" ;
+    :isAppropriate true ;
+    :isProportionate true ;
+    :isStateOfTheArt true ;
+    :basedOnStandard :ISO27001 ;
+    :addressesRisk :DataBreachRisk ;
+    :appliesToSystem :HospitalInformationSystem .
+
+:MedCenterIncidentHandling
+    a owl:NamedIndividual, :IncidentHandling ;
+    rdfs:label "MedCenter Incident Handling" ;
+    :measureDescription "Incident response procedures for clinical cyber incidents including ransomware, unauthorised access to patient records, and service disruption of critical healthcare systems" ;
+    :isAppropriate true ;
+    :isProportionate true ;
+    :isStateOfTheArt true ;
+    :basedOnStandard :ENISAGuidelines ;
+    :addressesRisk :RansomwareRisk ;
+    :preventsIncident :RansomwareIncident ;
+    :appliesToSystem :HospitalInformationSystem .
+
+:MedCenterEncryption
+    a owl:NamedIndividual, :Encryption ;
+    rdfs:label "MedCenter Encryption" ;
+    :measureDescription "Encryption of patient records at rest and in transit using AES-256 and TLS 1.3, addressing GDPR and NIS2 data protection obligations for health sector entities" ;
+    :isAppropriate true ;
+    :isProportionate true ;
+    :isStateOfTheArt true ;
+    :basedOnStandard :NISTFramework ;
+    :addressesRisk :DataBreachRisk ;
+    :preventsIncident :DataBreachIncident ;
+    :appliesToSystem :HospitalInformationSystem .
+
+:MedCenterBasicCyberHygiene
+    a owl:NamedIndividual, :BasicCyberHygiene ;
+    rdfs:label "MedCenter Basic Cyber Hygiene" ;
+    :measureDescription "Baseline cyber hygiene controls including monthly patch management, endpoint detection and response, network segmentation between clinical and administrative zones, and phishing resistance" ;
+    :isAppropriate true ;
+    :isProportionate true ;
+    :isStateOfTheArt true ;
+    :basedOnStandard :CISControls ;
+    :addressesRisk :InsiderThreatRisk ;
+    :preventsIncident :UnauthorizedAccessIncident ;
+    :appliesToSystem :HospitalInformationSystem .
+
+:MedCenterTrainingAwareness
+    a owl:NamedIndividual, :TrainingAwareness ;
+    rdfs:label "MedCenter Training and Awareness" ;
+    :measureDescription "Annual cybersecurity awareness training for all clinical and administrative personnel, including role-specific modules for IT administrators and phishing simulation exercises" ;
+    :isAppropriate true ;
+    :isProportionate true ;
+    :isStateOfTheArt true ;
+    :basedOnStandard :ENISAGuidelines ;
+    :addressesRisk :InsiderThreatRisk .
+
+:MedCenterMultiFactorAuthentication
+    a owl:NamedIndividual, :MultiFactorAuthentication ;
+    rdfs:label "MedCenter Multi-Factor Authentication" ;
+    :measureDescription "MFA enforced for all remote access sessions and privileged administrative access to the hospital information system and clinical applications, using TOTP and hardware tokens" ;
+    :isAppropriate true ;
+    :isProportionate true ;
+    :isStateOfTheArt true ;
+    :basedOnStandard :CISControls ;
+    :addressesRisk :DataBreachRisk ;
+    :preventsIncident :UnauthorizedAccessIncident ;
+    :appliesToSystem :HospitalInformationSystem .
+
+#   MedCenterHospital — partial-compliance Essential Entity.
+#   Implements 6 of 12 required classes: compliant on (a),(b),(g)×2,(h),(j)-auth.
+#   Missing 6 classes triggers SHACL violations on (c),(d),(e),(f),(i),(j)-comms.
+
+:MedCenterHospital
+    a owl:NamedIndividual, :EssentialEntity ;
+    rdfs:label "MedCenter Hospital" ;
+    rdfs:comment "Healthcare essential entity (Annex I, NIS2 Directive) implementing 6 of the 12 required operational classes. Demonstrates partial compliance: OWL reasoning classifies it as NonCompliantEntity; SHACL Article21ComplianceShape reports six violations against specific Article 21(2) norms." ;
+    :implementsMeasure :MedCenterRiskAnalysisPolicy ;
+    :implementsMeasure :MedCenterIncidentHandling ;
+    :implementsMeasure :MedCenterEncryption ;
+    :implementsMeasure :MedCenterBasicCyberHygiene ;
+    :implementsMeasure :MedCenterTrainingAwareness ;
+    :implementsMeasure :MedCenterMultiFactorAuthentication .
