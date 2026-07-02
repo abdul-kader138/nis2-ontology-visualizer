@@ -112,21 +112,21 @@ def ontology_diagram():
 
 
 def architecture_diagram():
-    img = Image.new('RGB', (1600, 760), '#F8FBFF')
+    img = Image.new('RGB', (1600, 860), '#F8FBFF')
     d = ImageDraw.Draw(img)
     d.text((70, 50), 'System architecture', fill='#16304F', font=font(42, True))
     d.text((70, 102), 'Three layers keep the project simple: ontology data, backend services, and browser UI.', fill='#607086', font=font(22))
 
     boxes = [
-        (110, 240, 390, 400, '#17304F', 'Data layer', 'OWL / Turtle\nSHACL shapes\nExample entities'),
-        (610, 240, 890, 400, '#1E86D8', 'API layer', 'Validation endpoint\nReasoning endpoint\nSPARQL endpoint'),
-        (1110, 240, 1390, 400, '#1F8A70', 'UI layer', 'Graph visualizer\nEntity checker\nResult views'),
+        (110, 240, 390, 430, '#17304F', 'Data layer', 'OWL / Turtle\nSHACL shapes\nExample entities'),
+        (610, 240, 890, 430, '#1E86D8', 'API layer', 'Validation endpoint\nReasoning endpoint\nSPARQL endpoint'),
+        (1110, 240, 1390, 430, '#1F8A70', 'UI layer', 'Graph visualizer\nEntity checker\nResult views'),
     ]
     for x1, y1, x2, y2, color, head, body in boxes:
         d.rounded_rectangle((x1, y1, x2, y2), radius=24, fill='white', outline=color, width=5)
         d.rectangle((x1, y1, x1 + 16, y2), fill=color)
         d.text((x1 + 28, y1 + 22), head, fill='#18304E', font=font(26, True))
-        d.multiline_text((x1 + 28, y1 + 82), body, fill='#1A2433', font=font(22), spacing=8)
+        d.multiline_text((x1 + 28, y1 + 86), body, fill='#1A2433', font=font(20), spacing=10)
 
     arrow = '#9AA8B9'
     d.line((400, 320, 600, 320), fill=arrow, width=6)
@@ -160,8 +160,8 @@ def stack_diagram():
     d.line((900, 275, 930, 275), fill='#9AA8B9', width=6)
     d.line((1180, 275, 1210, 275), fill='#9AA8B9', width=6)
 
-    d.text((90, 450), 'Why this matters', fill='#16304F', font=font(30, True))
-    d.multiline_text((90, 500), 'A small stack keeps the thesis reproducible,\nstandard-based, and easier to explain in a defense.', fill='#1A2433', font=font(22), spacing=8)
+    d.text((90, 500), 'Why this matters', fill='#16304F', font=font(30, True))
+    d.multiline_text((90, 550), 'A small stack keeps the thesis reproducible,\nstandard-based, and easier to explain in a defense.', fill='#1A2433', font=font(22), spacing=8)
 
     img.save(OUT / 'stack_diagram.png')
 
@@ -206,7 +206,7 @@ def main():
     rect81 = p81.rect
     rect85 = p85.rect
     render_crop(81, 'compliance_table.png', fitz.Rect(0, 0, rect81.width, rect81.height * 0.72))
-    render_crop(85, 'comparison_table.png', fitz.Rect(0, 0, rect85.width, rect85.height * 0.58))
+    render_crop(85, 'comparison_table.png', fitz.Rect(0, 0, rect85.width, rect85.height * 0.22))
     workflow_diagram()
     ontology_diagram()
     architecture_diagram()

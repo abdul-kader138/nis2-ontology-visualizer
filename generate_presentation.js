@@ -6,20 +6,21 @@ const OUT_FILE = path.join(__dirname, 'NIS2_Thesis_Presentation_Abdul_Kader.pdf'
 const ASSET_DIR = path.join(__dirname, 'generated_assets');
 const W = 1280;
 const H = 720;
-const M = 54;
+const M = 52;
 
 const C = {
   bg: '#FFFFFF',
-  navy: '#1F2937',
-  blue: '#334155',
-  green: '#365F3D',
-  amber: '#6B5B2A',
-  red: '#7F1D1D',
+  navy: '#111827',
+  blue: '#1E3A8A',
+  green: '#166534',
+  amber: '#92400E',
+  red: '#991B1B',
   text: '#111827',
   muted: '#4B5563',
-  line: '#9CA3AF',
-  footer: '#111827',
-  soft: '#F3F4F6',
+  line: '#CBD5E1',
+  footer: '#374151',
+  soft: '#F8FAFC',
+  accent: '#1E3A8A',
 };
 
 function docFactory() {
@@ -48,79 +49,98 @@ function rootAsset(name) {
 function background(doc) {
   doc.rect(0, 0, W, H).fill(C.bg);
   doc.save();
-  doc.moveTo(M, H - 32).lineTo(W - M, H - 32).lineWidth(0.75).strokeColor(C.line).stroke();
+  doc.moveTo(M, 24).lineTo(W - M, 24).lineWidth(0.8).strokeColor(C.line).stroke();
+  doc.moveTo(M, H - 34).lineTo(W - M, H - 34).lineWidth(0.75).strokeColor(C.line).stroke();
   doc.restore();
 }
 
 function footer(doc, idx, total) {
-  doc.font('Times-Roman').fontSize(9).fillColor(C.muted);
-  doc.text('Abdul Kader | NIS2 Article 21 compliance framework', M, H - 22, { width: 900 });
+  doc.font('Times-Roman').fontSize(8.5).fillColor(C.muted);
+  doc.text('Abdul Kader  |  NIS2 Article 21 compliance framework', M, H - 22, { width: 900 });
   doc.text(`${idx} / ${total}`, W - M - 42, H - 22, { width: 42, align: 'right' });
 }
 
 function slideHeader(doc, title, subtitle = '') {
-  doc.font('Times-Roman').fontSize(10).fillColor(C.muted).text('Master\'s Thesis Presentation', M, 30);
-  doc.font('Times-Bold').fontSize(24).fillColor(C.text).text(title, M, 58);
+  doc.font('Times-Roman').fontSize(8.5).fillColor(C.muted).text("MASTER'S THESIS PRESENTATION", M, 32, {
+    letterSpacing: 1.2,
+  });
+  doc.font('Times-Bold').fontSize(25).fillColor(C.text).text(title, M, 52);
   if (subtitle) {
-    doc.font('Times-Roman').fontSize(11).fillColor(C.muted).text(subtitle, M, 92);
+    doc.font('Times-Roman').fontSize(11.5).fillColor(C.muted).text(subtitle, M, 84);
   }
   doc.save();
-  doc.moveTo(M, 120).lineTo(W - M, 120).lineWidth(0.75).strokeColor(C.line).stroke();
+  doc.moveTo(M, 118).lineTo(M + 180, 118).lineWidth(1.2).strokeColor(C.accent).stroke();
+  doc.moveTo(M + 180, 118).lineTo(W - M, 118).lineWidth(0.8).strokeColor(C.line).stroke();
   doc.restore();
 }
 
 function paragraph(doc, text, x, y, w, size = 13, color = C.text) {
-  doc.font('Times-Roman').fontSize(size).fillColor(color).text(text, x, y, {
+  const actualSize = Math.max(size, 14);
+  doc.font('Times-Roman').fontSize(actualSize).fillColor(color).text(text, x, y, {
     width: w,
-    lineGap: 4,
+    lineGap: 2.5,
   });
 }
 
 function bullets(doc, items, x, y, w, size = 13, gap = 12) {
   let cy = y;
+  const actualSize = Math.max(size, 14);
   for (const item of items) {
-    doc.font('Times-Roman').fontSize(size).fillColor(C.text).text('–', x, cy);
-    doc.font('Times-Roman').fontSize(size).fillColor(C.text).text(item, x + 18, cy, {
-      width: w - 18,
-      lineGap: 4,
+    doc.font('Times-Bold').fontSize(actualSize).fillColor(C.accent).text('•', x, cy);
+    doc.font('Times-Roman').fontSize(actualSize).fillColor(C.text).text(item, x + 16, cy, {
+      width: w - 16,
+      lineGap: 2.5,
     });
-    cy += doc.heightOfString(item, { width: w - 18, lineGap: 4 }) + gap;
+    cy += doc.heightOfString(item, { width: w - 16, lineGap: 2.5 }) + gap;
   }
 }
 
 function imageBox(doc, imagePath, x, y, w, h, caption = '') {
   doc.save();
   doc.rect(x, y, w, h).fill('#FFFFFF');
+  const captionH = caption ? 22 : 0;
   if (fs.existsSync(imagePath)) {
-    doc.image(imagePath, x + 6, y + 6, { fit: [w - 12, h - 28], align: 'center', valign: 'center' });
+    doc.image(imagePath, x + 8, y + 8, { fit: [w - 16, h - captionH - 18], align: 'center', valign: 'center' });
   } else {
     doc.font('Times-Roman').fontSize(12).fillColor(C.red).text('Missing image', x + 20, y + 20);
   }
-  doc.rect(x, y, w, h).lineWidth(0.5).stroke(C.line);
+  doc.rect(x, y, w, h).lineWidth(1).stroke(C.line);
   if (caption) {
-    doc.font('Times-Italic').fontSize(10.5).fillColor(C.muted).text(caption, x + 8, y + h - 18, {
-      width: w - 16,
+    doc.rect(x + 1, y + h - captionH - 1, w - 2, captionH).fill('#FFFFFF');
+    doc.font('Times-Italic').fontSize(8.8).fillColor(C.muted).text(caption, x + 10, y + h - captionH + 4, {
+      width: w - 20,
       align: 'center',
     });
   }
   doc.restore();
 }
 
+function card(doc, x, y, w, h, title, contentFn) {
+  doc.save();
+  doc.rect(x, y, w, h).fill('#FFFFFF').stroke(C.line);
+  doc.rect(x, y, 5, h).fill(C.accent);
+  if (title) {
+    doc.font('Times-Bold').fontSize(13.5).fillColor(C.text).text(title, x + 18, y + 18);
+  }
+  if (contentFn) contentFn(x, y, w, h);
+  doc.restore();
+}
+
 function titleSlide(doc) {
   background(doc);
-  doc.font('Times-Bold').fontSize(34).fillColor(C.text).text(
+  doc.font('Times-Bold').fontSize(31).fillColor(C.text).text(
     'An OWL-Based Ontology for\nNIS2 Article 21 Compliance',
     M,
-    160,
-    { width: 520, lineGap: 8 }
+    150,
+    { width: 520, lineGap: 6 }
   );
   paragraph(
     doc,
     'A formal, machine-readable framework for representing and evaluating cybersecurity risk-management obligations.',
     M,
-    300,
+    286,
     500,
-    16,
+    15.5,
     C.muted
   );
   bullets(
@@ -128,26 +148,26 @@ function titleSlide(doc) {
     [
       'Candidate: Abdul Kader',
       'Supervisor: Prof. Enrico Francesconi',
-      'Focus: research problem, methodology, implementation, findings, and limitations',
+      'Focus: problem, method, implementation, results, and limits',
     ],
     M,
-    365,
+    352,
     520,
-    14
+    13
   );
   doc.save();
-  doc.moveTo(M, 510).lineTo(M + 465, 510).lineWidth(0.75).strokeColor(C.line).stroke();
-  doc.font('Times-Roman').fontSize(12).fillColor(C.text).text('OWL 2 DL', M, 524, { width: 120 });
-  doc.text('SHACL', M + 145, 524, { width: 100 });
-  doc.text('SPARQL', M + 260, 524, { width: 120 });
+  doc.moveTo(M, 496).lineTo(M + 430, 496).lineWidth(0.8).strokeColor(C.line).stroke();
+  doc.font('Times-Bold').fontSize(11.5).fillColor(C.navy).text('OWL 2 DL', M, 512, { width: 120 });
+  doc.font('Times-Bold').fontSize(11.5).fillColor(C.navy).text('SHACL', M + 130, 512, { width: 100 });
+  doc.font('Times-Bold').fontSize(11.5).fillColor(C.navy).text('SPARQL', M + 230, 512, { width: 120 });
   doc.restore();
   imageBox(
     doc,
     asset('cover_page.png'),
     700,
     118,
-    520,
-    500,
+    512,
+    492,
     'Thesis cover page from the dissertation'
   );
 }
@@ -159,10 +179,9 @@ function slide2(doc) {
   bullets(
     doc,
     [
-      'NIS2 Article 21 requires entities to adopt technical, operational, and organizational cybersecurity risk-management measures.',
-      'Compliance assessment is frequently performed through manual document review and fragmented evidence collection.',
-      'Manual assessment can reduce consistency, reproducibility, and transparency in the interpretation of requirements.',
-      'The thesis objective is to represent Article 21 compliance in a machine-readable and explainable form.',
+      'NIS2 Article 21 requires technical, operational, and organizational measures.',
+      'Assessment is often manual and difficult to reproduce consistently.',
+      'The thesis turns Article 21 into a machine-readable model.',
     ],
     M,
     150,
@@ -177,10 +196,9 @@ function slide2(doc) {
   bullets(
     doc,
     [
-      'An OWL 2 DL ontology covering the Article 21(2) measure categories.',
-      'A compliance classification pattern inferred from implemented measures.',
-      'SHACL constraints for detecting absent or incomplete compliance evidence.',
-      'A compact web application for ontology inspection, querying, and visualization.',
+      'OWL 2 DL ontology covering Article 21(2) measure categories.',
+      'SHACL constraints for missing or incomplete evidence.',
+      'A compact web app for inspection, querying, and visualization.',
     ],
     684,
     218,
@@ -188,7 +206,7 @@ function slide2(doc) {
     14,
     10
   );
-  doc.font('Times-Bold').fontSize(24).fillColor(C.text).text('Research objective', 684, 430);
+  doc.font('Times-Bold').fontSize(22).fillColor(C.text).text('Research objective', 684, 430);
   paragraph(
     doc,
     'Transform legal obligations into a structured compliance artifact that can be checked, queried, and explained.',
@@ -206,22 +224,22 @@ function slide3(doc) {
 
   imageBox(
     doc,
-    rootAsset('image-1.jpg'),
+    asset('orca-NIS2-directive-blog-min.png'),
     M,
     150,
     500,
     390,
-    'NIST Cybersecurity Framework functions as a reference model for risk-management thinking'
+    'NIS2 directive context and compliance activity in a policy setting'
   );
 
   imageBox(
     doc,
-    asset('workflow_diagram.png'),
+    asset('cybersecurity-risk-management-frameworks-1024x572.png'),
     600,
     150,
     620,
     300,
-    'Thesis workflow linking legal requirements, semantic modeling, validation, and explainable output'
+    'Recognized cybersecurity frameworks used to organize risk-management thinking'
   );
 
   doc.save();
@@ -229,10 +247,53 @@ function slide3(doc) {
   doc.font('Times-Bold').fontSize(14).fillColor(C.text).text('Analytical relevance', 624, 502);
   paragraph(
     doc,
-    'The presentation connects a regulatory obligation, NIS2 Article 21, with established cybersecurity governance concepts. This makes the ontology easier to interpret as both a legal-compliance artifact and a risk-management model.',
+    'The presentation connects Article 21 with established cybersecurity governance concepts, so the ontology can be read as both a legal artifact and a risk-management model.',
     624,
     528,
     570,
+    12.5
+  );
+  doc.restore();
+}
+
+function slideMeasureMap(doc) {
+  background(doc);
+  slideHeader(doc, 'Article 21 measure map', 'The thematic areas that structure the ontology model');
+
+  imageBox(
+    doc,
+    rootAsset('Cyber-security-risk-management-measures-410x1024.png'),
+    M,
+    150,
+    440,
+    500,
+    'Ten Article 21 thematic areas summarized as a compact visual map'
+  );
+
+  doc.save();
+  doc.rect(530, 150, 698, 500).fill('#FFFFFF').stroke(C.line);
+  doc.font('Times-Bold').fontSize(18).fillColor(C.text).text('Why this image matters', 554, 176);
+  bullets(
+    doc,
+    [
+      'It gives a compact overview of the Article 21 scope before the ontology is introduced.',
+      'It is directly aligned with the legal measure categories that the thesis formalizes.',
+      'It supports the claim that the model is grounded in the structure of the directive, not an abstract re-labeling exercise.',
+      'The ontology then refines these areas into the twelve operational classes used for reasoning.',
+    ],
+    554,
+    218,
+    630,
+    13,
+    10
+  );
+  doc.font('Times-Bold').fontSize(14).fillColor(C.blue).text('Bridge to the model', 554, 468);
+  paragraph(
+    doc,
+    'This visual is justified because it maps directly to the thesis scope: the ontology, validation rules, and compliance output are all derived from these thematic areas.',
+    554,
+    494,
+    610,
     12.5
   );
   doc.restore();
@@ -255,10 +316,10 @@ function slide4(doc) {
   bullets(
     doc,
     [
-      'A design-science methodology is used: construct the artifact and evaluate its behavior against representative cases.',
-      'OWL 2 DL provides the semantic structure required for classification and reasoning.',
-      'SHACL validates whether required compliance evidence is present and structurally complete.',
-      'SPARQL enables inspection, querying, and lightweight reporting over the knowledge graph.',
+      'Design-science: build the artifact and evaluate it against representative cases.',
+      'OWL 2 DL supports classification and reasoning.',
+      'SHACL checks whether required evidence is present.',
+      'SPARQL supports inspection and querying.',
     ],
     M,
     522,
@@ -272,7 +333,7 @@ function slide4(doc) {
   doc.font('Times-Bold').fontSize(14).fillColor(C.text).text('Modeling decision', 684, 534);
   paragraph(
     doc,
-    'The thesis models the ten legal points as twelve operational classes, separating point (g) and point (j) where the legal wording combines distinct compliance concerns.',
+    'The thesis models the ten legal points as twelve operational classes, separating points (g) and (j) where the wording combines distinct concerns.',
     684,
     558,
     500,
@@ -304,7 +365,6 @@ function slide5(doc) {
       'Entity and RiskManagementMeasure',
       'Technical, Operational, Organizational measures',
       'CybersecurityRisk and SecurityIncident',
-      'SecurityStandard and NetworkInformationSystem',
     ],
     874,
     216,
@@ -316,9 +376,9 @@ function slide5(doc) {
   bullets(
     doc,
     [
-      'Preserves the link between legal provisions and technical model elements.',
+      'Preserves the link between legal provisions and model elements.',
       'Allows the reasoner to infer compliance-relevant classifications.',
-      'Supports explanation of outcomes rather than only a binary result.',
+      'Supports explanation rather than only a binary result.',
     ],
     874,
     430,
@@ -358,7 +418,7 @@ function thesisOntologyEvidenceSlide(doc) {
   doc.font('Times-Bold').fontSize(14).fillColor(C.text).text('Interpretation', 594, 502);
   paragraph(
     doc,
-    'These figures show that the thesis artifact is not only conceptual. The ontology was implemented in OWL, inspected in Protégé, and structured around a compliance class whose definition requires coverage of the operational Article 21 measure categories.',
+    'These figures show that the thesis artifact is implemented, not just conceptual. The ontology was built in OWL, inspected in Protégé, and centered on a compliance class covering the Article 21 measure categories.',
     594,
     528,
     590,
@@ -376,35 +436,34 @@ function slide6(doc) {
     asset('compliance_table.png'),
     M,
     150,
-    760,
+    710,
     500,
     'Worked example from the thesis showing the partial healthcare case and verdicts'
   );
 
   doc.save();
-  doc.rect(850, 150, 380, 230).fill('#FFFFFF').stroke(C.line);
-  doc.font('Times-Bold').fontSize(15).fillColor(C.text).text('Observed outcome', 874, 176);
-  doc.font('Times-Bold').fontSize(26).fillColor(C.green).text('12 / 12', 874, 220);
-  paragraph(doc, 'Full coverage leads to the inferred `CompliantEntity` class.', 874, 260, 320, 12.5);
-  doc.font('Times-Bold').fontSize(22).fillColor(C.amber).text('6 / 12', 874, 310);
-  paragraph(doc, 'Partial coverage stays non-compliant and makes the gaps visible.', 874, 342, 320, 12.5);
+  doc.rect(782, 150, 446, 230).fill('#FFFFFF').stroke(C.line);
+  doc.font('Times-Bold').fontSize(16).fillColor(C.text).text('Observed outcome', 806, 176);
+  doc.font('Times-Bold').fontSize(30).fillColor(C.green).text('12 / 12', 806, 220);
+  paragraph(doc, 'Full coverage yields the inferred `CompliantEntity` class.', 806, 262, 394, 13.5);
+  doc.font('Times-Bold').fontSize(24).fillColor(C.amber).text('6 / 12', 806, 304);
+  paragraph(doc, 'Partial coverage stays non-compliant and exposes the gaps.', 806, 342, 394, 13.5);
   doc.restore();
 
   doc.save();
-  doc.rect(850, 410, 380, 240).fill('#FFFFFF').stroke(C.line);
-  doc.font('Times-Bold').fontSize(15).fillColor(C.text).text('Interpretation', 874, 436);
+  doc.rect(782, 410, 446, 240).fill('#FFFFFF').stroke(C.line);
+  doc.font('Times-Bold').fontSize(16).fillColor(C.text).text('Interpretation', 806, 436);
   bullets(
     doc,
     [
-      'The result represents modeled coverage, not formal legal certification.',
-      'Each missing requirement category is identified explicitly.',
-      'Legal judgment remains separate from the computational model.',
+      'The result measures modeled coverage, not legal certification.',
+      'Missing requirement categories are identified explicitly.',
     ],
-    874,
+    806,
     476,
-    320,
-    12.5,
-    10
+    394,
+    13,
+    12
   );
   doc.restore();
 }
@@ -418,44 +477,42 @@ function slide7(doc) {
     asset('comparison_table.png'),
     M,
     150,
-    760,
+    720,
     500,
     'Comparison from the thesis: OWL + SHACL + SPARQL in one demonstrator'
   );
 
   doc.save();
-  doc.rect(850, 150, 380, 240).fill('#FFFFFF').stroke(C.line);
-  doc.font('Times-Bold').fontSize(15).fillColor(C.text).text('Strength', 874, 176);
+  doc.rect(800, 150, 428, 240).fill('#FFFFFF').stroke(C.line);
+  doc.font('Times-Bold').fontSize(16).fillColor(C.text).text('Strength', 824, 176);
   bullets(
     doc,
     [
       'Formal semantics through OWL 2 DL',
       'Constraint validation through SHACL',
-      'Transparent inspection through SPARQL queries',
     ],
-    874,
+    824,
     214,
-    320,
-    12.5,
-    10
+    380,
+    13,
+    12
   );
   doc.restore();
 
   doc.save();
-  doc.rect(850, 410, 380, 240).fill('#FFFFFF').stroke(C.line);
-  doc.font('Times-Bold').fontSize(15).fillColor(C.text).text('Limitations', 874, 436);
+  doc.rect(800, 410, 428, 240).fill('#FFFFFF').stroke(C.line);
+  doc.font('Times-Bold').fontSize(16).fillColor(C.text).text('Limitations', 824, 436);
   bullets(
     doc,
     [
       'Reasoning is demonstrated within a bounded prototype setting.',
-      'The artifact is not a complete production compliance-management system.',
-      'Evidence lifecycle management, provenance, and governance workflows remain future work.',
+      'Production-grade evidence governance remains future work.',
     ],
-    874,
+    824,
     474,
-    320,
-    12.5,
-    10
+    380,
+    13,
+    12
   );
   doc.restore();
 }
@@ -470,19 +527,18 @@ function slide8(doc) {
     M,
     155,
     1160,
-    340,
+    380,
     'Three-tier view of the thesis project: data, API, and UI'
   );
 
   bullets(
     doc,
     [
-      'The ontology is stored as RDF/OWL and loaded by the backend service.',
+      'The ontology is stored as RDF/OWL and loaded by the backend.',
       'The API exposes validation, reasoning, and ontology-data endpoints.',
-      'The browser interface supports graph exploration and preliminary compliance checks.',
     ],
     M,
-    520,
+    558,
     1140,
     14,
     10
@@ -499,7 +555,7 @@ function slide9(doc) {
     M,
     150,
     1160,
-    430,
+    450,
     'Three research questions presented early, in a compact academic style'
   );
 
@@ -508,10 +564,9 @@ function slide9(doc) {
     [
       'RQ1: How can Article 21(2) be represented as a layered ontology?',
       'RQ2: Which OWL axiom pattern can express compliance coverage?',
-      'RQ3: How can SHACL validation complement OWL reasoning?',
     ],
     M,
-    600,
+    616,
     1140,
     13,
     10
@@ -528,21 +583,19 @@ function slide10(doc) {
     M,
     150,
     1160,
-    430,
-    'OWL, Protégé, SHACL, SPARQL, and a small Express backend'
+    320
   );
 
   bullets(
     doc,
     [
-      'The stack is based on established and reproducible Semantic Web technologies.',
+      'The stack is based on reproducible Semantic Web technologies.',
       'It keeps the thesis grounded in standards-based knowledge representation.',
-      'It minimizes custom infrastructure so the research contribution remains clear.',
     ],
     M,
-    600,
+    500,
     1140,
-    13,
+    14,
     10
   );
 }
@@ -566,7 +619,7 @@ function slide11(doc) {
   doc.font('Times-Bold').fontSize(14).fillColor(C.text).text('Implementation note', M + 22, 532);
   paragraph(
     doc,
-    'The prototype loads the ontology, exposes validation and reasoning endpoints, and presents results in a browser-based view suitable for inspection and demonstration.',
+    'The prototype loads the ontology, exposes validation and reasoning endpoints, and presents results in a browser view for inspection and demonstration.',
     M + 22,
     558,
     1110,
@@ -597,7 +650,6 @@ function thesisGraphEvidenceSlide(doc) {
     [
       'Entities are connected to implemented measures.',
       'Measures are connected to systems, risks, and standards.',
-      'The visualization makes the semantic model inspectable for a defense audience.',
     ],
     764,
     216,
@@ -612,7 +664,7 @@ function thesisGraphEvidenceSlide(doc) {
   doc.font('Times-Bold').fontSize(14).fillColor(C.text).text('Connection to the research claim', 764, 430);
   paragraph(
     doc,
-    'This screenshot demonstrates the practical bridge between the ontology vocabulary and the web-based inspection layer. It supports the claim that the model can be queried and explained, not only stored as a static file.',
+    'This screenshot shows the bridge between the ontology vocabulary and the web-based inspection layer. It supports the claim that the model can be queried and explained, not only stored as a static file.',
     764,
     456,
     420,
@@ -667,8 +719,7 @@ function thesisQueryEvidenceSlide(doc) {
     doc,
     [
       'The ontology can be inspected through query patterns.',
-      'Standards associated with a compliant entity can be retrieved from graph relations.',
-      'Competency questions provide a testable link between research requirements and system behavior.',
+      'Standards linked to a compliant entity can be retrieved from the graph.',
     ],
     814,
     216,
@@ -682,7 +733,7 @@ function thesisQueryEvidenceSlide(doc) {
   doc.rect(790, 400, 430, 120).fill('#FFFFFF').stroke(C.line);
   paragraph(
     doc,
-    'This slide makes the query component visible, completing the educational sequence: ontology representation, validation, reasoning, and information retrieval.',
+    'This slide completes the sequence: ontology representation, validation, reasoning, and information retrieval.',
     814,
     426,
     370,
@@ -700,7 +751,7 @@ function slide12(doc) {
   doc.font('Times-Bold').fontSize(18).fillColor(C.text).text('Takeaway', M + 24, 176);
   paragraph(
     doc,
-    'This thesis demonstrates that NIS2 Article 21 compliance can be represented as a formal ontology, validated with SHACL shapes, queried with SPARQL, and explained through a compact web application.',
+    'This thesis shows that NIS2 Article 21 compliance can be represented as a formal ontology, validated with SHACL shapes, queried with SPARQL, and explained through a compact web application.',
     M + 24,
     214,
     1110,
@@ -714,9 +765,8 @@ function slide12(doc) {
   bullets(
     doc,
     [
-      'Manual verification can be made more consistent through formal representation.',
-      'A traceable ontology provides a structured bridge between legal text and compliance evidence.',
-      'The prototype demonstrates explicit gap detection and explainable compliance outcomes.',
+      'Manual verification becomes more consistent through formal representation.',
+      'A traceable ontology bridges legal text and compliance evidence.',
     ],
     M + 24,
     424,
@@ -735,20 +785,19 @@ function slide13(doc) {
   slideHeader(doc, 'Future work', 'Research extensions and validation requirements');
 
   doc.save();
-  doc.rect(M, 160, 560, 420).fill('#FFFFFF').stroke(C.line);
-  doc.font('Times-Bold').fontSize(15).fillColor(C.text).text('Next steps', M + 24, 186);
+  doc.rect(M, 160, 520, 420).fill('#FFFFFF').stroke(C.line);
+  doc.font('Times-Bold').fontSize(16).fillColor(C.text).text('Next steps', M + 24, 186);
   bullets(
     doc,
     [
       'Integrate the prototype with a standards-complete reasoner.',
       'Add evidence, provenance, and review metadata.',
-      'Extend the model beyond Article 21 to other NIS2 duties.',
-      'Evaluate the system with realistic organizational data and user feedback.',
+      'Evaluate the system with realistic organizational data.',
     ],
     M + 24,
     226,
-    500,
-    13,
+    460,
+    13.5,
     10
   );
   doc.restore();
@@ -756,21 +805,29 @@ function slide13(doc) {
   imageBox(
     doc,
     asset('comparison_table.png'),
-    660,
+    620,
     160,
-    560,
-    420,
-    'A concise reminder that the thesis combines semantics, validation, and querying'
+    608,
+    320
+  );
+
+  paragraph(
+    doc,
+    'A concise reminder that the thesis combines semantics, validation, and querying.',
+    620,
+    500,
+    608,
+    12.5
   );
 
   doc.save();
-  doc.rect(M, 610, 1160, 48).fill('#FFFFFF').stroke(C.line);
-  doc.font('Times-Bold').fontSize(12).fillColor(C.blue).text('Closing point', M + 18, 626);
-  doc.font('Times-Roman').fontSize(11).fillColor(C.text).text(
-    'The thesis should be understood as a formal compliance framework and research demonstrator, not as a finished production system.',
+  doc.rect(M, 604, 1160, 56).fill('#FFFFFF').stroke(C.line);
+  doc.font('Times-Bold').fontSize(12).fillColor(C.text).text('Closing point', M + 18, 621);
+  doc.font('Times-Roman').fontSize(11.5).fillColor(C.text).text(
+    'This work is a formal compliance demonstrator, not a production deployment.',
     M + 120,
-    626,
-    { width: 970 }
+    620,
+    { width: 980 }
   );
   doc.restore();
 }
@@ -780,6 +837,7 @@ async function main() {
   const slides = [
     titleSlide,
     slide2,
+    slideMeasureMap,
     slide3,
     slide4,
     slide5,
